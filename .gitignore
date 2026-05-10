@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.local
+data/embeddings.json
+.cache/
+*.log
+
+# Sample extracted reference (kept in samples/ for reference; ignore the unzipped copy)
+samples/extracted/

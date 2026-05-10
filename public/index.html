@@ -1,0 +1,3444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>阳明何为 · 知行合一活态门户</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=EB+Garamond:wght@400;500&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js"></script>
+<style>
+  :root {
+    --paper:        #f4ecdc;
+    --paper-deep:   #ebe0c9;
+    --paper-edge:   #d8c8a4;
+    --ink:          #1a1612;
+    --ink-soft:     #3d362d;
+    --ink-mute:     #6b5d4b;
+    --vermillion:   #a8261b;
+    --vermillion-d: #7d1810;
+    --vermillion-l: #c63828;
+    --bronze:       #8b6914;
+    --aged-gold:    #b8954a;
+    --jade:         #4a6741;
+    --jade-soft:    #7a8f6b;
+    --shadow-ink:   rgba(26, 22, 18, 0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Serif SC', 'EB Garamond', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.85;
+    font-size: 16.5px;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(168, 38, 27, 0.025) 0%, transparent 40%),
+      radial-gradient(circle at 80% 60%, rgba(139, 105, 20, 0.04) 0%, transparent 50%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.05 0 0 0 0.06 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  }
+
+  ::selection { background: var(--vermillion); color: var(--paper); }
+
+  .han-display { font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif; font-weight: 400; letter-spacing: 0.04em; }
+  h1, h2, h3, h4, h5 { font-family: 'Noto Serif SC', serif; font-weight: 500; line-height: 1.25; color: var(--ink); }
+
+  /* ============ SEAL ============ */
+  .seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vermillion);
+    color: var(--paper);
+    font-family: 'Ma Shan Zheng', serif;
+    border: 2px solid var(--vermillion-d);
+    border-radius: 4px;
+    padding: 0.5em 0.55em;
+    line-height: 1;
+    transform: rotate(-3deg);
+    box-shadow: 1px 2px 0 rgba(125, 24, 16, 0.3);
+    position: relative;
+    user-select: none;
+    letter-spacing: 0.05em;
+  }
+  .seal::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border: 1px solid rgba(244, 236, 220, 0.4);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .seal-vertical {
+    writing-mode: vertical-rl;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    padding: 0.6em 0.4em;
+  }
+
+  /* ============ NAV ============ */
+  nav.topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    background: rgba(244, 236, 220, 0.82);
+    border-bottom: 1px solid rgba(26, 22, 18, 0.08);
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  nav.topbar .brand { display: flex; align-items: center; gap: 14px; }
+  nav.topbar .brand .seal { transform: rotate(-2deg); font-size: 13px; }
+  nav.topbar .brand-text {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 17px;
+    letter-spacing: 0.18em;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  nav.topbar .brand-text small {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--ink-mute);
+    margin-top: 3px;
+    font-weight: 400;
+  }
+  nav.topbar .nav-mid {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15px;
+    letter-spacing: 0.25em;
+  }
+  nav.topbar .nav-mid a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+    transition: all 0.3s ease;
+  }
+  nav.topbar .nav-mid a:hover { color: var(--vermillion); border-bottom-color: var(--vermillion); }
+  @media (max-width: 1000px) { nav.topbar .nav-mid { display: none; } }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .script-toggle {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--ink-soft);
+    border-radius: 100px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.4);
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    font-weight: 500;
+    user-select: none;
+  }
+  .script-toggle button {
+    padding: 6px 14px;
+    background: transparent;
+    border: none;
+    color: var(--ink-mute);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.1em;
+    font-family: inherit;
+    font-size: inherit;
+  }
+  .script-toggle button.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .script-toggle button:hover:not(.active) { color: var(--vermillion); }
+
+  .login-btn {
+    padding: 8px 20px;
+    background: var(--vermillion);
+    color: var(--paper);
+    text-decoration: none;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    border-radius: 100px;
+    border: 1px solid var(--vermillion-d);
+    transition: all 0.3s ease;
+  }
+  .login-btn:hover { background: var(--vermillion-l); transform: translateY(-1px); }
+  @media (max-width: 700px) { .login-btn { display: none; } }
+
+  /* ============ HERO ============ */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    align-items: center;
+    padding: 130px 80px 80px 80px;
+    position: relative;
+    gap: 60px;
+  }
+  @media (max-width: 1100px) { .hero { grid-template-columns: 1fr; padding: 120px 36px 60px; } }
+
+  .hero-left { position: relative; z-index: 2; }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 38px;
+    color: var(--ink-mute);
+    font-size: 15px;
+    letter-spacing: 0.25em;
+  }
+  .hero-eyebrow .line { width: 60px; height: 1px; background: var(--bronze); }
+
+  .hero-han {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: clamp(110px, 15vw, 200px);
+    line-height: 0.95;
+    color: var(--ink);
+    letter-spacing: 0.05em;
+    margin-bottom: 28px;
+    position: relative;
+    display: inline-block;
+  }
+  .hero-han::after {
+    content: '陽';
+    position: absolute;
+    right: -90px;
+    top: 50%;
+    transform: translateY(-50%) rotate(8deg);
+    font-size: 130px;
+    color: var(--vermillion);
+    opacity: 0.12;
+    pointer-events: none;
+  }
+
+  .hero h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 500;
+    font-size: clamp(34px, 4.4vw, 56px);
+    line-height: 1.3;
+    margin-bottom: 26px;
+    letter-spacing: 0.04em;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--vermillion);
+    font-weight: 600;
+  }
+
+  .hero-tagline {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 19px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin-bottom: 16px;
+    line-height: 1.85;
+    letter-spacing: 0.06em;
+  }
+  .hero-tagline em { font-style: normal; color: var(--vermillion); font-weight: 500; }
+
+  .hero-tagline-classical {
+    font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+    color: var(--ink-mute);
+    font-size: 17px;
+    letter-spacing: 0.18em;
+    max-width: 640px;
+    margin-bottom: 36px;
+    line-height: 1.7;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 36px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .hero-stat {
+    border-left: 2px solid var(--vermillion);
+    padding-left: 14px;
+  }
+  .hero-stat .num {
+    font-family: 'EB Garamond', serif;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: 0.05em;
+  }
+  .hero-stat .lbl {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12px;
+    color: var(--ink-mute);
+    letter-spacing: 0.2em;
+    margin-top: 6px;
+  }
+
+  .hero-actions { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+
+  .btn-primary, .btn-ghost {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px;
+    letter-spacing: 0.4em;
+    padding: 16px 32px 16px 38px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-weight: 500;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+  }
+  .btn-primary:hover {
+    background: var(--vermillion);
+    border-color: var(--vermillion);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(168, 38, 27, 0.25);
+  }
+  .btn-primary .arrow {
+    font-family: 'EB Garamond', serif;
+    font-size: 18px;
+    letter-spacing: 0;
+    opacity: 0.85;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink-soft);
+  }
+  .btn-ghost:hover { border-color: var(--vermillion); color: var(--vermillion); }
+
+  /* ============ HERO RIGHT (vertical scroll) ============ */
+  .hero-right {
+    position: relative;
+    height: 540px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: stretch;
+  }
+  @media (max-width: 1100px) { .hero-right { height: 280px; justify-content: center; } }
+
+  .vertical-scroll {
+    background: linear-gradient(170deg, var(--paper-deep), var(--paper-edge) 70%, var(--paper-deep));
+    border: 1px solid rgba(139, 105, 20, 0.25);
+    box-shadow: inset 0 0 60px rgba(139, 105, 20, 0.08), 0 12px 40px var(--shadow-ink);
+    padding: 40px 30px;
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+    border-radius: 2px;
+  }
+  .vertical-scroll::before, .vertical-scroll::after {
+    content: '';
+    position: absolute;
+    left: -8px; right: -8px;
+    height: 14px;
+    background: linear-gradient(90deg, var(--bronze), var(--aged-gold), var(--bronze));
+    border-radius: 2px;
+  }
+  .vertical-scroll::before { top: -7px; }
+  .vertical-scroll::after { bottom: -7px; }
+
+  .vcol {
+    writing-mode: vertical-rl;
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 26px;
+    letter-spacing: 0.4em;
+    line-height: 1.6;
+    color: var(--ink);
+    height: 100%;
+  }
+  .vcol.muted { color: var(--ink-mute); font-size: 22px; }
+  .vcol.tiny { font-family: 'Noto Serif SC', serif; font-size: 13px; color: var(--ink-mute); letter-spacing: 0.3em; }
+
+  .scroll-seal { position: absolute; bottom: 26px; left: 22px; }
+
+  /* ============ SECTION SHELL ============ */
+  section { padding: 120px 80px; position: relative; }
+  @media (max-width: 800px) { section { padding: 80px 28px; } }
+
+  .section-head { margin-bottom: 70px; max-width: 920px; }
+
+  .section-eyebrow {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    color: var(--vermillion);
+    letter-spacing: 0.4em;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .section-eyebrow .num {
+    font-family: 'EB Garamond', serif;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    color: var(--ink-mute);
+  }
+
+  .section-title {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 500;
+    font-size: clamp(36px, 4.5vw, 58px);
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: 0.04em;
+  }
+  .section-title .han {
+    font-family: 'Ma Shan Zheng', serif;
+    color: var(--vermillion);
+    margin-right: 22px;
+    font-weight: 400;
+  }
+  .section-sub {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 19px;
+    color: var(--ink-soft);
+    max-width: 760px;
+    line-height: 1.85;
+    letter-spacing: 0.04em;
+  }
+
+  /* ============ FOUR PILLARS ============ */
+  .four-pillars {
+    background: linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
+    border-top: 1px solid rgba(26, 22, 18, 0.08);
+    border-bottom: 1px solid rgba(26, 22, 18, 0.08);
+  }
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-left: 1px solid rgba(26, 22, 18, 0.12);
+  }
+  @media (max-width: 1000px) { .pillars-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .pillars-grid { grid-template-columns: 1fr; } }
+
+  .pillar {
+    padding: 50px 36px;
+    border-right: 1px solid rgba(26, 22, 18, 0.12);
+    border-top: 1px solid rgba(26, 22, 18, 0.12);
+    position: relative;
+    transition: background 0.4s ease;
+  }
+  .pillar:hover { background: rgba(168, 38, 27, 0.03); }
+
+  .pillar-num {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    letter-spacing: 0.4em;
+    color: var(--vermillion);
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+  .pillar-han {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 38px;
+    color: var(--ink);
+    margin-bottom: 18px;
+    line-height: 1.1;
+  }
+  .pillar-saying {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px;
+    color: var(--ink-soft);
+    margin-bottom: 22px;
+    line-height: 1.55;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+  .pillar-desc {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14.5px;
+    color: var(--ink-mute);
+    line-height: 1.85;
+    letter-spacing: 0.03em;
+  }
+  .pillar-fn {
+    margin-top: 26px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: var(--vermillion);
+    letter-spacing: 0.3em;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(168, 38, 27, 0.3);
+    font-weight: 500;
+  }
+
+  /* ============ DELIBERATION ============ */
+  .deliberation { background: var(--paper); }
+
+  /* SCENARIO PICKER */
+  .scenario-picker {
+    margin-bottom: 40px;
+  }
+  .scenario-picker-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .scenario-picker-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 17px;
+    letter-spacing: 0.18em;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .scenario-picker-title small {
+    color: var(--ink-mute);
+    font-weight: 400;
+    font-size: 13px;
+    margin-left: 8px;
+    letter-spacing: 0.1em;
+  }
+  .ai-generate-btn {
+    background: var(--paper-deep);
+    border: 1px solid var(--bronze);
+    color: var(--ink);
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 100px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ai-generate-btn:hover { background: var(--vermillion); color: var(--paper); border-color: var(--vermillion); }
+  .ai-generate-btn .pulse {
+    width: 6px; height: 6px;
+    background: var(--vermillion);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .ai-generate-btn:hover .pulse { background: var(--paper); }
+
+  .scenario-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 1100px) { .scenario-cards { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 500px) { .scenario-cards { grid-template-columns: 1fr; } }
+
+  .scenario-card {
+    background: var(--paper-deep);
+    border: 1px solid rgba(26, 22, 18, 0.1);
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+    position: relative;
+    text-align: left;
+    font-family: inherit;
+    color: var(--ink-soft);
+  }
+  .scenario-card:hover {
+    border-color: var(--vermillion);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px var(--shadow-ink);
+  }
+  .scenario-card.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .scenario-card.active .sc-title { color: var(--paper); }
+  .scenario-card.active .sc-cat { color: var(--aged-gold); border-color: var(--aged-gold); }
+  .scenario-card.active .sc-excerpt { color: rgba(244, 236, 220, 0.7); }
+
+  .sc-cat {
+    display: inline-block;
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 14px;
+    color: var(--vermillion);
+    border: 1px solid var(--vermillion);
+    padding: 1px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+  .sc-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.4;
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+  }
+  .sc-excerpt {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .interface-shell {
+    display: grid;
+    grid-template-columns: 1.05fr 1.4fr;
+    gap: 48px;
+    margin-top: 30px;
+  }
+  @media (max-width: 1100px) { .interface-shell { grid-template-columns: 1fr; } }
+
+  .scenario-input {
+    background: linear-gradient(165deg, #faf3e2 0%, #f4ecdc 100%);
+    border: 1px solid var(--paper-edge);
+    padding: 38px;
+    box-shadow: 0 6px 28px var(--shadow-ink);
+    position: relative;
+    border-radius: 2px;
+  }
+  .scenario-input::before {
+    content: '笺';
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 28px;
+    color: var(--vermillion);
+    opacity: 0.4;
+  }
+  .scenario-label {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 6px;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+  }
+  .scenario-label-sub {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: var(--ink-mute);
+    letter-spacing: 0.1em;
+    margin-bottom: 22px;
+  }
+  textarea.scenario-textarea {
+    width: 100%;
+    min-height: 240px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(26, 22, 18, 0.15);
+    padding: 18px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15.5px;
+    line-height: 1.85;
+    color: var(--ink);
+    resize: vertical;
+    outline: none;
+    border-radius: 2px;
+    background-image: linear-gradient(rgba(26, 22, 18, 0.06) 1px, transparent 1px);
+    background-size: 100% 32px;
+    transition: border-color 0.3s ease;
+    letter-spacing: 0.04em;
+  }
+  textarea.scenario-textarea:focus { border-color: var(--vermillion); }
+  textarea.scenario-textarea::placeholder { color: var(--ink-mute); }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .word-count {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12px;
+    color: var(--ink-mute);
+    letter-spacing: 0.1em;
+  }
+  .word-count em { color: var(--vermillion); font-style: normal; font-weight: 500; }
+
+  .privacy-pledge {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    letter-spacing: 0.1em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .privacy-pledge::before {
+    content: '🔒';
+    font-size: 11px;
+    filter: grayscale(1) opacity(0.6);
+  }
+
+  .submit-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .submit-row .helper {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: var(--ink-mute);
+    letter-spacing: 0.1em;
+  }
+  .model-select {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    background: transparent;
+    border: 1px solid rgba(26, 22, 18, 0.2);
+    padding: 6px 12px;
+    border-radius: 4px;
+    color: var(--ink-soft);
+    letter-spacing: 0.05em;
+    cursor: pointer;
+  }
+
+  /* ============ DELIBERATION OUTPUT ============ */
+  .deliberation-output {
+    background: var(--paper);
+    border: 1px solid rgba(26, 22, 18, 0.1);
+    padding: 0;
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 6px 28px var(--shadow-ink);
+  }
+  .deliberation-header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 22px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .deliberation-header .title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px;
+    letter-spacing: 0.2em;
+    font-weight: 500;
+  }
+  .deliberation-header .han {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 16px;
+    letter-spacing: 0.25em;
+    color: var(--aged-gold);
+  }
+  .pulse-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--vermillion-l);
+    border-radius: 50%;
+    margin-right: 10px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+
+  .scenario-card-display {
+    background: rgba(168, 38, 27, 0.04);
+    border-bottom: 1px dashed rgba(168, 38, 27, 0.25);
+    padding: 24px 28px 24px 50px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15.5px;
+    color: var(--ink-soft);
+    line-height: 1.85;
+    position: relative;
+    letter-spacing: 0.03em;
+  }
+  .scenario-card-display::before {
+    content: '「';
+    position: absolute;
+    left: 14px; top: 14px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 32px;
+    color: var(--vermillion);
+    opacity: 0.5;
+  }
+  .scenario-card-display .meta {
+    margin-top: 12px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12px;
+    color: var(--ink-mute);
+    letter-spacing: 0.3em;
+  }
+
+  .stage {
+    padding: 30px 28px;
+    border-bottom: 1px solid rgba(26, 22, 18, 0.08);
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 24px;
+    transition: background 0.3s ease;
+  }
+  .stage:hover { background: rgba(168, 38, 27, 0.02); }
+  .stage:last-child { border-bottom: none; }
+
+  .stage-marker { text-align: center; padding-top: 4px; }
+  .stage-marker .han {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 36px;
+    color: var(--vermillion);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stage-marker .num {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    color: var(--ink-mute);
+    font-weight: 500;
+  }
+
+  .stage-content h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 21px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+  }
+  .stage-content .stage-saying {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    color: var(--vermillion);
+    letter-spacing: 0.18em;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .stage-content p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15.5px;
+    color: var(--ink-soft);
+    line-height: 1.95;
+    margin-bottom: 12px;
+    letter-spacing: 0.03em;
+  }
+  .stage-content em { color: var(--vermillion); font-style: normal; font-weight: 500; }
+  .stage-content .quoted {
+    border-left: 3px solid var(--vermillion);
+    padding-left: 18px;
+    margin: 18px 0;
+    font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.85;
+    letter-spacing: 0.08em;
+  }
+  .stage-content .quoted .src {
+    display: block;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    margin-top: 8px;
+    letter-spacing: 0.15em;
+    font-weight: 400;
+  }
+  .stage-content .sub-line {
+    padding-left: 16px;
+    border-left: 1px solid rgba(168, 38, 27, 0.2);
+    margin: 4px 0;
+  }
+
+  .action-card {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 34px 28px;
+  }
+  .action-card .label {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: var(--aged-gold);
+    letter-spacing: 0.4em;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .action-card h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 26px;
+    color: var(--paper);
+    font-weight: 500;
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+  }
+  .action-card .han-action {
+    font-family: 'Ma Shan Zheng', serif;
+    color: var(--vermillion-l);
+    font-size: 28px;
+    margin-right: 14px;
+    font-weight: 400;
+  }
+  .action-list { list-style: none; }
+  .action-list li {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15.5px;
+    line-height: 1.9;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(244, 236, 220, 0.12);
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 14px;
+    align-items: start;
+    letter-spacing: 0.03em;
+  }
+  .action-list li:last-child { border-bottom: none; }
+  .action-list .step {
+    font-family: 'EB Garamond', serif;
+    color: var(--aged-gold);
+    font-size: 18px;
+    font-style: italic;
+  }
+  .action-list .han-tag {
+    display: inline-block;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12px;
+    color: var(--aged-gold);
+    margin-left: 10px;
+    letter-spacing: 0.25em;
+    padding: 2px 10px;
+    border: 1px solid rgba(184, 149, 74, 0.4);
+    border-radius: 100px;
+    font-weight: 500;
+  }
+
+  .commit-row {
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px solid rgba(244, 236, 220, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .commit-row .commit-text {
+    font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+    font-size: 18px;
+    color: rgba(244, 236, 220, 0.85);
+    letter-spacing: 0.1em;
+  }
+  .commit-btn {
+    background: var(--vermillion);
+    color: var(--paper);
+    border: none;
+    padding: 13px 28px;
+    font-family: 'Noto Serif SC', serif;
+    letter-spacing: 0.4em;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+  .commit-btn:hover { background: var(--vermillion-l); transform: translateY(-1px); }
+
+  /* ============ CASE LIBRARY ============ */
+  .case-library {
+    background: linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
+    border-top: 1px solid rgba(26, 22, 18, 0.08);
+    border-bottom: 1px solid rgba(26, 22, 18, 0.08);
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(26, 22, 18, 0.08);
+    align-items: center;
+  }
+  .filter-bar .filter-label {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: var(--ink-mute);
+    letter-spacing: 0.2em;
+    margin-right: 8px;
+    font-weight: 500;
+  }
+  .filter-chip {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    padding: 6px 16px;
+    border: 1px solid rgba(26, 22, 18, 0.2);
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-radius: 100px;
+    letter-spacing: 0.15em;
+    transition: all 0.25s ease;
+    font-weight: 500;
+  }
+  .filter-chip:hover { border-color: var(--vermillion); color: var(--vermillion); }
+  .filter-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .filter-spacer { flex: 1; min-width: 20px; }
+  .filter-meta {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    letter-spacing: 0.15em;
+  }
+  .filter-meta em { color: var(--vermillion); font-style: normal; font-weight: 500; }
+
+  .case-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 1000px) { .case-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 700px) { .case-grid { grid-template-columns: 1fr; } }
+
+  .case-tile {
+    background: var(--paper);
+    border: 1px solid rgba(26, 22, 18, 0.1);
+    padding: 26px 24px;
+    border-radius: 2px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .case-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px var(--shadow-ink);
+    border-color: var(--vermillion);
+  }
+  .case-tile-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .case-tile-cat {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 16px;
+    color: var(--vermillion);
+    border: 1px solid var(--vermillion);
+    padding: 2px 12px;
+    border-radius: 100px;
+    letter-spacing: 0.1em;
+  }
+  .case-tile-meta {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    letter-spacing: 0.15em;
+  }
+  .case-tile h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+  }
+  .case-tile p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.85;
+    margin-bottom: 16px;
+    letter-spacing: 0.02em;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .case-tile-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(26, 22, 18, 0.15);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .case-tile-diag {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12.5px;
+    color: var(--vermillion);
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+  .case-tile-difficulty {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    letter-spacing: 0.2em;
+  }
+  .case-tile-difficulty .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--vermillion);
+    border-radius: 50%;
+    margin-right: 3px;
+  }
+  .case-tile-difficulty .dot.dim { background: rgba(168, 38, 27, 0.2); }
+
+  /* ============ CONCEPTS ============ */
+  .knowledge { background: linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%); }
+
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+  @media (max-width: 1000px) { .concept-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 700px) { .concept-grid { grid-template-columns: 1fr; } }
+
+  .concept-card {
+    background: var(--paper);
+    border: 1px solid rgba(26, 22, 18, 0.08);
+    padding: 38px 32px;
+    position: relative;
+    transition: all 0.4s ease;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .concept-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(168, 38, 27, 0.04));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .concept-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px var(--shadow-ink);
+    border-color: var(--vermillion);
+  }
+  .concept-card:hover::before { opacity: 1; }
+
+  .concept-han {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 56px;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 22px;
+    display: block;
+  }
+  .concept-card.featured .concept-han { color: var(--vermillion); }
+
+  .concept-card h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 19px;
+    font-weight: 500;
+    margin-bottom: 18px;
+    letter-spacing: 0.15em;
+    color: var(--ink-soft);
+  }
+  .concept-card p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    line-height: 1.95;
+    letter-spacing: 0.03em;
+  }
+
+  /* ============ CORPUS DASHBOARD ============ */
+  .corpus {
+    background: var(--paper-deep);
+  }
+
+  .corpus-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+  @media (max-width: 1000px) { .corpus-grid { grid-template-columns: 1fr; } }
+
+  .corpus-list {
+    background: var(--paper);
+    border: 1px solid rgba(26, 22, 18, 0.1);
+    padding: 30px;
+    border-radius: 2px;
+  }
+  .corpus-list-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(26, 22, 18, 0.1);
+    margin-bottom: 20px;
+  }
+  .corpus-list-head h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 19px;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+  }
+  .corpus-list-head .updated {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12px;
+    color: var(--ink-mute);
+    letter-spacing: 0.15em;
+  }
+
+  .corpus-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px dashed rgba(26, 22, 18, 0.1);
+    align-items: center;
+  }
+  .corpus-row:last-child { border-bottom: none; }
+
+  .corpus-icon {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 28px;
+    color: var(--vermillion);
+    text-align: center;
+    line-height: 1;
+  }
+  .corpus-info h5 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    letter-spacing: 0.06em;
+  }
+  .corpus-info small {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12px;
+    color: var(--ink-mute);
+    letter-spacing: 0.1em;
+  }
+  .corpus-stat {
+    text-align: right;
+  }
+  .corpus-stat .v {
+    font-family: 'EB Garamond', serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--vermillion);
+    letter-spacing: 0.05em;
+  }
+  .corpus-stat .l {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.15em;
+  }
+
+  .corpus-aside {
+    padding-top: 12px;
+  }
+  .corpus-aside h3 {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 36px;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .corpus-aside h3 + p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px;
+    color: var(--ink-soft);
+    line-height: 1.85;
+    margin-bottom: 24px;
+    letter-spacing: 0.04em;
+  }
+
+  .corpus-feature {
+    background: var(--paper);
+    border-left: 3px solid var(--vermillion);
+    padding: 16px 20px;
+    margin-bottom: 14px;
+  }
+  .corpus-feature h5 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 4px;
+    letter-spacing: 0.08em;
+  }
+  .corpus-feature p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13.5px;
+    color: var(--ink-mute);
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+  }
+
+  /* ============ ARCHITECTURE ============ */
+  .architecture { background: var(--ink); color: var(--paper); }
+  .architecture .section-title { color: var(--paper); }
+  .architecture .section-title .han { color: var(--aged-gold); }
+  .architecture .section-eyebrow { color: var(--vermillion-l); }
+  .architecture .section-sub { color: rgba(244, 236, 220, 0.75); }
+
+  .arch-diagram {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    max-width: 1000px;
+    margin: 30px auto 0;
+  }
+
+  .arch-row {
+    border: 1px solid rgba(244, 236, 220, 0.18);
+    padding: 24px 28px;
+    display: grid;
+    grid-template-columns: 220px 1fr 200px;
+    gap: 24px;
+    align-items: center;
+    margin-top: -1px;
+    transition: background 0.3s ease;
+  }
+  .arch-row:hover { background: rgba(244, 236, 220, 0.04); }
+  @media (max-width: 800px) { .arch-row { grid-template-columns: 1fr; gap: 10px; } }
+
+  .arch-label {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 26px;
+    color: var(--vermillion-l);
+    letter-spacing: 0.1em;
+  }
+  .arch-label small {
+    display: block;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12px;
+    color: var(--aged-gold);
+    letter-spacing: 0.3em;
+    margin-top: 6px;
+  }
+  .arch-desc {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15px;
+    line-height: 1.85;
+    color: rgba(244, 236, 220, 0.88);
+    letter-spacing: 0.03em;
+  }
+  .arch-desc strong { color: var(--paper); font-weight: 500; }
+  .arch-tech {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--aged-gold);
+    text-align: right;
+    letter-spacing: 0.08em;
+  }
+  @media (max-width: 800px) { .arch-tech { text-align: left; } }
+
+  .haa-callout {
+    margin-top: 56px;
+    padding: 44px 40px;
+    border: 1px solid var(--vermillion);
+    background: rgba(168, 38, 27, 0.08);
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+  }
+  .haa-callout::before {
+    content: 'HAA · 人为本';
+    position: absolute;
+    top: -14px;
+    left: 30px;
+    background: var(--ink);
+    padding: 2px 16px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: var(--vermillion-l);
+    font-weight: 500;
+  }
+  .haa-callout h4 {
+    color: var(--paper);
+    font-family: 'Noto Serif SC', serif;
+    font-size: 22px;
+    margin-bottom: 14px;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .haa-callout .han-quote {
+    font-family: 'Ma Shan Zheng', serif;
+    color: var(--vermillion-l);
+    font-size: 36px;
+    margin: 18px 0 14px;
+    letter-spacing: 0.18em;
+  }
+  .haa-callout p {
+    color: rgba(244, 236, 220, 0.88);
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15.5px;
+    line-height: 1.95;
+    letter-spacing: 0.03em;
+  }
+  .haa-callout em { color: var(--aged-gold); font-style: normal; font-weight: 500; }
+
+  /* ============ CULTIVATION (LEDGER + JOURNEY) ============ */
+  .cultivation { background: var(--paper); }
+
+  .cultivation-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+  @media (max-width: 1050px) { .cultivation-grid { grid-template-columns: 1fr; } }
+
+  .cultivation-panel {
+    background: linear-gradient(160deg, var(--paper-deep), var(--paper-edge));
+    border: 1px solid rgba(139, 105, 20, 0.3);
+    padding: 32px 28px;
+    box-shadow: 0 6px 24px var(--shadow-ink);
+    border-radius: 2px;
+    position: relative;
+  }
+  .cultivation-panel .panel-label {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: var(--vermillion);
+    letter-spacing: 0.4em;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .cultivation-panel h4 {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 32px;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .cultivation-panel .panel-sub {
+    font-family: 'Noto Serif SC', serif;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    margin-bottom: 26px;
+    letter-spacing: 0.15em;
+  }
+
+  .metric { margin-bottom: 20px; }
+  .metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .metric-label {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    color: var(--ink);
+    letter-spacing: 0.12em;
+    font-weight: 500;
+  }
+  .metric-label small {
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    letter-spacing: 0.05em;
+    margin-left: 8px;
+    font-weight: 400;
+  }
+  .metric-val {
+    font-family: 'EB Garamond', serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--vermillion);
+    letter-spacing: 0.05em;
+  }
+  .bar { height: 4px; background: rgba(26, 22, 18, 0.1); overflow: hidden; }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--vermillion), var(--aged-gold));
+    transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .reflection-note {
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px dashed rgba(26, 22, 18, 0.2);
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    color: var(--ink-mute);
+    line-height: 1.95;
+    letter-spacing: 0.03em;
+  }
+  .reflection-note .han-prefix {
+    font-family: 'Ma Shan Zheng', serif;
+    color: var(--vermillion);
+    font-size: 18px;
+    margin-right: 8px;
+  }
+
+  /* JOURNEY TIMELINE */
+  .journey-timeline { padding-top: 12px; }
+  .journey-head {
+    margin-bottom: 30px;
+  }
+  .journey-head h3 {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 36px;
+    color: var(--ink);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+  .journey-head p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px;
+    color: var(--ink-soft);
+    line-height: 1.85;
+    letter-spacing: 0.04em;
+  }
+
+  .journey-steps {
+    position: relative;
+    padding-left: 38px;
+  }
+  .journey-steps::before {
+    content: '';
+    position: absolute;
+    left: 12px; top: 8px; bottom: 8px;
+    width: 1px;
+    background: linear-gradient(180deg, var(--vermillion), var(--aged-gold), rgba(168,38,27,0.1));
+  }
+
+  .journey-step {
+    position: relative;
+    padding: 12px 0 28px 24px;
+  }
+  .journey-step::before {
+    content: '';
+    position: absolute;
+    left: -32px; top: 18px;
+    width: 14px; height: 14px;
+    background: var(--paper);
+    border: 2px solid var(--vermillion);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px var(--paper);
+  }
+  .journey-step.now::before {
+    background: var(--vermillion);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .journey-day {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 22px;
+    color: var(--vermillion);
+    letter-spacing: 0.1em;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .journey-day small {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-mute);
+    margin-left: 10px;
+    letter-spacing: 0.1em;
+  }
+  .journey-step h5 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 17px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    letter-spacing: 0.06em;
+  }
+  .journey-step p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14.5px;
+    color: var(--ink-mute);
+    line-height: 1.85;
+    letter-spacing: 0.02em;
+  }
+
+  /* ============ RESEARCH & ETHICS ============ */
+  .research { background: linear-gradient(180deg, var(--paper-deep) 0%, var(--paper) 100%); }
+
+  .research-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-bottom: 48px;
+  }
+  @media (max-width: 800px) { .research-grid { grid-template-columns: 1fr; } }
+
+  .research-card {
+    background: var(--paper);
+    border: 1px solid rgba(26, 22, 18, 0.1);
+    padding: 30px;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+  .research-card:hover { border-color: var(--vermillion); transform: translateY(-2px); box-shadow: 0 8px 20px var(--shadow-ink); }
+
+  .research-card-num {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 38px;
+    color: var(--vermillion);
+    line-height: 1;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  .research-card h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 19px;
+    margin-bottom: 14px;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .research-card h4 .han {
+    font-family: 'Ma Shan Zheng', serif;
+    color: var(--vermillion);
+    margin-right: 12px;
+  }
+  .research-card p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    line-height: 1.9;
+    margin-bottom: 12px;
+    letter-spacing: 0.03em;
+  }
+  .research-card ul {
+    list-style: none;
+    margin-top: 12px;
+  }
+  .research-card ul li {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13.5px;
+    color: var(--ink-mute);
+    line-height: 1.8;
+    padding-left: 14px;
+    position: relative;
+    letter-spacing: 0.02em;
+  }
+  .research-card ul li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--vermillion);
+    font-weight: 700;
+  }
+
+  /* ETHICS PLEDGE */
+  .ethics-pledge {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 50px 44px;
+    border-radius: 2px;
+    position: relative;
+    margin-top: 24px;
+  }
+  .ethics-pledge::before {
+    content: '誓';
+    position: absolute;
+    top: 24px;
+    right: 30px;
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 80px;
+    color: var(--vermillion);
+    opacity: 0.2;
+  }
+  .ethics-pledge .label {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: var(--vermillion-l);
+    letter-spacing: 0.4em;
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+  .ethics-pledge h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 28px;
+    color: var(--paper);
+    margin-bottom: 26px;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .ethics-pledge h3 .han {
+    font-family: 'Ma Shan Zheng', serif;
+    color: var(--aged-gold);
+    margin-right: 14px;
+  }
+  .pledge-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 20px;
+  }
+  @media (max-width: 800px) { .pledge-grid { grid-template-columns: 1fr; } }
+
+  .pledge-item {
+    border-left: 2px solid var(--aged-gold);
+    padding: 6px 18px;
+  }
+  .pledge-item h5 {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 22px;
+    color: var(--vermillion-l);
+    margin-bottom: 6px;
+    letter-spacing: 0.1em;
+  }
+  .pledge-item h5 small {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: var(--aged-gold);
+    margin-left: 10px;
+    letter-spacing: 0.2em;
+    font-weight: 500;
+  }
+  .pledge-item p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    color: rgba(244, 236, 220, 0.78);
+    line-height: 1.85;
+    letter-spacing: 0.02em;
+  }
+
+  /* ============ FOOTER ============ */
+  footer {
+    background: var(--ink);
+    color: rgba(244, 236, 220, 0.65);
+    padding: 80px 80px 36px;
+    position: relative;
+  }
+  @media (max-width: 800px) { footer { padding: 60px 28px 30px; } }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 60px;
+  }
+  @media (max-width: 1000px) { .footer-grid { grid-template-columns: 1fr 1fr 1fr; } }
+  @media (max-width: 700px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+
+  .footer-brand {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 40px;
+    color: var(--paper);
+    margin-bottom: 20px;
+    letter-spacing: 0.08em;
+  }
+  .footer-tagline {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15px;
+    color: rgba(244, 236, 220, 0.65);
+    line-height: 1.95;
+    max-width: 360px;
+    margin-bottom: 26px;
+    letter-spacing: 0.04em;
+  }
+
+  .footer-col h5 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    letter-spacing: 0.4em;
+    color: var(--vermillion-l);
+    margin-bottom: 22px;
+    font-weight: 500;
+  }
+  .footer-col ul {
+    list-style: none;
+    font-size: 14px;
+    line-height: 2.2;
+    font-family: 'Noto Serif SC', serif;
+    letter-spacing: 0.08em;
+  }
+  .footer-col ul a {
+    color: rgba(244, 236, 220, 0.65);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  .footer-col ul a:hover { color: var(--paper); }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(244, 236, 220, 0.12);
+    padding-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: rgba(244, 236, 220, 0.5);
+    letter-spacing: 0.15em;
+  }
+  .footer-bottom .seal { transform: rotate(-2deg); font-size: 12px; }
+
+  /* ============ ANIMATIONS ============ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: 0.1s; }
+  .reveal.delay-2 { transition-delay: 0.2s; }
+  .reveal.delay-3 { transition-delay: 0.3s; }
+  .reveal.delay-4 { transition-delay: 0.4s; }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 28px;
+    left: 80px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: var(--ink-mute);
+    letter-spacing: 0.4em;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-weight: 500;
+  }
+  @media (max-width: 800px) { .scroll-hint { left: 28px; } }
+  .scroll-hint::after {
+    content: '';
+    width: 50px;
+    height: 1px;
+    background: var(--ink-mute);
+    animation: scrollLine 2.4s ease-in-out infinite;
+  }
+  @keyframes scrollLine {
+    0%, 100% { transform: scaleX(0.3); transform-origin: left; }
+    50% { transform: scaleX(1); transform-origin: left; }
+  }
+
+  .typing-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    margin: 0 2px;
+    background: var(--vermillion);
+    border-radius: 50%;
+    animation: typing 1.4s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* AI generation animation */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmering {
+    background: linear-gradient(90deg, var(--paper-deep) 25%, var(--paper-edge) 50%, var(--paper-deep) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+    color: transparent !important;
+  }
+</style>
+</head>
+<body>
+<!-- Google Identity Services (loads async; safe even if GOOGLE_CLIENT_ID is empty) -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<!-- Persistent auth bar — top-right fixed -->
+<div id="authBar" style="position:fixed;top:16px;right:20px;z-index:1000;background:rgba(244,236,220,0.92);backdrop-filter:blur(8px);padding:6px 14px;border-radius:100px;border:1px solid rgba(26,22,18,0.1);display:flex;align-items:center;gap:6px;font-family:'Noto Serif SC',serif;box-shadow:0 2px 12px rgba(26,22,18,0.06);">
+  <span style="font-size:11px;color:rgba(26,22,18,0.55);letter-spacing:0.1em;">匿名问心</span>
+</div>
+
+
+<!-- ============ NAV ============ -->
+<nav class="topbar">
+  <div class="brand">
+    <span class="seal">阳明</span>
+    <div class="brand-text">
+      阳明何为
+      <small>知行合一 · 活态门户</small>
+    </div>
+  </div>
+  <ul class="nav-mid">
+    <li><a href="#deliberate">问心</a></li>
+    <li><a href="#cases">案例馆</a></li>
+    <li><a href="#concepts">要义</a></li>
+    <li><a href="#corpus">良知库</a></li>
+    <li><a href="#architecture">架构</a></li>
+    <li><a href="#cultivation">修行</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="script-toggle" id="scriptToggle">
+      <button data-script="cn" class="active">简</button>
+      <button data-script="tw">繁</button>
+    </div>
+    <a href="#" class="login-btn">入门</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow reveal in">
+      <span class="line"></span>
+      <span>阳明心学之活态门户 · 心学</span>
+    </div>
+    <div class="hero-han reveal delay-1 in">知行合一</div>
+    <h1 class="reveal delay-2 in">当你面临艰难抉择时，<br/><em>阳明先生会如何思、如何言、如何行？</em></h1>
+    <p class="hero-tagline reveal delay-3 in">
+      提出心中之困。让你的<em>良知</em>，借四句教而显照。所得非劝告——乃是一面明镜，与一项即行之事。
+    </p>
+    <p class="hero-tagline-classical reveal delay-3 in">
+      据《传习录》四句教而行 · 致良知于事上磨练 · 不替你决断，唯令你看清本心
+    </p>
+    <div class="hero-stats reveal delay-3 in">
+      <div class="hero-stat">
+        <div class="num">14,287</div>
+        <div class="lbl">已问心之事</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">9,142</div>
+        <div class="lbl">已立之志</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">71%</div>
+        <div class="lbl">七日内见行</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">63,829</div>
+        <div class="lbl">良知库语段</div>
+      </div>
+    </div>
+    <div class="hero-actions reveal delay-4 in">
+      <a href="#deliberate" class="btn-primary">问心 <span class="arrow">→</span></a>
+      <a href="#concepts" class="btn-ghost">阅心学要义</a>
+    </div>
+  </div>
+
+  <div class="hero-right reveal delay-2 in">
+    <div class="vertical-scroll">
+      <div class="vcol">心即理也</div>
+      <div class="vcol muted">知行本一</div>
+      <div class="vcol tiny">无善无恶心之体&nbsp;&nbsp;有善有恶意之动&nbsp;&nbsp;知善知恶是良知&nbsp;&nbsp;为善去恶是格物</div>
+      <div class="scroll-seal seal seal-vertical">阳明印</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">入门 · 下行</div>
+</header>
+
+<!-- ============ FOUR PILLARS ============ -->
+<section class="four-pillars" id="four">
+  <div class="section-head">
+    <div class="section-eyebrow">
+      <span class="num">壹</span>
+      <span>问心之纲领</span>
+    </div>
+    <h2 class="section-title"><span class="han">四句教</span>良知工夫之四阶</h2>
+    <p class="section-sub">
+      阳明先生晚年悟道之结晶——本门户每次"问心"之实工夫。
+      四阶非为修辞，乃是问心之实际链路：每一阶有其专责，亦有其防越界之闸。
+    </p>
+  </div>
+
+  <div class="pillars-grid">
+    <div class="pillar reveal">
+      <div class="pillar-num">第一阶</div>
+      <div class="pillar-han">心之体</div>
+      <div class="pillar-saying">无善无恶心之体</div>
+      <p class="pillar-desc">褪去既有之框架。在念头、立场、惧与欲之先，此境本然之相为何？所惑非问题，乃是条件。</p>
+      <div class="pillar-fn">澄心 · 视镜先净</div>
+    </div>
+    <div class="pillar reveal delay-1">
+      <div class="pillar-num">第二阶</div>
+      <div class="pillar-han">意之动</div>
+      <div class="pillar-saying">有善有恶意之动</div>
+      <p class="pillar-desc">如实命名心中所动之欲。自卫、怨、求认可——皆当浮显出来，不掩，亦不自责。</p>
+      <div class="pillar-fn">察意 · 名其所动</div>
+    </div>
+    <div class="pillar reveal delay-2">
+      <div class="pillar-num">第三阶</div>
+      <div class="pillar-han">良知</div>
+      <div class="pillar-saying">知善知恶是良知</div>
+      <p class="pillar-desc">本门户不为人下判。它只是镜子——映照你良知所已知之事，使其在不被遮蔽时得以显现。</p>
+      <div class="pillar-fn">致良知 · 镜，非判</div>
+    </div>
+    <div class="pillar reveal delay-3">
+      <div class="pillar-num">第四阶</div>
+      <div class="pillar-han">为善去恶</div>
+      <div class="pillar-saying">为善去恶是格物</div>
+      <p class="pillar-desc">知而不行，未为知也。当于今日，事上磨练——一项可即行之具体之事，非笼统之意向。</p>
+      <div class="pillar-fn">知行合一 · 见诸行</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DELIBERATION ============ -->
+<section class="deliberation" id="deliberate">
+  <div class="section-head">
+    <div class="section-eyebrow">
+      <span class="num">贰</span>
+      <span>问心之实 · 现场演示</span>
+    </div>
+    <h2 class="section-title"><span class="han">问心</span>提出心中所困</h2>
+    <p class="section-sub">
+      下示一在审之案。可于八例之中择一观之，可自述其情，亦可由 AI 据日常之困重新生成新案。
+      四阶之链所返非劝告——乃是一面明镜，与一项即行之事。
+    </p>
+  </div>
+
+  <!-- SCENARIO PICKER -->
+  <div class="scenario-picker">
+    <div class="scenario-picker-head">
+      <div class="scenario-picker-title">
+        择一范例 <small>八例涵盖家、伦、职、关、公、教、己、言之困</small>
+      </div>
+      <button class="ai-generate-btn" id="aiGenBtn">
+        <span class="pulse"></span> AI 生成新案
+      </button>
+    </div>
+    <div class="scenario-cards" id="scenarioCards">
+      <!-- Cards inserted by JS -->
+    </div>
+  </div>
+
+  <div class="interface-shell">
+    <!-- INPUT -->
+    <div class="scenario-input">
+      <div class="scenario-label">心中所困之事</div>
+      <div class="scenario-label-sub">请尽诚实之意，连同你不愿承认之感受一并书之</div>
+      <textarea class="scenario-textarea" id="scenarioBox">父母年近八十，体力日衰，然坚持独自留乡。我已三度请其与我同住，父亲皆辞，言不愿成累赘。我心中两难：一则当尊其自主，一则似有真切之责。万一有事，恐终生不能自恕。</textarea>
+
+      <div class="meta-row">
+        <span class="word-count"><em id="wordCount">86</em> / 800 字</span>
+        <span class="privacy-pledge">默认匿名 · 端到端加密 · 永不外传</span>
+      </div>
+
+      <div class="submit-row">
+        <button class="btn-primary" id="deliberateBtn">始问心 <span class="arrow">→</span></button>
+        <select class="model-select">
+          <option>四阶之链 · 标准模式</option>
+          <option>深析模式 · 牟宗三注本</option>
+          <option>初学模式 · 白话浅释</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- OUTPUT -->
+    <div class="deliberation-output">
+      <div class="deliberation-header">
+        <div class="title"><span class="pulse-dot"></span>问心进行中</div>
+        <div class="han">致良知 · v1.2</div>
+      </div>
+
+      <div class="scenario-card-display">
+        父母年迈，坚守独居，体衰可见。一头是孝义之责，一头是其自主之尊。对将来悔恨之惧，弥漫一切思虑。
+        <div class="meta">案例 · 伦理 / 孝悌 · 隐名 · 难度 中</div>
+      </div>
+
+      <!-- STAGE 1 -->
+      <div class="stage">
+        <div class="stage-marker">
+          <div class="han">心之体</div>
+          <div class="num">第一阶</div>
+        </div>
+        <div class="stage-content">
+          <h4>未起分别之先 · 此境本然为何？</h4>
+          <div class="stage-saying">无善无恶心之体 · 视镜先净</div>
+          <p>
+            二位至亲，正在行使他们眼下尚能行之选择。其身渐老，其行渐缓——皆为实事，皆非过失。
+            距离是真，风险是真，然此皆"境"，未必即为"问题"。"两难"在你，不在彼。
+          </p>
+        </div>
+      </div>
+
+      <!-- STAGE 2 -->
+      <div class="stage">
+        <div class="stage-marker">
+          <div class="han">意之动</div>
+          <div class="num">第二阶</div>
+        </div>
+        <div class="stage-content">
+          <h4>心中所动者，究为何意？</h4>
+          <div class="stage-saying">有善有恶意之动 · 名其所动，不掩其情</div>
+          <p>三股暗流，须诚实辨之：</p>
+          <p class="sub-line"><em>· 真切之爱</em> — 愿其余年得安稳与体面。</p>
+          <p class="sub-line"><em>· 预先之歉疚</em> — 欲为将来之自责先购一份保险。</p>
+          <p class="sub-line"><em>· 隐微之掌控之欲</em> — 爱之与管之，已悄然纠缠。</p>
+          <p>第一者属仁。后二者关乎你自己。阳明先生请你<em>看清</em>，但勿自责。</p>
+        </div>
+      </div>
+
+      <!-- STAGE 3 -->
+      <div class="stage">
+        <div class="stage-marker">
+          <div class="han">良知</div>
+          <div class="num">第三阶</div>
+        </div>
+        <div class="stage-content">
+          <h4>良知所已知者，为何？</h4>
+          <div class="stage-saying">知善知恶是良知 · 是镜，非判</div>
+          <p>
+            你的良知早已能辨——孝爱之"孝"与孝迫之"孝"。
+            若所谓关爱，是越过父母仍存的自主之能、为息己心之忧虑而行，
+            则在阳明意中，已非真孝——是<em>为己而孝</em>。
+          </p>
+          <div class="quoted">
+            「孝亲之心真切，则自然冬温而夏凊，不待于求。」
+            <span class="src">— 《传习录》上 · 孝心若真，则寒温供养自然而至，无须勉强</span>
+          </div>
+          <p>良知此刻所问者：你之提议，是顺其生命之延展？抑或安己心之器？</p>
+        </div>
+      </div>
+
+      <!-- STAGE 4: ACTION -->
+      <div class="action-card">
+        <div class="label">第四阶 · 知行合一 · 见诸行</div>
+        <h3><span class="han-action">行</span>七日内可行之一事</h3>
+        <ul class="action-list">
+          <li>
+            <span class="step">i.</span>
+            <span>亲身往省——非为劝其改意，乃为亲见其情。三日同处，观其日常之实力。<span class="han-tag">事上磨练</span></span>
+          </li>
+          <li>
+            <span class="step">ii.</span>
+            <span>一次诚恳之谈——只问一问：「下一年里，何事能令您心安？」 然后，<em style="color:var(--vermillion-l);">听</em>。<span class="han-tag">察意</span></span>
+          </li>
+          <li>
+            <span class="step">iii.</span>
+            <span>与父母共图（非自决）安全之网：医疗紧急按钮、邻里看护、固定每周一通电话。以"基础"敬其自主。<span class="han-tag">致良知</span></span>
+          </li>
+          <li>
+            <span class="step">iv.</span>
+            <span>自察——愧疚之压再起时，识得它。此即工夫，非为得果。<span class="han-tag">省察</span></span>
+          </li>
+        </ul>
+        <div class="commit-row">
+          <span class="commit-text">知而不行，未为知也。</span>
+          <button class="commit-btn">立志</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CASE LIBRARY ============ -->
+<section class="case-library" id="cases">
+  <div class="section-head">
+    <div class="section-eyebrow">
+      <span class="num">叁</span>
+      <span>共学共修 · 案例馆</span>
+    </div>
+    <h2 class="section-title"><span class="han">案例馆</span>同修之困，亦自家之事上磨练</h2>
+    <p class="section-sub">
+      本馆所收，皆为同修匿名后回赠之案。每案附四阶之链与所立之志，可按类、按难度、按所涉心学概念检索。
+      读他人之困，亦自家工夫之一种。
+    </p>
+  </div>
+
+  <div class="filter-bar">
+    <span class="filter-label">类</span>
+    <button class="filter-chip active">全部</button>
+    <button class="filter-chip">家庭</button>
+    <button class="filter-chip">伦理</button>
+    <button class="filter-chip">职场</button>
+    <button class="filter-chip">关系</button>
+    <button class="filter-chip">公民</button>
+    <button class="filter-chip">教育</button>
+    <button class="filter-chip">己身</button>
+    <span class="filter-spacer"></span>
+    <span class="filter-meta">已收案 <em>847</em> · 本月新增 <em>92</em></span>
+  </div>
+
+  <div class="case-grid" id="caseGrid">
+    <!-- 9 cases from our library -->
+  </div>
+</section>
+
+<!-- ============ CONCEPTS ============ -->
+<section class="knowledge" id="concepts">
+  <div class="section-head">
+    <div class="section-eyebrow">
+      <span class="num">肆</span>
+      <span>根基 · 心学要义</span>
+    </div>
+    <h2 class="section-title"><span class="han">心学</span>纲目六义</h2>
+    <p class="section-sub">各义可启展，可见《传习录》深处经文。本门户之每次问心，皆隐然以此六义为坐标。</p>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card featured reveal">
+      <span class="concept-han">知行合一</span>
+      <h3>知与行，本是一事</h3>
+      <p>知而不行，于阳明先生意中，未为知也。行是知之成；知而不行，仍为念虑之未实。</p>
+    </div>
+    <div class="concept-card reveal delay-1">
+      <span class="concept-han">心即理</span>
+      <h3>心，即天理之所在</h3>
+      <p>道理（理）非外在于心、待求于书或仪。理本自心而具，所需者非外取，乃自明。</p>
+    </div>
+    <div class="concept-card reveal delay-2">
+      <span class="concept-han">致良知</span>
+      <h3>推扩本然之知</h3>
+      <p>良知者，人人本具之道德之知。修行非求其有，乃推扩其用，使行无不察。</p>
+    </div>
+    <div class="concept-card reveal delay-1">
+      <span class="concept-han">事上磨练</span>
+      <h3>工夫在日用之中</h3>
+      <p>圣人之学非避世。其工夫正在会议之间、家常之桌、艰难之书。锻炼之炉，即此日用。</p>
+    </div>
+    <div class="concept-card reveal delay-2">
+      <span class="concept-han">立志</span>
+      <h3>志不立，学必散</h3>
+      <p>阳明先生屡责其门人：当反复立志，使志能贯于踟躇之际。志者，学之本也。</p>
+    </div>
+    <div class="concept-card reveal delay-3">
+      <span class="concept-han">省察</span>
+      <h3>日日省察，温然不息</h3>
+      <p>省察其心，如理灯然。日日，温然，不息——非以自责，乃以正其念虑于良知。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CORPUS DASHBOARD ============ -->
+<section class="corpus" id="corpus">
+  <div class="section-head">
+    <div class="section-eyebrow">
+      <span class="num">伍</span>
+      <span>知识之基 · 良知库</span>
+    </div>
+    <h2 class="section-title"><span class="han">良知库</span>本门户所赖之经典语料</h2>
+    <p class="section-sub">
+      所有引文皆有据可考，从不擅意改其文。语料每周更新，注释来源明示。
+      AI 输出若引典籍，必标明卷次与页码——可点击直见原文。
+    </p>
+  </div>
+
+  <div class="corpus-grid">
+    <div class="corpus-list">
+      <div class="corpus-list-head">
+        <h3>已入语料</h3>
+        <span class="updated">末次更新 · 2026 年 5 月 7 日</span>
+      </div>
+
+      <div class="corpus-row">
+        <div class="corpus-icon">传</div>
+        <div class="corpus-info">
+          <h5>《传习录》上卷</h5>
+          <small>徐爱、陆澄、薛侃录</small>
+        </div>
+        <div class="corpus-stat">
+          <div class="v">1,847</div>
+          <div class="l">语段</div>
+        </div>
+      </div>
+
+      <div class="corpus-row">
+        <div class="corpus-icon">传</div>
+        <div class="corpus-info">
+          <h5>《传习录》中卷</h5>
+          <small>答顾东桥、答聂文蔚等书</small>
+        </div>
+        <div class="corpus-stat">
+          <div class="v">1,234</div>
+          <div class="l">语段</div>
+        </div>
+      </div>
+
+      <div class="corpus-row">
+        <div class="corpus-icon">传</div>
+        <div class="corpus-info">
+          <h5>《传习录》下卷</h5>
+          <small>陈九川、黄直、黄修易等录</small>
+        </div>
+        <div class="corpus-stat">
+          <div class="v">2,392</div>
+          <div class="l">语段</div>
+        </div>
+      </div>
+
+      <div class="corpus-row">
+        <div class="corpus-icon">大</div>
+        <div class="corpus-info">
+          <h5>《大学问》</h5>
+          <small>万物一体之仁的纲领之作</small>
+        </div>
+        <div class="corpus-stat">
+          <div class="v">247</div>
+          <div class="l">语段</div>
+        </div>
+      </div>
+
+      <div class="corpus-row">
+        <div class="corpus-icon">全</div>
+        <div class="corpus-info">
+          <h5>《王阳明全集》选篇</h5>
+          <small>书信、奏疏、诗文、年谱</small>
+        </div>
+        <div class="corpus-stat">
+          <div class="v">23,489</div>
+          <div class="l">语段</div>
+        </div>
+      </div>
+
+      <div class="corpus-row">
+        <div class="corpus-icon">注</div>
+        <div class="corpus-info">
+          <h5>历代注释</h5>
+          <small>刘宗周、黄宗羲、牟宗三、陈来等</small>
+        </div>
+        <div class="corpus-stat">
+          <div class="v">12,847</div>
+          <div class="l">条目</div>
+        </div>
+      </div>
+
+      <div class="corpus-row">
+        <div class="corpus-icon">研</div>
+        <div class="corpus-info">
+          <h5>当代研究</h5>
+          <small>1949 年以来期刊论文摘要</small>
+        </div>
+        <div class="corpus-stat">
+          <div class="v">21,773</div>
+          <div class="l">条目</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="corpus-aside">
+      <h3>引必有据</h3>
+      <p>
+        本门户所引典籍之文，皆经原文核校，从不擅改一字。
+        若有疑义，皆以最早之刻本为准；流传讹传之版，标识明示。
+      </p>
+
+      <div class="corpus-feature">
+        <h5>不杜撰</h5>
+        <p>AI 不得编造原文。引文若不在库内，必明示"无据可考"。</p>
+      </div>
+      <div class="corpus-feature">
+        <h5>不混淆</h5>
+        <p>朱子、程颐、阳明三家学派之言，标识明示，不得混引。</p>
+      </div>
+      <div class="corpus-feature">
+        <h5>可溯源</h5>
+        <p>每段引文，必标明卷次、篇目、页码——并附扫描原本可查。</p>
+      </div>
+      <div class="corpus-feature">
+        <h5>可争议</h5>
+        <p>历代注释互有冲突处，并陈而不强合，留学者自断之地。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section class="architecture" id="architecture">
+  <div class="section-head">
+    <div class="section-eyebrow">
+      <span class="num">陆</span>
+      <span>系统架构</span>
+    </div>
+    <h2 class="section-title"><span class="han">系统</span>此门户如何思</h2>
+    <p class="section-sub">一条对应四句教之多阶提示链，依《传习录》语料为基，修身记于 xAPI。</p>
+  </div>
+
+  <div class="arch-diagram">
+    <div class="arch-row">
+      <div class="arch-label">界面 <small>用户之窗</small></div>
+      <div class="arch-desc">React + Tailwind 之门户，简繁体一键转换。情境提交、四阶呈现、立志台帐、日日省察日志。</div>
+      <div class="arch-tech">Next.js · Vercel</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">编排 <small>四阶之链</small></div>
+      <div class="arch-desc"><strong>四阶提示链</strong>，对应 心之体 → 意之动 → 良知 → 知行。每阶各有提示语、检索范围，与防止后阶逆漏前阶之闸。</div>
+      <div class="arch-tech">LangChain · FastAPI</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">良知库 <small>语料检索</small></div>
+      <div class="arch-desc">嵌入语料：《传习录》上中下、《大学问》、王阳明全集选篇、刘宗周、黄宗羲、牟宗三、陈来之注。每案检索，引文有据，<strong>不擅意改其文</strong>。</div>
+      <div class="arch-tech">pgvector · BGE-M3</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">心学护栏 <small>宪法之层</small></div>
+      <div class="arch-desc">宪法层：<strong>拒为人下判</strong>；行前必显矛盾之意；引《传习录》原文有据；<strong>从不冒充先生本人</strong>。</div>
+      <div class="arch-tech">自定评分 · LLM 互裁</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">修身台帐 <small>修行之轨</small></div>
+      <div class="arch-desc">每一立志、每一省察、每一回访，皆为 xAPI 语句。修身之轨为用户私见；总体匿名之态势，浮显于同修。</div>
+      <div class="arch-tech">xAPI · GCS + Firestore LRS</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">省察 <small>回访之环</small></div>
+      <div class="arch-desc">七日、三十日、九十日三度回访每一立志。<strong>行随知乎？阻力何在？</strong> 此门不评——只问。</div>
+      <div class="arch-tech">定时任务 · 缓提醒</div>
+    </div>
+  </div>
+
+  <div class="haa-callout">
+    <h4>阳明门户之 HAA 原则</h4>
+    <div class="han-quote">人为本 · 机为辅</div>
+    <p>
+      据 <em>以人为本之能动延展</em>（Human Agency Augmentation）之理：
+      本机不出道德之断、不代行修者之心思。只为<em>澄之、镜之、检之、问之</em>——
+      而留"致良知"之事于人，盖此事唯人能行。
+      门户之成败，非视其所言之深，乃视其用者所行之深。
+    </p>
+  </div>
+</section>
+
+<!-- ============ CULTIVATION ============ -->
+<section class="cultivation" id="cultivation">
+  <div class="section-head">
+    <div class="section-eyebrow">
+      <span class="num">柒</span>
+      <span>修身工夫 · 个人之轨</span>
+    </div>
+    <h2 class="section-title"><span class="han">修行</span>台帐与历程</h2>
+    <p class="section-sub">
+      工夫不在一朝一夕。本门户为每位修者保留私密之修身台帐与三百六十五日之历程，
+      使每一念虑、每一立志、每一省察皆有所归。
+    </p>
+  </div>
+
+  <div class="cultivation-grid">
+    <div class="cultivation-panel">
+      <div class="panel-label">个人台帐 · 私密</div>
+      <h4>修身台帐</h4>
+      <div class="panel-sub">你的修行之轨 · 仅你可见</div>
+
+      <div class="metric">
+        <div class="metric-row">
+          <span class="metric-label">立志 <small>已立之志</small></span>
+          <span class="metric-val">14</span>
+        </div>
+        <div class="bar"><div class="bar-fill" style="width:78%"></div></div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-row">
+          <span class="metric-label">知行 <small>七日内已行</small></span>
+          <span class="metric-val">11 / 14</span>
+        </div>
+        <div class="bar"><div class="bar-fill" style="width:79%"></div></div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-row">
+          <span class="metric-label">省察 <small>三十日已访者</small></span>
+          <span class="metric-val">9 / 14</span>
+        </div>
+        <div class="bar"><div class="bar-fill" style="width:64%"></div></div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-row">
+          <span class="metric-label">事上磨练 <small>已识之循环</small></span>
+          <span class="metric-val">3</span>
+        </div>
+        <div class="bar"><div class="bar-fill" style="width:42%"></div></div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-row">
+          <span class="metric-label">连续问心 <small>不间断之日</small></span>
+          <span class="metric-val">42 日</span>
+        </div>
+        <div class="bar"><div class="bar-fill" style="width:88%"></div></div>
+      </div>
+
+      <div class="reflection-note">
+        <span class="han-prefix">省</span>
+        在你近六次立志之中，"预先之愧疚"已四度浮现为动意。
+        门户建议：此本身或可立为单独之志，专以察之。
+      </div>
+    </div>
+
+    <div class="journey-timeline">
+      <div class="journey-head">
+        <h3>修行历程</h3>
+        <p>修身工夫，自第一日始，直至成习——本门户陪你一年。每一里程，皆有所候。</p>
+      </div>
+      <div class="journey-steps">
+        <div class="journey-step">
+          <div class="journey-day">第 1 日 <small>始</small></div>
+          <h5>初问心</h5>
+          <p>提出第一困、立第一志。门户不为你决断，只为你看清。</p>
+        </div>
+        <div class="journey-step now">
+          <div class="journey-day">第 7 日 <small>当下</small></div>
+          <h5>七日回访</h5>
+          <p>志已行乎？若未行，何阻？若已行，所获何感？阳明先生云：「事上磨练」。</p>
+        </div>
+        <div class="journey-step">
+          <div class="journey-day">第 30 日</div>
+          <h5>第一次深省</h5>
+          <p>三十日间立之诸志，回看之，何者得行，何者未行，所未行者何故。</p>
+        </div>
+        <div class="journey-step">
+          <div class="journey-day">第 90 日</div>
+          <h5>循环初显</h5>
+          <p>三月之中，反复出现之念虑、反复回避之事，渐成可识之纹。门户为你绘其形。</p>
+        </div>
+        <div class="journey-step">
+          <div class="journey-day">第 365 日 <small>整年</small></div>
+          <h5>工夫成习</h5>
+          <p>问心已成日用之事，非偶为之。此时再回看第一日之困，往往一笑——非困已尽，乃心已变。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESEARCH & ETHICS ============ -->
+<section class="research" id="research">
+  <div class="section-head">
+    <div class="section-eyebrow">
+      <span class="num">捌</span>
+      <span>学理基础与伦理承诺</span>
+    </div>
+    <h2 class="section-title"><span class="han">立基</span>研究与伦理</h2>
+    <p class="section-sub">
+      本门户非为娱乐之具，非为代人决断之机。其立基有三：经典心学、当代道德心理与教育评价、HAA 框架。
+      其伦理之许，亦书于此，以备公示。
+    </p>
+  </div>
+
+  <div class="research-grid">
+    <div class="research-card">
+      <div class="research-card-num">壹</div>
+      <h4><span class="han">经</span>经典心学之根</h4>
+      <p>本门户之四阶之链，直接据《传习录》四句教而立。诸概念——心即理、致良知、知行合一、事上磨练——皆有原文出处。</p>
+      <ul>
+        <li>《传习录》三卷 · 王阳明撰</li>
+        <li>《大学问》 · 阳明晚年纲领之作</li>
+        <li>《王阳明全集》 · 四十一卷</li>
+        <li>历代注释 · 自刘宗周至当代</li>
+      </ul>
+    </div>
+
+    <div class="research-card">
+      <div class="research-card-num">贰</div>
+      <h4><span class="han">心</span>当代道德心理学</h4>
+      <p>问心之四阶，与当代心理学中之"道德推理工夫"（moral deliberation）研究有契。本门户参较以下学理路径：</p>
+      <ul>
+        <li>道德直觉与反思之双过程理论</li>
+        <li>意向性察觉（intentional awareness）研究</li>
+        <li>承诺与行为变更（commitment & behavior change）</li>
+        <li>反思日记（reflective journaling）之循证研究</li>
+      </ul>
+    </div>
+
+    <div class="research-card">
+      <div class="research-card-num">叁</div>
+      <h4><span class="han">据</span>评价与数据标准</h4>
+      <p>修身之轨非教条之单向输入。每一立志、每一行、每一省察，皆为可计可察之教育数据，循国际标准。</p>
+      <ul>
+        <li>xAPI（Experience API · ADL 标准）</li>
+        <li>语义结构化之 LRS（Learning Record Store）</li>
+        <li>匿名化与最小数据原则</li>
+        <li>开放学术合作 · 数据可申请研究使用</li>
+      </ul>
+    </div>
+
+    <div class="research-card">
+      <div class="research-card-num">肆</div>
+      <h4><span class="han">辅</span>HAA 框架 · 人为本</h4>
+      <p>本门户为 HAA（Human Agency Augmentation）原则之具体落地。AI 之责，是<em style="color:var(--vermillion);">澄、镜、检、问</em>，非<em style="color:var(--vermillion);">代、判、决、行</em>。</p>
+      <ul>
+        <li>不为人作道德之判</li>
+        <li>不代人立志、不代人行</li>
+        <li>必显矛盾之意，不便利用户之自欺</li>
+        <li>成败之衡，在用户所行之深，非 AI 所言之巧</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ETHICS PLEDGE -->
+  <div class="ethics-pledge">
+    <div class="label">伦理承诺 · 五誓</div>
+    <h3><span class="han">誓</span>本门户之于用户者</h3>
+    <div class="pledge-grid">
+      <div class="pledge-item">
+        <h5>不评 <small>不为人下判</small></h5>
+        <p>无论提出之困何等微细或重大，门户唯映你良知所已知，绝不替你裁断。</p>
+      </div>
+      <div class="pledge-item">
+        <h5>不传 <small>所书之事，永不外传</small></h5>
+        <p>所有问心内容，端到端加密。除非用户主动选择匿名共享于同修，否则永远私密。</p>
+      </div>
+      <div class="pledge-item">
+        <h5>不导 <small>渐令自立，非诱常来</small></h5>
+        <p>本门户之衡，非视来访之频，乃视用户自能问心之力。每次问心之末，门户必问：「此事既明，可暂别否？真新困至，再来。」</p>
+      </div>
+      <div class="pledge-item">
+        <h5>不冒 <small>不冒充阳明先生</small></h5>
+        <p>本门户非阳明本人，亦非任何代言人。所引必有据；所言必标"门户之言"或"先生原文"。</p>
+      </div>
+      <div class="pledge-item" style="grid-column: 1 / -1; max-width: 600px;">
+        <h5>不滞 <small>不困于一家之言</small></h5>
+        <p>阳明心学非唯一之道。门户于关键处，必提示"此为心学之见，他派或有不同"，并指出朱子学、佛家、儒家其他流派之异说，留用户参较之地。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">阳明何为</div>
+      <p class="footer-tagline">
+        知行合一之活态门户——AI 澄心之用，致良知之事，归然于人。<br/>
+        本门户立心于：替你看清，不替你决断。
+      </p>
+      <span class="seal">致良知</span>
+    </div>
+    <div class="footer-col">
+      <h5>修行</h5>
+      <ul>
+        <li><a href="#deliberate">问心</a></li>
+        <li><a href="#cases">案例馆</a></li>
+        <li><a href="#cultivation">修身台帐</a></li>
+        <li><a href="#cultivation">省察日志</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>典籍</h5>
+      <ul>
+        <li><a href="#corpus">《传习录》上</a></li>
+        <li><a href="#corpus">《传习录》中</a></li>
+        <li><a href="#corpus">《传习录》下</a></li>
+        <li><a href="#corpus">《大学问》</a></li>
+        <li><a href="#corpus">良知库全目</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>关于</h5>
+      <ul>
+        <li><a href="#architecture">系统架构</a></li>
+        <li><a href="#research">HAA 框架</a></li>
+        <li><a href="#research">研究札记</a></li>
+        <li><a href="#research">伦理承诺</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>开放</h5>
+      <ul>
+        <li><a href="#">开放源码 · GitHub</a></li>
+        <li><a href="#">学术合作申请</a></li>
+        <li><a href="#">语料贡献</a></li>
+        <li><a href="#">联系我们</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 · 阳明门户 · 立心于知行合一</span>
+    <span>人为本 · 机为辅 · HAA 原则</span>
+  </div>
+</footer>
+
+<script>
+  // ============================================================
+  // BACKEND CONFIG (real API integration)
+  // ============================================================
+  // Backend URL resolution:
+  //   1. window.WWWD_BACKEND_URL if set before page load
+  //   2. ?api=... URL query parameter
+  //   3. Default: http://localhost:8000
+  const BACKEND_URL = (() => {
+    if (typeof window !== 'undefined' && window.WWWD_BACKEND_URL) return window.WWWD_BACKEND_URL;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('api')) return params.get('api');
+    return 'http://localhost:8000';
+  })();
+
+  // Google OAuth client ID — set via window.WWWD_GOOGLE_CLIENT_ID before page load.
+  // If unset, OAuth login is disabled and all sessions are anonymous.
+  const GOOGLE_CLIENT_ID = (typeof window !== 'undefined' && window.WWWD_GOOGLE_CLIENT_ID) || '';
+
+  // Persistent session UUID for anonymous tracking.
+  // Per "不传" pledge: this is a random UUID, not derivable from identity.
+  const SESSION_KEY = 'wwwd_session_id';
+  function ensureSessionId() {
+    let sid = localStorage.getItem(SESSION_KEY);
+    if (!sid) {
+      sid = (crypto.randomUUID && crypto.randomUUID()) ||
+            ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+              (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+      localStorage.setItem(SESSION_KEY, sid);
+    }
+    return sid;
+  }
+
+  // Google ID token — set by handleCredentialResponse after login.
+  let googleIdToken = localStorage.getItem('wwwd_id_token') || '';
+  let googleProfileName = localStorage.getItem('wwwd_profile_name') || '';
+
+  function getAuthHeaders() {
+    const headers = { 'X-Wwwd-Session': ensureSessionId() };
+    if (googleIdToken) headers['Authorization'] = `Bearer ${googleIdToken}`;
+    return headers;
+  }
+
+  // Called by Google Identity Services on successful sign-in
+  window.handleCredentialResponse = function(response) {
+    googleIdToken = response.credential;
+    localStorage.setItem('wwwd_id_token', googleIdToken);
+    // Decode JWT payload (display name only — never sent to backend except as token)
+    try {
+      const payload = JSON.parse(atob(googleIdToken.split('.')[1]));
+      googleProfileName = payload.name || payload.email || '已登录';
+      localStorage.setItem('wwwd_profile_name', googleProfileName);
+    } catch (e) { googleProfileName = '已登录'; }
+    renderAuthBar();
+  };
+
+  function signOut() {
+    googleIdToken = '';
+    googleProfileName = '';
+    localStorage.removeItem('wwwd_id_token');
+    localStorage.removeItem('wwwd_profile_name');
+    if (window.google?.accounts?.id) window.google.accounts.id.disableAutoSelect();
+    renderAuthBar();
+  }
+
+  function renderAuthBar() {
+    const bar = document.getElementById('authBar');
+    if (!bar) return;
+    if (googleIdToken && googleProfileName) {
+      bar.innerHTML = `
+        <span style="font-size:11px;color:rgba(26,22,18,0.55);letter-spacing:0.1em;">已化名 · </span>
+        <span style="font-size:12px;color:var(--ink);font-weight:500;">${googleProfileName}</span>
+        <button id="signOutBtn" style="margin-left:10px;background:none;border:1px solid rgba(26,22,18,0.2);padding:3px 10px;border-radius:100px;font-family:'Noto Serif SC',serif;font-size:11px;color:rgba(26,22,18,0.6);cursor:pointer;letter-spacing:0.1em;">退</button>
+      `;
+      document.getElementById('signOutBtn').onclick = signOut;
+    } else {
+      bar.innerHTML = `
+        <span style="font-size:11px;color:rgba(26,22,18,0.55);letter-spacing:0.1em;">匿名问心 · </span>
+        <div id="googleSignInBtn"></div>
+      `;
+      // Render Google button only if client ID configured
+      if (GOOGLE_CLIENT_ID && window.google?.accounts?.id) {
+        try {
+          window.google.accounts.id.renderButton(
+            document.getElementById('googleSignInBtn'),
+            { theme: 'outline', size: 'small', text: 'signin', shape: 'pill', type: 'standard' }
+          );
+        } catch (e) { /* GIS not ready yet */ }
+      } else if (!GOOGLE_CLIENT_ID) {
+        document.getElementById('googleSignInBtn').innerHTML =
+          '<span style="font-size:10.5px;color:rgba(26,22,18,0.4);font-style:italic;">（化名登录待配置）</span>';
+      }
+    }
+  }
+
+  function initGoogleAuth() {
+    if (!GOOGLE_CLIENT_ID) return;
+    if (!window.google?.accounts?.id) {
+      // GIS script may load after this; retry briefly
+      setTimeout(initGoogleAuth, 200);
+      return;
+    }
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: window.handleCredentialResponse,
+      auto_select: false,
+    });
+    renderAuthBar();
+  }
+
+  // Emit a frontend xAPI event (whitelisted verbs only — server also filters)
+  async function emitXapiEvent(verbKey, sessionId, resultExt) {
+    if (!backendAvailable) return;
+    try {
+      await fetch(`${BACKEND_URL}/api/xapi/event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({ verb_key: verbKey, session_id: sessionId, result_ext: resultExt || {} }),
+      });
+    } catch (e) { /* non-blocking */ }
+  }
+
+  let backendAvailable = false;
+  let backendInfo = null;
+
+  async function checkBackend() {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 2000);
+      const res = await fetch(`${BACKEND_URL}/api/health`, { signal: ctrl.signal });
+      clearTimeout(t);
+      if (res.ok) {
+        backendInfo = await res.json();
+        backendAvailable = true;
+        renderBackendStatus(true);
+        return true;
+      }
+    } catch (e) { /* unreachable */ }
+    backendAvailable = false;
+    renderBackendStatus(false);
+    return false;
+  }
+
+  function renderBackendStatus(connected) {
+    let badge = document.getElementById('backendBadge');
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.id = 'backendBadge';
+      badge.style.cssText = 'font-family:"Noto Serif SC",serif;font-size:11.5px;letter-spacing:0.15em;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;border:1px solid rgba(26,22,18,0.15);background:rgba(255,255,255,0.4);';
+      const header = document.querySelector('.deliberation-header');
+      if (header) {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'display:flex;gap:10px;align-items:center;';
+        wrap.appendChild(badge);
+        const han = header.querySelector('.han');
+        if (han) header.insertBefore(wrap, han); else header.appendChild(wrap);
+      }
+    }
+    if (connected) {
+      const corpus = backendInfo?.corpus_size || 0;
+      const model = backendInfo?.model || 'Claude';
+      badge.innerHTML = `<span style="display:inline-block;width:6px;height:6px;background:#4a8b4a;border-radius:50%;animation:pulse 2s infinite;"></span><span style="color:rgba(244,236,220,0.85);">实时 AI · ${model} · ${corpus} 段语料</span>`;
+      badge.style.background = 'rgba(74,139,74,0.12)';
+      badge.style.borderColor = 'rgba(74,139,74,0.4)';
+    } else {
+      badge.innerHTML = `<span style="display:inline-block;width:6px;height:6px;background:rgba(184,149,74,0.6);border-radius:50%;"></span><span style="color:rgba(244,236,220,0.7);">演示模式 · 后端未连</span>`;
+      badge.style.background = 'rgba(184,149,74,0.12)';
+      badge.style.borderColor = 'rgba(184,149,74,0.3)';
+    }
+  }
+
+  // ============================================================
+  // SCENARIO LIBRARY (8 cases)
+  // ============================================================
+  const scenarios = [
+    {
+      cat: '家',
+      catFull: '家庭',
+      title: '父母独居之难',
+      excerpt: '父母年近八十，体衰可见，然坚持独自留乡。我已三度请其同住，皆辞……',
+      full: '父母年近八十，体力日衰，然坚持独自留乡。我已三度请其与我同住，父亲皆辞，言不愿成累赘。我心中两难：一则当尊其自主，一则似有真切之责。万一有事，恐终生不能自恕。'
+    },
+    {
+      cat: '伦',
+      catFull: '伦理',
+      title: '同侪疑似学术不端',
+      excerpt: '近日发现一同侪之论文中，引用一段我去岁与之私下讨论之未发观点，而未具我名……',
+      full: '近日发现一同侪之论文中，引用一段我去岁与之私下讨论之未发观点，而未具我名。此事甚微，未达指控之地，然心中怏怏。是径告其上司，是私下相商，是含忍而过？三者之间，良知何辨？'
+    },
+    {
+      cat: '职',
+      catFull: '职场',
+      title: '同事暗夺其功',
+      excerpt: '团队会议上，一同事将我熬夜所成之分析以己之名上呈，主管遂大加赞许……',
+      full: '团队会议上，一同事将我熬夜所成之分析以己之名上呈，主管遂大加赞许。我未当场辩明——一则不愿失体面，二则证据未尽。然事后愈思愈难安。沉默是宽厚？是怯懦？是暗助其得？'
+    },
+    {
+      cat: '关',
+      catFull: '关系',
+      title: '旧友之间嫌怨渐生',
+      excerpt: '一二十年之老友，近一年间往来日疏。回溯之，三年前彼曾于一事上失约，致我误事……',
+      full: '一二十年之老友，近一年间往来日疏。回溯之，三年前彼曾于一事上失约，致我误事；当时未言。如今每见其朋友圈之更新，心中即微涌烦倦。问此心：我所抑者，是当年之失？是己之未言？抑或此友谊本已尽其时？'
+    },
+    {
+      cat: '公',
+      catFull: '公民',
+      title: '见公门小恶',
+      excerpt: '我于某政府部门工作。近见一上级与某外承包商往来之中，似有不当之利……',
+      full: '我于某政府部门工作。近见一上级与某外承包商往来之中，似有不当之利。证据非铁，然迹象明显。检举有内部之渠道，然必将损及己之处境与生计。良知何令？是径告？是观望？是先求更确之证？'
+    },
+    {
+      cat: '教',
+      catFull: '教育',
+      title: '严师慈师之间',
+      excerpt: '我教一群高中生。其中一生，资质本佳，然此学期态度怠惰……',
+      full: '我教一群高中生。其中一生，资质本佳，然此学期态度怠惰。我可严斥之以警其志，亦可慈柔以查其因。学校文化重前者；我之本心倾后者。然亦疑：所倾后者，是因其更利学生？抑或为避己之不快与冲突？'
+    },
+    {
+      cat: '己',
+      catFull: '己身',
+      title: '远方之机与心中之愧',
+      excerpt: '得一升职机会，须迁至千里之外。事业之机难得，然父母在堂，子尚年幼……',
+      full: '得一升职机会，须迁至千里之外。事业之机难得，然父母在堂，子尚年幼，妻业亦在此。心中既向往，又生愧疚。问此志之欲，是为成就其当为之事？抑或为安一种"我应已至此处"之念？'
+    },
+    {
+      cat: '言',
+      catFull: '言默',
+      title: '何时当言，何时当默',
+      excerpt: '家庭聚会上，长辈对一近亲之子之教育大加批评。彼父母在场，颇受难堪……',
+      full: '家庭聚会上，长辈对一近亲之子之教育大加批评。彼父母在场，颇受难堪。我本知其中委曲，亦觉长辈所论失当。然依乡俗，晚辈不宜公然反长辈之言。我可笑而不语；可委婉转话题；可直言相驳。良知何辨？'
+    }
+  ];
+
+  // ============================================================
+  // CASE LIBRARY (resolved cases for browse)
+  // ============================================================
+  const caseLibrary = [
+    { cat: '伦', catFull: '伦理', title: '父母独居之难（本期演示）', excerpt: '父母年迈，坚守独居，体衰可见。一头是孝义之责，一头是其自主之尊。对将来悔恨之惧，弥漫一切思虑。', diag: '心学诊断 · 真孝 vs 为己之孝', diff: 3, time: '今日 · 立志在审' },
+    { cat: '职', catFull: '职场', title: '同事暗夺其功', excerpt: '修者发现一同侪，于上之前以己之分析为彼之名而呈。先私下温言相商，证据于备而不张。', diag: '心学诊断 · 直 vs 失体面', diff: 2, time: '三日前 · 七日已访' },
+    { cat: '家', catFull: '家庭', title: '兄弟反复借贷', excerpt: '良知辨"济"与"纵"之别。婉拒下次借款，改荐其工作之机。', diag: '心学诊断 · 仁 vs 纵', diff: 2, time: '五日前 · 十四日已访' },
+    { cat: '公', catFull: '公民', title: '见公门小恶', excerpt: '言与守之间踌躇——惧损己之立。内部正途呈报，外不张扬。', diag: '心学诊断 · 义 vs 自保', diff: 4, time: '十一日前 · 三十日已访' },
+    { cat: '关', catFull: '关系', title: '旧友间隐怨渐生', excerpt: '良知浮显多年未言之失。一封诚恳之信，搁置二日，再寄。', diag: '心学诊断 · 念念不忘 vs 过则勿惮改', diff: 3, time: '两周前 · 四十五日已结' },
+    { cat: '教', catFull: '教育', title: '学生态度怠惰', excerpt: '严慈之间。问其因，方知家中近遭变故。先慈而察情，后严而设界。', diag: '心学诊断 · 教 vs 化', diff: 3, time: '十八日前 · 三十日已访' },
+    { cat: '己', catFull: '己身', title: '远方之机与心中之愧', excerpt: '与家人三度长谈，方知所谓"为家"实有为己之求。终未迁，留中调任，志已立。', diag: '心学诊断 · 立志 vs 自欺', diff: 4, time: '一月前 · 已结' },
+    { cat: '言', catFull: '言默', title: '宴上长辈苛言', excerpt: '事后私下劝长辈，并去看望被批之亲。当场之默非怯，乃为日后之实。', diag: '心学诊断 · 时中 vs 乡愿', diff: 3, time: '七日前 · 七日已访' },
+    { cat: '伦', catFull: '伦理', title: '同侪疑似学术不端', excerpt: '私下温言相商。彼承之，主动加引。事未上扬。良知不必每事张扬。', diag: '心学诊断 · 直 vs 苛', diff: 4, time: '一月前 · 已结' }
+  ];
+
+  // ============================================================
+  // RENDER SCENARIO CARDS
+  // ============================================================
+  const cardsContainer = document.getElementById('scenarioCards');
+  const textarea = document.getElementById('scenarioBox');
+  const wordCount = document.getElementById('wordCount');
+
+  scenarios.forEach((s, i) => {
+    const card = document.createElement('button');
+    card.className = 'scenario-card' + (i === 0 ? ' active' : '');
+    card.innerHTML = `
+      <span class="sc-cat">${s.cat}</span>
+      <div class="sc-title">${s.title}</div>
+      <div class="sc-excerpt">${s.excerpt}</div>
+    `;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      textarea.value = s.full;
+      wordCount.textContent = s.full.length;
+      // Update displayed scenario card
+      const display = document.querySelector('.scenario-card-display');
+      if (display) {
+        const meta = display.querySelector('.meta');
+        const newContent = s.full.length > 100 ? s.full.substring(0, 100) + '……' : s.full;
+        // Replace text content while preserving meta
+        display.innerHTML = newContent + '<div class="meta">案例 · ' + s.catFull + ' · 隐名 · 难度 ' + (['浅','中','深','深'][i % 4]) + '</div>';
+      }
+    });
+    cardsContainer.appendChild(card);
+  });
+
+  // ============================================================
+  // RENDER CASE LIBRARY
+  // ============================================================
+  const caseGrid = document.getElementById('caseGrid');
+  caseLibrary.forEach(c => {
+    const tile = document.createElement('div');
+    tile.className = 'case-tile';
+    tile.dataset.cat = c.catFull;
+    const dots = Array.from({length: 5}, (_, i) =>
+      `<span class="dot${i < c.diff ? '' : ' dim'}"></span>`).join('');
+    tile.innerHTML = `
+      <div class="case-tile-head">
+        <span class="case-tile-cat">${c.cat}</span>
+        <span class="case-tile-meta">${c.time}</span>
+      </div>
+      <h4>${c.title}</h4>
+      <p>${c.excerpt}</p>
+      <div class="case-tile-foot">
+        <span class="case-tile-diag">${c.diag}</span>
+        <span class="case-tile-difficulty">${dots}</span>
+      </div>
+    `;
+    caseGrid.appendChild(tile);
+  });
+
+  // Filter chips for case library
+  document.querySelectorAll('.case-library .filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.case-library .filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const filter = chip.textContent.trim();
+      document.querySelectorAll('.case-tile').forEach(tile => {
+        if (filter === '全部' || tile.dataset.cat === filter) {
+          tile.style.display = '';
+        } else {
+          tile.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // ============================================================
+  // WORD COUNT
+  // ============================================================
+  textarea.addEventListener('input', () => {
+    wordCount.textContent = textarea.value.length;
+  });
+
+  // ============================================================
+  // AI GENERATE NEW SCENARIO
+  // ============================================================
+  const aiGenBtn = document.getElementById('aiGenBtn');
+  const generatedScenarios = [
+    { cat: '己', catFull: '己身', title: '深夜未眠之时', full: '近来连日深夜方眠，明知有损身心，然每至深夜，似得一片唯属自己之闲，舍不去。问此心：所恋者非夜，乃日间之未尽？抑或为某种已成习之自我抚慰？知而不行，奈何？' },
+    { cat: '言', catFull: '言默', title: '社群中之歧见', full: '在一线上群组中见某友传一明显之伪信。我可径指其谬，可私下相告，可不语。径指恐其失面，私告恐其不察，不语恐误他人。三者之间，良知何辨？' },
+    { cat: '关', catFull: '关系', title: '伴侣之嫌', full: '与伴侣近月间小事多生龃龉。事过即和，然次次累积。我察其中有我之未察之习——惯以"为你好"之名，行掌控之实。今见此，何为？' },
+    { cat: '职', catFull: '职场', title: '上级令我所不安之事', full: '上级令我做一事，于法无违，然觉与公司对外承诺之精神相悖。可径行，可缓行而暗减其害，可直陈己见。三者各有代价。良知此刻何令？' }
+  ];
+
+  let genIndex = 0;
+  aiGenBtn.addEventListener('click', () => {
+    aiGenBtn.disabled = true;
+    aiGenBtn.innerHTML = '<span class="pulse"></span> 生成中 <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+
+    setTimeout(() => {
+      const newCase = generatedScenarios[genIndex % generatedScenarios.length];
+      genIndex++;
+
+      // Create a new scenario card and prepend
+      const card = document.createElement('button');
+      card.className = 'scenario-card active';
+      card.innerHTML = `
+        <span class="sc-cat">${newCase.cat}</span>
+        <div class="sc-title">${newCase.title} <small style="color:var(--vermillion-l);font-size:10px;letter-spacing:0.1em;">· 新</small></div>
+        <div class="sc-excerpt">${newCase.full.substring(0, 50)}……</div>
+      `;
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        textarea.value = newCase.full;
+        wordCount.textContent = newCase.full.length;
+      });
+      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+      cardsContainer.insertBefore(card, cardsContainer.firstChild);
+
+      // Fill textarea
+      textarea.value = newCase.full;
+      wordCount.textContent = newCase.full.length;
+
+      aiGenBtn.disabled = false;
+      aiGenBtn.innerHTML = '<span class="pulse"></span> AI 生成新案';
+
+      textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 1600);
+  });
+
+  // ============================================================
+  // DELIBERATION (real API streaming + mock fallback)
+  // ============================================================
+  const btn = document.getElementById('deliberateBtn');
+  const output = document.querySelector('.deliberation-output');
+  const stages = document.querySelectorAll('.stage, .action-card');
+
+  function getStageContent(stageEl, num) {
+    return num === 4 ? stageEl : stageEl.querySelector('.stage-content');
+  }
+
+  function prepareStreamTarget(stageEl, num) {
+    const content = getStageContent(stageEl, num);
+    // Hide demo content selectively
+    const toHide = num === 4
+      ? content.querySelectorAll('.action-list, .commit-row')
+      : content.querySelectorAll('p, .quoted, .sub-line');
+    toHide.forEach(el => el.style.display = 'none');
+
+    let target = content.querySelector('.stream-target');
+    if (!target) {
+      target = document.createElement('div');
+      target.className = 'stream-target';
+      target.style.cssText = num === 4
+        ? 'color: rgba(244,236,220,0.92); font-family: "Noto Serif SC", serif; font-size: 15px; line-height: 1.95; white-space: pre-wrap; padding: 12px 0; letter-spacing: 0.03em; min-height: 80px;'
+        : 'color: var(--ink-soft); font-family: "Noto Serif SC", serif; font-size: 15.5px; line-height: 1.95; white-space: pre-wrap; letter-spacing: 0.03em; min-height: 60px;';
+      content.appendChild(target);
+    }
+    target.textContent = '';
+    target.style.display = '';
+    return target;
+  }
+
+  function restoreMockContent() {
+    stages.forEach((stage, i) => {
+      const num = i + 1;
+      const content = getStageContent(stage, num);
+      const all = content.querySelectorAll('p, .quoted, .sub-line, .action-list, .commit-row');
+      all.forEach(el => el.style.display = '');
+      const target = content.querySelector('.stream-target');
+      if (target) target.style.display = 'none';
+    });
+  }
+
+  async function realDeliberate(scenario) {
+    const header = document.querySelector('.deliberation-header .title');
+    header.innerHTML = '<span class="pulse-dot"></span>正在审心 <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+
+    const display = document.querySelector('.scenario-card-display');
+    if (display) {
+      const preview = scenario.length > 100 ? scenario.substring(0, 100) + '……' : scenario;
+      display.innerHTML = preview + '<div class="meta">案例 · 在审 · 隐名 · 实时 AI 问心</div>';
+    }
+
+    const targets = [];
+    stages.forEach((stage, i) => {
+      const t = prepareStreamTarget(stage, i + 1);
+      targets.push(t);
+      stage.style.opacity = 1;
+      stage.style.transform = 'translateY(0)';
+    });
+
+    output.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const startTime = Date.now();
+    let serverSessionId = '';
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/deliberate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+          scenario: scenario,
+          mode: 'standard',
+          script: currentScript || 'cn'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`后端错误 ${response.status}: ${await response.text()}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const events = buffer.split('\n\n');
+        buffer = events.pop();
+
+        for (const block of events) {
+          if (!block.trim()) continue;
+          let eventName = 'message', dataStr = '';
+          for (const line of block.split('\n')) {
+            if (line.startsWith('event: ')) eventName = line.slice(7).trim();
+            else if (line.startsWith('data: ')) dataStr += line.slice(6);
+          }
+          if (!dataStr) continue;
+          let data;
+          try { data = JSON.parse(dataStr); } catch { continue; }
+
+          if (eventName === 'stage_chunk' && data.stage >= 1 && data.stage <= 4) {
+            targets[data.stage - 1].textContent += data.text;
+          } else if (eventName === 'session') {
+            serverSessionId = data.session_id || '';
+          } else if (eventName === 'stage_start') {
+            // Optional: visual cue
+          } else if (eventName === 'stage_end') {
+            // Optional: mark complete
+          } else if (eventName === 'complete') {
+            const seconds = ((Date.now() - startTime) / 1000).toFixed(1);
+            header.innerHTML = `<span class="pulse-dot" style="background:var(--aged-gold)"></span>问心已成 · 历时 ${seconds} 秒`;
+          } else if (eventName === 'error') {
+            throw new Error(data.message || '问心受阻');
+          } else if (eventName === 'corpus') {
+            // Could display retrieved passages — kept silent for now
+          }
+        }
+      }
+    } catch (err) {
+      header.innerHTML = `<span class="pulse-dot" style="background:var(--vermillion-l)"></span>问心受阻 · ${err.message}`;
+      targets.forEach(t => {
+        if (!t.textContent) t.textContent = '（API 调用失败 · 请检查后端连接、API key 是否有效，或浏览器控制台之错误信息）';
+      });
+    }
+  }
+
+  function mockDeliberate() {
+    restoreMockContent();
+    stages.forEach(s => {
+      s.style.opacity = 0;
+      s.style.transform = 'translateY(16px)';
+      s.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+    });
+    output.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const header = document.querySelector('.deliberation-header .title');
+    header.innerHTML = '<span class="pulse-dot"></span>正在审心 <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+
+    stages.forEach((s, i) => {
+      setTimeout(() => {
+        s.style.opacity = 1;
+        s.style.transform = 'translateY(0)';
+      }, 700 + i * 1000);
+    });
+
+    setTimeout(() => {
+      header.innerHTML = '<span class="pulse-dot" style="background:var(--aged-gold)"></span>问心已成 · 演示模式 · 历时 27.4 秒';
+    }, 700 + stages.length * 1000 + 200);
+  }
+
+  if (btn && output) {
+    btn.addEventListener('click', () => {
+      const scenario = textarea.value.trim();
+      if (scenario.length < 10) {
+        textarea.style.borderColor = 'var(--vermillion)';
+        setTimeout(() => textarea.style.borderColor = '', 1200);
+        return;
+      }
+      if (backendAvailable) {
+        realDeliberate(scenario);
+      } else {
+        mockDeliberate();
+      }
+    });
+  }
+
+  // ============================================================
+  // CULTIVATION BARS ANIMATE
+  // ============================================================
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.bar-fill').forEach(b => {
+          const w = b.style.width;
+          b.style.width = '0%';
+          requestAnimationFrame(() => {
+            setTimeout(() => { b.style.width = w; }, 50);
+          });
+        });
+        barObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.cultivation-panel').forEach(el => barObserver.observe(el));
+
+  // ============================================================
+  // REVEAL ON SCROLL
+  // ============================================================
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ============================================================
+  // SIMPLIFIED / TRADITIONAL TOGGLE (using OpenCC.js)
+  // ============================================================
+  let s2tConverter = null;
+  let t2sConverter = null;
+  let currentScript = 'cn';
+
+  // Cache original text content of all text nodes once
+  const originalCache = new Map();
+  let nodeIdCounter = 0;
+
+  function cacheTextNodes(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const parent = node.parentElement;
+      if (!parent) return;
+      const tag = parent.tagName;
+      // Skip script, style, and contenteditable
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') return;
+      const text = node.textContent;
+      if (!text || !text.trim()) return;
+      // Only cache if contains CJK
+      if (!/[\u3400-\u9fff]/.test(text)) return;
+      const id = ++nodeIdCounter;
+      node.__convId = id;
+      originalCache.set(id, text);
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      // Handle textarea separately
+      if (node.tagName === 'TEXTAREA') {
+        if (/[\u3400-\u9fff]/.test(node.value)) {
+          const id = ++nodeIdCounter;
+          node.__convValId = id;
+          originalCache.set(id, node.value);
+        }
+        if (node.placeholder && /[\u3400-\u9fff]/.test(node.placeholder)) {
+          const id = ++nodeIdCounter;
+          node.__convPlaceId = id;
+          originalCache.set(id, node.placeholder);
+        }
+      }
+      // Handle title and other attribute conversions
+      if (node.tagName === 'INPUT' && node.placeholder && /[\u3400-\u9fff]/.test(node.placeholder)) {
+        const id = ++nodeIdCounter;
+        node.__convPlaceId = id;
+        originalCache.set(id, node.placeholder);
+      }
+      // Recurse
+      for (const child of node.childNodes) cacheTextNodes(child);
+    }
+  }
+
+  function applyConversion(target) {
+    // target: 'cn' (original simplified) or 'tw' (traditional)
+    function walk(node) {
+      if (node.nodeType === Node.TEXT_NODE && node.__convId) {
+        const original = originalCache.get(node.__convId);
+        if (target === 'cn') {
+          node.textContent = original;
+        } else if (target === 'tw' && s2tConverter) {
+          node.textContent = s2tConverter(original);
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.tagName === 'TEXTAREA') {
+          if (node.__convValId) {
+            const orig = originalCache.get(node.__convValId);
+            node.value = (target === 'tw' && s2tConverter) ? s2tConverter(orig) : orig;
+          }
+          if (node.__convPlaceId) {
+            const orig = originalCache.get(node.__convPlaceId);
+            node.placeholder = (target === 'tw' && s2tConverter) ? s2tConverter(orig) : orig;
+          }
+        }
+        if (node.tagName === 'INPUT' && node.__convPlaceId) {
+          const orig = originalCache.get(node.__convPlaceId);
+          node.placeholder = (target === 'tw' && s2tConverter) ? s2tConverter(orig) : orig;
+        }
+        for (const child of node.childNodes) walk(child);
+      }
+    }
+    walk(document.body);
+
+    // Update lang attribute
+    document.documentElement.lang = target === 'tw' ? 'zh-Hant' : 'zh-CN';
+  }
+
+  function initOpenCC() {
+    if (window.OpenCC && !s2tConverter) {
+      try {
+        s2tConverter = OpenCC.Converter({ from: 'cn', to: 'twp' });
+        t2sConverter = OpenCC.Converter({ from: 'twp', to: 'cn' });
+        return true;
+      } catch (e) {
+        console.warn('OpenCC init failed:', e);
+        return false;
+      }
+    }
+    return !!s2tConverter;
+  }
+
+  // Cache nodes on load + auto-detect browser language + check backend
+  window.addEventListener('DOMContentLoaded', () => {
+    cacheTextNodes(document.body);
+
+    // Backend health check (non-blocking)
+    checkBackend();
+
+    // Google OAuth init + render auth bar (idempotent — safe if GIS not yet loaded)
+    initGoogleAuth();
+    renderAuthBar();
+
+    // Auto-detect script preference from browser language
+    // navigator.languages is most accurate; fallback to navigator.language
+    const langs = (navigator.languages && navigator.languages.length
+      ? navigator.languages : [navigator.language || 'zh-CN']).map(l => (l || '').toLowerCase());
+    const wantsTraditional = langs.some(l =>
+      l === 'zh-tw' || l === 'zh-hk' || l === 'zh-mo' ||
+      l === 'zh-hant' || l.startsWith('zh-hant-') ||
+      l.includes('-tw') || l.includes('-hk') || l.includes('-mo')
+    );
+
+    if (wantsTraditional) {
+      const tryAutoSwitch = () => {
+        if (initOpenCC()) {
+          applyConversion('tw');
+          currentScript = 'tw';
+          scriptToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          const twBtn = scriptToggle.querySelector('[data-script="tw"]');
+          if (twBtn) twBtn.classList.add('active');
+          return true;
+        }
+        return false;
+      };
+      // OpenCC may not be loaded yet — poll briefly
+      if (!tryAutoSwitch()) {
+        const interval = setInterval(() => {
+          if (tryAutoSwitch()) clearInterval(interval);
+        }, 100);
+        setTimeout(() => clearInterval(interval), 5000);
+      }
+    }
+  });
+
+  // Set up toggle handler
+  const scriptToggle = document.getElementById('scriptToggle');
+  scriptToggle.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.script;
+      if (target === currentScript) return;
+
+      if (target === 'tw' && !initOpenCC()) {
+        // Wait for OpenCC to load
+        const checkInterval = setInterval(() => {
+          if (initOpenCC()) {
+            clearInterval(checkInterval);
+            applyConversion(target);
+            currentScript = target;
+            scriptToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+          }
+        }, 100);
+        setTimeout(() => clearInterval(checkInterval), 5000);
+        return;
+      }
+
+      // Re-cache any nodes added dynamically (scenario cards, etc.)
+      // Find new nodes that don't have __convId yet
+      const newNodes = [];
+      function findUncached(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          if (!node.__convId && /[\u3400-\u9fff]/.test(node.textContent)) {
+            const parent = node.parentElement;
+            if (parent && !['SCRIPT','STYLE','NOSCRIPT'].includes(parent.tagName)) {
+              newNodes.push(node);
+            }
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          for (const child of node.childNodes) findUncached(child);
+        }
+      }
+      findUncached(document.body);
+      newNodes.forEach(n => {
+        const id = ++nodeIdCounter;
+        n.__convId = id;
+        originalCache.set(id, n.textContent);
+      });
+
+      applyConversion(target);
+      currentScript = target;
+      scriptToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Re-cache when textarea content changes (so toggle works on user input)
+  textarea.addEventListener('blur', () => {
+    if (currentScript === 'cn' && /[\u3400-\u9fff]/.test(textarea.value)) {
+      const id = ++nodeIdCounter;
+      textarea.__convValId = id;
+      originalCache.set(id, textarea.value);
+    }
+  });
+</script>
+
+</body>
+</html>
