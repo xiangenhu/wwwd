@@ -1855,6 +1855,21 @@
     animation: shimmer 1.4s ease-in-out infinite;
     color: transparent !important;
   }
+
+  /* Auth bar — extracted from inline style strings so the rendering path
+     uses CSS classes (CSP-friendly) and user-supplied names cannot inject
+     markup via innerHTML. */
+  .auth-bar-label { font-size: 11px; color: rgba(26,22,18,0.55); letter-spacing: 0.1em; }
+  .auth-bar-name  { font-size: 12px; color: var(--ink); font-weight: 500; }
+  .auth-bar-hint  { font-size: 10.5px; color: rgba(26,22,18,0.4); font-style: italic; }
+  .auth-bar-btn {
+    margin-left: 10px; background: none;
+    border: 1px solid rgba(26,22,18,0.2);
+    padding: 3px 10px; border-radius: 100px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 11px; color: rgba(26,22,18,0.6);
+    cursor: pointer; letter-spacing: 0.1em;
+  }
 </style>
 </head>
 <body>
@@ -2725,29 +2740,41 @@
   function renderAuthBar() {
     const bar = document.getElementById('authBar');
     if (!bar) return;
+    // Construct via DOM so a JWT-supplied name with HTML metacharacters
+    // can never break out into markup.
+    bar.textContent = '';
     if (googleIdToken && googleProfileName) {
-      bar.innerHTML = `
-        <span style="font-size:11px;color:rgba(26,22,18,0.55);letter-spacing:0.1em;">已化名 · </span>
-        <span style="font-size:12px;color:var(--ink);font-weight:500;">${googleProfileName}</span>
-        <button id="signOutBtn" style="margin-left:10px;background:none;border:1px solid rgba(26,22,18,0.2);padding:3px 10px;border-radius:100px;font-family:'Noto Serif SC',serif;font-size:11px;color:rgba(26,22,18,0.6);cursor:pointer;letter-spacing:0.1em;">退</button>
-      `;
-      document.getElementById('signOutBtn').onclick = signOut;
+      const label = document.createElement('span');
+      label.className = 'auth-bar-label';
+      label.textContent = '已化名 · ';
+      const name = document.createElement('span');
+      name.className = 'auth-bar-name';
+      name.textContent = googleProfileName;
+      const signOutBtn = document.createElement('button');
+      signOutBtn.id = 'signOutBtn';
+      signOutBtn.className = 'auth-bar-btn';
+      signOutBtn.textContent = '退';
+      signOutBtn.onclick = signOut;
+      bar.append(label, name, signOutBtn);
     } else {
-      bar.innerHTML = `
-        <span style="font-size:11px;color:rgba(26,22,18,0.55);letter-spacing:0.1em;">匿名问心 · </span>
-        <div id="googleSignInBtn"></div>
-      `;
-      // Render Google button only if client ID configured
+      const label = document.createElement('span');
+      label.className = 'auth-bar-label';
+      label.textContent = '匿名问心 · ';
+      const slot = document.createElement('div');
+      slot.id = 'googleSignInBtn';
+      bar.append(label, slot);
       if (GOOGLE_CLIENT_ID && window.google?.accounts?.id) {
         try {
           window.google.accounts.id.renderButton(
-            document.getElementById('googleSignInBtn'),
+            slot,
             { theme: 'outline', size: 'small', text: 'signin', shape: 'pill', type: 'standard' }
           );
         } catch (e) { /* GIS not ready yet */ }
       } else if (!GOOGLE_CLIENT_ID) {
-        document.getElementById('googleSignInBtn').innerHTML =
-          '<span style="font-size:10.5px;color:rgba(26,22,18,0.4);font-style:italic;">（化名登录待配置）</span>';
+        const hint = document.createElement('span');
+        hint.className = 'auth-bar-hint';
+        hint.textContent = '（化名登录待配置）';
+        slot.appendChild(hint);
       }
     }
   }
@@ -3044,6 +3071,25 @@
     return num === 4 ? stageEl : stageEl.querySelector('.stage-content');
   }
 
+  // Build the deliberation header content via DOM (no innerHTML) so any
+  // user/network-supplied text we ever insert here cannot inject markup.
+  function renderProgressHeader(headerEl, label, opts = {}) {
+    headerEl.textContent = '';
+    const dot = document.createElement('span');
+    dot.className = 'pulse-dot';
+    if (opts.dotColor) dot.style.background = opts.dotColor;
+    headerEl.appendChild(dot);
+    headerEl.appendChild(document.createTextNode(' ' + label));
+    if (opts.typing) {
+      for (let i = 0; i < 3; i++) {
+        const td = document.createElement('span');
+        td.className = 'typing-dot';
+        headerEl.appendChild(document.createTextNode(' '));
+        headerEl.appendChild(td);
+      }
+    }
+  }
+
   function prepareStreamTarget(stageEl, num) {
     const content = getStageContent(stageEl, num);
     // Hide demo content selectively
@@ -3079,12 +3125,18 @@
 
   async function realDeliberate(scenario) {
     const header = document.querySelector('.deliberation-header .title');
-    header.innerHTML = '<span class="pulse-dot"></span>正在审心 <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+    renderProgressHeader(header, '正在审心', { typing: true });
 
     const display = document.querySelector('.scenario-card-display');
     if (display) {
+      // User-supplied scenario text goes through textContent so HTML in
+      // the textarea can't break out into markup.
       const preview = scenario.length > 100 ? scenario.substring(0, 100) + '……' : scenario;
-      display.innerHTML = preview + '<div class="meta">案例 · 在审 · 隐名 · 实时 AI 问心</div>';
+      display.textContent = preview;
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = '案例 · 在审 · 隐名 · 实时 AI 问心';
+      display.appendChild(meta);
     }
 
     const targets = [];
@@ -3150,7 +3202,7 @@
             // Optional: mark complete
           } else if (eventName === 'complete') {
             const seconds = ((Date.now() - startTime) / 1000).toFixed(1);
-            header.innerHTML = `<span class="pulse-dot" style="background:var(--aged-gold)"></span>问心已成 · 历时 ${seconds} 秒`;
+            renderProgressHeader(header, `问心已成 · 历时 ${seconds} 秒`, { dotColor: 'var(--aged-gold)' });
           } else if (eventName === 'error') {
             throw new Error(data.message || '问心受阻');
           } else if (eventName === 'corpus') {
@@ -3159,7 +3211,7 @@
         }
       }
     } catch (err) {
-      header.innerHTML = `<span class="pulse-dot" style="background:var(--vermillion-l)"></span>问心受阻 · ${err.message}`;
+      renderProgressHeader(header, '问心受阻 · ' + (err.message || String(err)), { dotColor: 'var(--vermillion-l)' });
       targets.forEach(t => {
         if (!t.textContent) t.textContent = '（API 调用失败 · 请检查后端连接、API key 是否有效，或浏览器控制台之错误信息）';
       });
@@ -3176,7 +3228,7 @@
     output.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     const header = document.querySelector('.deliberation-header .title');
-    header.innerHTML = '<span class="pulse-dot"></span>正在审心 <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+    renderProgressHeader(header, '正在审心', { typing: true });
 
     stages.forEach((s, i) => {
       setTimeout(() => {
@@ -3186,7 +3238,7 @@
     });
 
     setTimeout(() => {
-      header.innerHTML = '<span class="pulse-dot" style="background:var(--aged-gold)"></span>问心已成 · 演示模式 · 历时 27.4 秒';
+      renderProgressHeader(header, '问心已成 · 演示模式 · 历时 27.4 秒', { dotColor: 'var(--aged-gold)' });
     }, 700 + stages.length * 1000 + 200);
   }
 
