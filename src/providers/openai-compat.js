@@ -5,6 +5,7 @@
 // Translation: prepend `system` as a {role:'system'} message.
 
 import OpenAI from 'openai';
+import { flattenSystem } from '../prompts.js';
 
 export class OpenAICompatProvider {
   constructor({ apiKey, model, baseURL, label = 'openai-compat' }) {
@@ -19,8 +20,12 @@ export class OpenAICompatProvider {
   }
 
   async *streamText({ system, messages, model, maxTokens = 1024, signal }) {
-    const fullMessages = system
-      ? [{ role: 'system', content: system }, ...messages]
+    // OpenAI-compatible APIs expect a plain string for the system role.
+    // prompts.buildStageMessages returns a structured array (for Anthropic
+    // prompt caching); flatten it here.
+    const systemStr = flattenSystem(system);
+    const fullMessages = systemStr
+      ? [{ role: 'system', content: systemStr }, ...messages]
       : messages;
 
     const stream = await this.client.chat.completions.create(

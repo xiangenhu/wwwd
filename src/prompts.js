@@ -143,12 +143,15 @@ export function buildStageMessages({ stage, scenario, retrieved, mode = 'standar
   const sp = stagePrompt(stage, retrieved);
   if (!sp) throw new Error(`Invalid stage: ${stage}`);
 
-  const system =
-    HAA_PREAMBLE +
-    '\n\n' +
-    sp +
-    (MODE_SUFFIX[mode] || '') +
-    (SCRIPT_SUFFIX[script] || '');
+  // Two-block system so Anthropic can cache the preamble across all four
+  // stage calls in a single deliberation (the preamble is identical;
+  // only the per-stage tail varies). Providers that don't support
+  // structured system content flatten this to a string.
+  const tail = sp + (MODE_SUFFIX[mode] || '') + (SCRIPT_SUFFIX[script] || '');
+  const system = [
+    { type: 'text', text: HAA_PREAMBLE, cache_control: { type: 'ephemeral' } },
+    { type: 'text', text: tail },
+  ];
 
   const userContent = `【用户提出之情境】\n\n${scenario}\n\n请就此情境，行第 ${stage} 阶之 ${STAGE_NAMES[stage]}。`;
 
@@ -156,4 +159,12 @@ export function buildStageMessages({ stage, scenario, retrieved, mode = 'standar
     system,
     messages: [{ role: 'user', content: userContent }],
   };
+}
+
+// Helper for providers that need a plain-string system. Joins block
+// text in order, dropping any cache_control metadata.
+export function flattenSystem(system) {
+  if (typeof system === 'string') return system;
+  if (Array.isArray(system)) return system.map((b) => b.text || '').join('\n\n');
+  return '';
 }

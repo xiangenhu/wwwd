@@ -7,6 +7,7 @@
 //   - Auth header is `api-key:` (handled by the SDK)
 
 import { AzureOpenAI } from 'openai';
+import { flattenSystem } from '../prompts.js';
 
 export class AzureOpenAIProvider {
   constructor({ apiKey, endpoint, apiVersion, deployment, model }) {
@@ -27,8 +28,9 @@ export class AzureOpenAIProvider {
   }
 
   async *streamText({ system, messages, model, maxTokens = 1024, signal }) {
-    const fullMessages = system
-      ? [{ role: 'system', content: system }, ...messages]
+    const systemStr = flattenSystem(system);
+    const fullMessages = systemStr
+      ? [{ role: 'system', content: systemStr }, ...messages]
       : messages;
 
     const stream = await this.client.chat.completions.create(
