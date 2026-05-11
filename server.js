@@ -224,7 +224,18 @@ const healthLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Health probe.
+// In dev (default) returns the full diagnostic payload — used by the
+// frontend to render the "实时 AI · model · N 段语料" badge.
+// In production, the same detail leaks reconnaissance signal (provider,
+// model name, GCS bucket, LRS endpoint); it's only included when a
+// matching WWWD_HEALTH_DETAIL_TOKEN is presented in ?token=...
+const HEALTH_DETAIL_TOKEN = process.env.WWWD_HEALTH_DETAIL_TOKEN || '';
 app.get('/api/health', healthLimiter, (req, res) => {
+  const wantDetail = !IS_PROD || (HEALTH_DETAIL_TOKEN && req.query.token === HEALTH_DETAIL_TOKEN);
+  if (!wantDetail) {
+    return res.json({ status: 'ok' });
+  }
   res.json({
     status: 'ok',
     corpus_size: retriever.size,
