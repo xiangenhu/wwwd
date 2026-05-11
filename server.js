@@ -32,7 +32,27 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Config
 // ────────────────────────────────────────────────
 const PORT = Number(process.env.PORT || 8000);
-const CORS_ORIGINS = (process.env.CORS_ORIGINS || '*').split(',').map(s => s.trim());
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const IS_PROD = NODE_ENV === 'production';
+
+// CORS default is dev-only (loopback). Production deployments must set
+// CORS_ORIGINS explicitly — wildcard '*' combined with an unauthenticated
+// /api/deliberate would let any site on the internet burn the LLM key.
+const CORS_DEFAULT = IS_PROD ? '' : `http://localhost:${PORT},http://127.0.0.1:${PORT}`;
+const CORS_ORIGINS = (process.env.CORS_ORIGINS || CORS_DEFAULT)
+  .split(',').map(s => s.trim()).filter(Boolean);
+
+if (IS_PROD && CORS_ORIGINS.includes('*') && process.env.WWWD_REQUIRE_AUTH !== '1') {
+  console.error(
+    "✗ Refusing to start: CORS_ORIGINS='*' with WWWD_REQUIRE_AUTH unset in production.\n" +
+    "  Either set CORS_ORIGINS to an explicit allow-list, or set WWWD_REQUIRE_AUTH=1.",
+  );
+  process.exit(1);
+}
+if (IS_PROD && CORS_ORIGINS.length === 0) {
+  console.error("✗ Refusing to start: CORS_ORIGINS must be set explicitly in production.");
+  process.exit(1);
+}
 
 // ────────────────────────────────────────────────
 // CORS (parity with the Python middleware)
