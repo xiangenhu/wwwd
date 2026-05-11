@@ -162,6 +162,29 @@ const asyncHandler = (fn) => (req, res, next) => {
 const actorKey = (req) => (req.actor?.identity ? `actor:${req.actor.identity}` : `ip:${req.ip}`);
 const limitMessage = { error: 'Too many requests — please try again later.' };
 
+// session_id → actor.identity, populated when /api/deliberate begins.
+// /api/xapi/event rejects events whose claimed session_id belongs to a
+// different actor — otherwise anyone could pollute another user's
+// xAPI timeline by guessing or scraping a session ID.
+const SESSION_TTL_MS = 60 * 60 * 1000; // 1h matches the deliberation rate window
+const sessionOwners = new Map(); // sessionId -> { actor, expiresAt }
+function rememberSession(sessionId, actor) {
+  sessionOwners.set(sessionId, { actor: actor.identity, expiresAt: Date.now() + SESSION_TTL_MS });
+  // Opportunistic eviction — cheap O(n) sweep when the map grows.
+  if (sessionOwners.size > 10_000) {
+    const now = Date.now();
+    for (const [k, v] of sessionOwners) if (v.expiresAt < now) sessionOwners.delete(k);
+  }
+}
+function sessionBelongsTo(sessionId, actor) {
+  const entry = sessionOwners.get(sessionId);
+  if (!entry) return false;
+  if (entry.expiresAt < Date.now()) { sessionOwners.delete(sessionId); return false; }
+  return entry.actor === actor.identity;
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const deliberateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1h
   limit: Number(process.env.RATE_LIMIT_DELIBERATE || 10),
@@ -230,6 +253,7 @@ app.post('/api/deliberate', deliberateLimiter, asyncHandler(async (req, res) => 
   try {
     retrieved = await retriever.search(scenario, 8);
 
+    rememberSession(sessionId, req.actor);
     lrs.beganDeliberation(req.actor, scenario, mode, script, sessionId);
     lrs.consultedPassages(req.actor, retrieved.map(p => p.id), sessionId);
 
@@ -302,8 +326,17 @@ app.post('/api/deliberate', deliberateLimiter, asyncHandler(async (req, res) => 
 // ────────────────────────────────────────────────
 app.post('/api/xapi/event', xapiLimiter, asyncHandler(async (req, res) => {
   const { verb_key, session_id, result_ext } = req.body || {};
-  if (typeof verb_key !== 'string' || typeof session_id !== 'string') {
-    return res.status(422).json({ error: 'verb_key and session_id required' });
+  if (typeof verb_key !== 'string' || verb_key.length > 64) {
+    return res.status(422).json({ error: 'verb_key required (string, ≤64 chars)' });
+  }
+  if (typeof session_id !== 'string' || !UUID_RE.test(session_id)) {
+    return res.status(422).json({ error: 'session_id must be a UUID' });
+  }
+  // Require that this actor previously started this session via
+  // /api/deliberate. Without this, anyone could emit events for any
+  // session ID and pollute another actor's xAPI timeline.
+  if (!sessionBelongsTo(session_id, req.actor)) {
+    return res.status(403).json({ error: 'session_id not owned by this actor' });
   }
   const stmt = lrs.frontendEvent(req.actor, verb_key, session_id, result_ext);
   if (!stmt) return res.status(400).json({ error: `Verb '${verb_key}' not in allowlist` });
