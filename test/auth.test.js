@@ -1,14 +1,30 @@
 // Tests for src/auth.js. Uses a fixed salt so hashes are reproducible.
+// The gateway client picks up globalThis.fetch at module load — we install
+// a controllable fake *before* importing auth.js so the gateway path can
+// be exercised without touching the network.
 
-import { test, before } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-before(() => {
-  process.env.WWWD_ACTOR_SALT = 'test-salt-not-the-placeholder';
-  process.env.WWWD_REQUIRE_AUTH = '0';
-  // NODE_ENV intentionally left as-is — production guards exit() the
-  // process, which would tear down the whole test runner.
-});
+process.env.WWWD_ACTOR_SALT = 'test-salt-not-the-placeholder';
+process.env.WWWD_REQUIRE_AUTH = '0';
+// NODE_ENV intentionally left as-is — production guards exit() the
+// process, which would tear down the whole test runner.
+
+const gatewayResponses = []; // queue of { status, body } for the fake fetch
+function jsonResponse(status, body) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'content-type': 'application/json' },
+  });
+}
+globalThis.fetch = async (url) => {
+  if (typeof url === 'string' && url.includes('/auth/userinfo')) {
+    const next = gatewayResponses.shift() || { status: 401, body: { error: 'unmocked' } };
+    return jsonResponse(next.status, next.body);
+  }
+  throw new Error(`unmocked fetch: ${url}`);
+};
 
 const auth = await import('../src/auth.js');
 
@@ -48,4 +64,44 @@ test('resolveActor: malformed Bearer falls through to anon when REQUIRE_AUTH=0',
 test('authConfig reflects environment', () => {
   assert.equal(typeof auth.authConfig.requireAuth, 'boolean');
   assert.equal(typeof auth.authConfig.oauthConfigured, 'boolean');
+  assert.equal(typeof auth.authConfig.gatewayEnabled, 'boolean');
+});
+
+test('resolveActor: gateway path attaches gatewayUser and returns gateway actor', async () => {
+  gatewayResponses.push({
+    status: 200,
+    body: { user: { email: 'Alice@Example.com', name: 'Alice', picture: '', provider: 'google' } },
+  });
+  const req = { headers: { authorization: 'Bearer gw-token-aaaaaaaaaa' } };
+  const a = await auth.resolveActor(req);
+  assert.equal(a.source, 'gateway');
+  assert.equal(a.email, 'alice@example.com');
+  assert.equal(req.gatewayUser.email, 'alice@example.com');
+  assert.equal(req.gatewayToken, 'gw-token-aaaaaaaaaa');
+  assert.equal(a.identity.length, 32);
+});
+
+test('resolveActor: same email → same gateway actor identity across providers', async () => {
+  gatewayResponses.push({
+    status: 200,
+    body: { user: { email: 'bob@example.com', name: 'Bob', picture: '', provider: 'google' } },
+  });
+  gatewayResponses.push({
+    status: 200,
+    body: { user: { email: 'bob@example.com', name: 'Bob', picture: '', provider: 'microsoft' } },
+  });
+  const a1 = await auth.resolveActor({ headers: { authorization: 'Bearer gw-token-bbbbbbbb-1' } });
+  const a2 = await auth.resolveActor({ headers: { authorization: 'Bearer gw-token-bbbbbbbb-2' } });
+  assert.equal(a1.identity, a2.identity, 'identity must key off email, not provider');
+});
+
+test('resolveActor: gateway 401 falls through to anon when REQUIRE_AUTH=0', async () => {
+  gatewayResponses.push({ status: 401, body: { error: 'nope' } });
+  const a = await auth.resolveActor({
+    headers: {
+      authorization: 'Bearer bad-gw-token-cccccccc',
+      'x-wwwd-session': 'fallback',
+    },
+  });
+  assert.equal(a.source, 'anon');
 });

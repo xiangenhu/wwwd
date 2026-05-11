@@ -21,11 +21,22 @@ import express from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import helmet from 'helmet';
 
+import crypto from 'node:crypto';
 import { CorpusRetriever } from './src/rag.js';
 import { createCorpusLoader } from './src/corpus/index.js';
 import { buildStageMessages, STAGE_NAMES } from './src/prompts.js';
-import { actorMiddleware, authConfig } from './src/auth.js';
+import { actorMiddleware, authConfig, requireGatewayAuth } from './src/auth.js';
 import { createProvider, describeProvider } from './src/providers/index.js';
+import {
+  createProfileStore,
+  validateProfilePatch,
+  profileSummaryForPrompt,
+  ValidationError as ProfileValidationError,
+  PROFILE_SCHEMA,
+} from './src/profile-store.js';
+import { generateScenarios } from './src/scenario.js';
+import { sendEmail, EmailError } from './src/email.js';
+import { gatewayConfig } from './src/oauth-gateway.js';
 import * as lrs from './src/lrs.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -84,16 +95,20 @@ const providerInfo = describeProvider();
 
 const loader = createCorpusLoader();
 const retriever = new CorpusRetriever({ loader });
+const profileStore = createProfileStore();
+const gwCfg = gatewayConfig();
 
 console.log('='.repeat(60));
 console.log('阳明何为 · 启动中');
 console.log(
-  `  LLM    · ${providerInfo.provider} · ${providerInfo.model}` +
+  `  LLM     · ${providerInfo.provider} · ${providerInfo.model}` +
     (providerInfo.baseURL ? ` · ${providerInfo.baseURL}` : ''),
 );
-console.log(`  Corpus · ${loader.name} ${JSON.stringify(loader.describe())}`);
+console.log(`  Corpus  · ${loader.name} ${JSON.stringify(loader.describe())}`);
+console.log(`  Profile · ${JSON.stringify(profileStore.describe())}`);
+console.log(`  OAuth   · gateway=${gwCfg.gatewayUrl}`);
 console.log(
-  `  LRS    · stdout` + (lrs.lrsConfig.forwardToLrs ? ` + ${lrs.lrsConfig.endpoint}` : ''),
+  `  LRS     · stdout` + (lrs.lrsConfig.forwardToLrs ? ` + ${lrs.lrsConfig.endpoint}` : ''),
 );
 console.log('='.repeat(60));
 
@@ -246,10 +261,149 @@ app.get('/api/health', healthLimiter, (req, res) => {
     lrs: { stdout: true, forward: lrs.lrsConfig.forwardToLrs },
     auth: {
       oauth_configured: authConfig.oauthConfigured,
+      gateway_enabled: authConfig.gatewayEnabled,
+      gateway_url: gwCfg.gatewayUrl,
       require_auth: authConfig.requireAuth,
     },
+    profile: profileStore.describe(),
   });
 });
+
+// ────────────────────────────────────────────────
+// Profile · GCS-backed user profile (gateway auth required)
+// ────────────────────────────────────────────────
+const profileLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: Number(process.env.RATE_LIMIT_PROFILE || 60),
+  keyGenerator: actorKey,
+  message: limitMessage,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+
+app.get(
+  '/api/profile',
+  profileLimiter,
+  requireGatewayAuth,
+  asyncHandler(async (req, res) => {
+    const profile = await profileStore.getOrCreate(req.gatewayUser);
+    res.json({ profile, schema: PROFILE_SCHEMA });
+  }),
+);
+
+app.put(
+  '/api/profile',
+  profileLimiter,
+  requireGatewayAuth,
+  asyncHandler(async (req, res) => {
+    let patch;
+    try {
+      patch = validateProfilePatch(req.body || {});
+    } catch (err) {
+      if (err instanceof ProfileValidationError) {
+        return res.status(422).json({ error: err.message });
+      }
+      throw err;
+    }
+    const profile = await profileStore.update(req.gatewayUser, patch);
+    res.json({ profile });
+  }),
+);
+
+// ────────────────────────────────────────────────
+// Scenario generation · age-appropriate, context-sensitive
+// ────────────────────────────────────────────────
+const scenarioLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: Number(process.env.RATE_LIMIT_SCENARIO || 20),
+  keyGenerator: actorKey,
+  message: limitMessage,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+
+app.post(
+  '/api/scenario/generate',
+  scenarioLimiter,
+  requireGatewayAuth,
+  asyncHandler(async (req, res) => {
+    const { count = 4 } = req.body || {};
+    const profile = await profileStore.getOrCreate(req.gatewayUser);
+    const summary = profileSummaryForPrompt(profile);
+
+    const abortCtrl = new AbortController();
+    req.on('close', () => abortCtrl.abort());
+
+    const SCENARIO_TIMEOUT_MS = Number(process.env.SCENARIO_TIMEOUT_MS || 45_000);
+    const timer = setTimeout(() => abortCtrl.abort(), SCENARIO_TIMEOUT_MS);
+
+    try {
+      const scenarios = await generateScenarios({
+        provider,
+        summary,
+        count,
+        signal: abortCtrl.signal,
+      });
+      res.json({ scenarios, profile_summary: summary });
+    } catch (err) {
+      console.error(`[scenario/generate] ${err?.stack || err}`);
+      res.status(502).json({ error: `scenario generation failed: ${err.message}` });
+    } finally {
+      clearTimeout(timer);
+    }
+  }),
+);
+
+// ────────────────────────────────────────────────
+// Email summary · sends a deliberation summary via the gateway SMTP proxy.
+// Body: { subject, body, html? }. Recipient is always req.gatewayUser.email.
+// ────────────────────────────────────────────────
+const emailLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: Number(process.env.RATE_LIMIT_EMAIL || 10),
+  keyGenerator: actorKey,
+  message: limitMessage,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+
+app.post(
+  '/api/email/summary',
+  emailLimiter,
+  requireGatewayAuth,
+  asyncHandler(async (req, res) => {
+    const { subject, body, html } = req.body || {};
+    const profile = await profileStore.getOrCreate(req.gatewayUser);
+    if (!profile.email_prefs?.receive_summaries) {
+      return res
+        .status(409)
+        .json({ error: 'email summaries not enabled — opt in via PUT /api/profile first' });
+    }
+    try {
+      const result = await sendEmail({
+        to: req.gatewayUser.email,
+        subject: typeof subject === 'string' ? subject : '阳明何为 · 问心摘要',
+        body,
+        html,
+        gatewayToken: req.gatewayToken,
+        provider: req.gatewayUser.provider || 'google',
+      });
+      await profileStore.update(req.gatewayUser, {
+        email_prefs: { receive_summaries: true },
+      });
+      // last_sent_at is not in the validated patch shape, write through directly.
+      const p = await profileStore.getOrCreate(req.gatewayUser);
+      p.email_prefs.last_sent_at = new Date().toISOString();
+      await profileStore._writeRaw(p.id, p);
+      res.json({ ok: true, result });
+    } catch (err) {
+      if (err instanceof EmailError) {
+        return res.status(err.status || 502).json({ error: err.message });
+      }
+      throw err;
+    }
+  }),
+);
 
 // ────────────────────────────────────────────────
 // /api/deliberate · SSE stream of four stages
@@ -378,6 +532,32 @@ app.post(
       const totalMs = Date.now() - startedAt;
       lrs.completedDeliberation(req.actor, totalMs, stagesCompleted, sessionId);
       if (!abortCtrl.signal.aborted) send('complete', { message: '问心已成' });
+
+      // History append: only for gateway-authenticated users, and only on
+      // a complete (not aborted) deliberation. Privacy-aligned with LRS —
+      // no scenario text stored, only hash + length + metadata.
+      if (req.gatewayUser && !abortCtrl.signal.aborted) {
+        try {
+          const scenarioHash = crypto
+            .createHash('sha256')
+            .update(scenario)
+            .digest('hex')
+            .slice(0, 16);
+          await profileStore.appendHistory(req.gatewayUser, {
+            session_id: sessionId,
+            scenario_hash: scenarioHash,
+            scenario_len: scenario.length,
+            mode,
+            script,
+            stages_completed: stagesCompleted,
+            total_ms: totalMs,
+          });
+        } catch (err) {
+          // Don't fail the SSE response if the history write fails —
+          // the user has already received their deliberation.
+          console.error(`[profile.appendHistory] ${err?.message || err}`);
+        }
+      }
     } catch (err) {
       const totalMs = Date.now() - startedAt;
       lrs.completedDeliberation(req.actor, totalMs, stagesCompleted, sessionId);
