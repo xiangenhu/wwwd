@@ -18,7 +18,7 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import helmet from 'helmet';
 
 import { CorpusRetriever } from './src/rag.js';
@@ -127,12 +127,12 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          'https://cdn.jsdelivr.net',
-          'https://accounts.google.com',
-        ],
+        // No 'unsafe-inline' for scripts — all JS is now external
+        // (public/app.js) thanks to §6.1.
+        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net', 'https://accounts.google.com'],
+        // Inline style attributes (e.g. <div style="width:78%"> for the
+        // cultivation bars) remain, so 'unsafe-inline' is still needed
+        // here. Tightening would require an attribute-to-class sweep.
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'https:'],
@@ -167,7 +167,8 @@ const asyncHandler = (fn) => (req, res, next) => {
 // This means rotating session UUIDs from the same person doesn't help —
 // the hash collapses to a single key for anon-with-same-session-cookie,
 // and IP catches the no-headers case.
-const actorKey = (req) => (req.actor?.identity ? `actor:${req.actor.identity}` : `ip:${req.ip}`);
+const actorKey = (req) =>
+  req.actor?.identity ? `actor:${req.actor.identity}` : `ip:${ipKeyGenerator(req.ip)}`;
 const limitMessage = { error: 'Too many requests — please try again later.' };
 
 // session_id → actor.identity, populated when /api/deliberate begins.
@@ -217,7 +218,7 @@ const xapiLimiter = rateLimit({
 const healthLimiter = rateLimit({
   windowMs: 60 * 1000,
   limit: Number(process.env.RATE_LIMIT_HEALTH || 30),
-  keyGenerator: (req) => `ip:${req.ip}`,
+  keyGenerator: (req) => `ip:${ipKeyGenerator(req.ip)}`,
   message: limitMessage,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
