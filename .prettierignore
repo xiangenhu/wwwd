@@ -4,3 +4,5 @@ data
 samples
 package-lock.json
 public/index.html
+.claude/
+REVIEW.md

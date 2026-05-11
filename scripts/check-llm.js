@@ -9,7 +9,9 @@ import 'dotenv/config';
 import { createProvider, describeProvider } from '../src/providers/index.js';
 
 const info = describeProvider();
-console.log(`provider · ${info.provider} · ${info.model}` + (info.baseURL ? ` · ${info.baseURL}` : ''));
+console.log(
+  `provider · ${info.provider} · ${info.model}` + (info.baseURL ? ` · ${info.baseURL}` : ''),
+);
 
 let provider;
 try {
@@ -37,7 +39,9 @@ try {
     process.stdout.write(text);
   }
   process.stdout.write('\n');
-  console.log(`stats    · ${chunks} chunks, ${chars} chars, ttft=${firstChunkMs}ms, total=${Date.now() - t0}ms`);
+  console.log(
+    `stats    · ${chunks} chunks, ${chars} chars, ttft=${firstChunkMs}ms, total=${Date.now() - t0}ms`,
+  );
   console.log('✓ ok');
 } catch (err) {
   process.stdout.write('\n');

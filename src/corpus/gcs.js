@@ -51,7 +51,9 @@ export class GCSCorpusLoader {
     try {
       const stat = await fs.stat(cachePath);
       if (stat.size > 0) return cachePath;
-    } catch (_) { /* miss — fall through */ }
+    } catch (_) {
+      /* miss — fall through */
+    }
 
     const blob = this._bucket.file(blobPath);
     const [exists] = await blob.exists();
@@ -127,7 +129,10 @@ export class GCSCorpusLoader {
   async probe() {
     const [exists] = await this._bucket.exists();
     if (!exists) {
-      return { ok: false, reason: `bucket gs://${this.bucket} does not exist or is not visible to this service account` };
+      return {
+        ok: false,
+        reason: `bucket gs://${this.bucket} does not exist or is not visible to this service account`,
+      };
     }
     const prefix = `corpus/${this.version}/`;
     const [files] = await this._bucket.getFiles({ prefix, maxResults: 10 });
@@ -135,7 +140,7 @@ export class GCSCorpusLoader {
       ok: true,
       bucket: this.bucket,
       version: this.version,
-      objects: files.map(f => ({ name: f.name, size: Number(f.metadata.size || 0) })),
+      objects: files.map((f) => ({ name: f.name, size: Number(f.metadata.size || 0) })),
     };
   }
 }

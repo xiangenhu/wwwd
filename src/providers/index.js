@@ -97,10 +97,9 @@ export function createProvider(env = process.env) {
   const preset = PRESETS[key];
   if (!preset) {
     throw new Error(
-      `Unknown LLM_PROVIDER='${key}'. Expected one of: ${[
-        'azure',
-        ...Object.keys(PRESETS),
-      ].join(', ')}`,
+      `Unknown LLM_PROVIDER='${key}'. Expected one of: ${['azure', ...Object.keys(PRESETS)].join(
+        ', ',
+      )}`,
     );
   }
   const apiKey = env[preset.apiKeyEnv];
@@ -112,9 +111,7 @@ export function createProvider(env = process.env) {
   }
   const baseURL = env[preset.baseUrlEnv] || preset.defaultBaseUrl;
   if (preset.requireBaseUrl && !baseURL) {
-    throw new Error(
-      `LLM_PROVIDER='${key}' requires ${preset.baseUrlEnv} (no default).`,
-    );
+    throw new Error(`LLM_PROVIDER='${key}' requires ${preset.baseUrlEnv} (no default).`);
   }
   const model = env.LLM_MODEL || env[preset.modelEnv] || preset.defaultModel;
   if (!model) {
@@ -135,7 +132,9 @@ export function describeProvider(env = process.env) {
     const apiVersion = env.AZURE_OPENAI_API_VERSION || AZURE_DEFAULT_API_VERSION;
     return {
       provider: 'azure',
-      configured: Boolean(env.AZURE_OPENAI_API_KEY && env.AZURE_OPENAI_ENDPOINT && deployment !== '(unset)'),
+      configured: Boolean(
+        env.AZURE_OPENAI_API_KEY && env.AZURE_OPENAI_ENDPOINT && deployment !== '(unset)',
+      ),
       baseURL: `${endpoint}/openai/deployments/${deployment}?api-version=${apiVersion}`,
       model: env.LLM_MODEL || env.AZURE_OPENAI_MODEL || deployment,
     };

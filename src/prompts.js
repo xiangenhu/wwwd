@@ -130,16 +130,20 @@ function stagePrompt(stage, retrieved) {
   if (stage === 3) {
     const passages = (retrieved || []).slice(0, 5);
     const passagesText = passages.length
-      ? passages
-          .map((p, i) => `【段 ${i + 1}】《${p.source}》\n「${p.text}」`)
-          .join('\n\n')
+      ? passages.map((p, i) => `【段 ${i + 1}】《${p.source}》\n「${p.text}」`).join('\n\n')
       : '（语料中无契合之段，宜以白话表义，不引原文）';
     return STAGE_3_PROMPT_TPL.replace('{{retrieved_passages}}', passagesText);
   }
   return { 1: STAGE_1_PROMPT, 2: STAGE_2_PROMPT, 4: STAGE_4_PROMPT }[stage];
 }
 
-export function buildStageMessages({ stage, scenario, retrieved, mode = 'standard', script = 'cn' }) {
+export function buildStageMessages({
+  stage,
+  scenario,
+  retrieved,
+  mode = 'standard',
+  script = 'cn',
+}) {
   const sp = stagePrompt(stage, retrieved);
   if (!sp) throw new Error(`Invalid stage: ${stage}`);
 

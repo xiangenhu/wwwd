@@ -21,8 +21,8 @@ const REQUIRE_AUTH = process.env.WWWD_REQUIRE_AUTH === '1';
 // trivially possible.
 if (process.env.NODE_ENV === 'production' && HASH_SALT === PLACEHOLDER_SALT) {
   console.error(
-    "✗ Refusing to start: WWWD_ACTOR_SALT is unset (or equal to the placeholder) " +
-    "in production. Set it to a long random secret via env / Secret Manager.",
+    '✗ Refusing to start: WWWD_ACTOR_SALT is unset (or equal to the placeholder) ' +
+      'in production. Set it to a long random secret via env / Secret Manager.',
   );
   process.exit(1);
 }
@@ -46,7 +46,11 @@ export class Actor {
 }
 
 function hash(s) {
-  return crypto.createHash('sha256').update(HASH_SALT + s).digest('hex').slice(0, 32);
+  return crypto
+    .createHash('sha256')
+    .update(HASH_SALT + s)
+    .digest('hex')
+    .slice(0, 32);
 }
 
 class HttpError extends Error {

@@ -50,9 +50,11 @@ export class CorpusRetriever {
       return;
     }
 
-    console.log(`[rag] precomputed embeddings missing — encoding ${this.passages.length} passages…`);
+    console.log(
+      `[rag] precomputed embeddings missing — encoding ${this.passages.length} passages…`,
+    );
     const t0 = Date.now();
-    this.embeddings = await this._encodeAll(this.passages.map(p => p.text));
+    this.embeddings = await this._encodeAll(this.passages.map((p) => p.text));
     console.log(`[rag] encoded in ${Date.now() - t0}ms · dim=${this.embeddings.dim}`);
 
     try {
@@ -103,7 +105,7 @@ export class CorpusRetriever {
 
     const idx = Array.from({ length: n }, (_, i) => i);
     idx.sort((a, b) => scores[b] - scores[a]);
-    return idx.slice(0, k).map(i => ({ ...this.passages[i], score: scores[i] }));
+    return idx.slice(0, k).map((i) => ({ ...this.passages[i], score: scores[i] }));
   }
 
   get dim() {

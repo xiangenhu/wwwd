@@ -35,14 +35,15 @@ test('buildStageMessages returns system as a two-block array', () => {
 });
 
 test('the cached preamble is identical across stages 1-4', () => {
-  const preambles = [1, 2, 3, 4].map((stage) =>
-    buildStageMessages({
-      stage,
-      scenario: 's'.repeat(20),
-      retrieved: sampleRetrieved,
-      mode: 'standard',
-      script: 'cn',
-    }).system[0].text,
+  const preambles = [1, 2, 3, 4].map(
+    (stage) =>
+      buildStageMessages({
+        stage,
+        scenario: 's'.repeat(20),
+        retrieved: sampleRetrieved,
+        mode: 'standard',
+        script: 'cn',
+      }).system[0].text,
   );
   assert.equal(new Set(preambles).size, 1, 'preamble varies across stages — caching will not hit');
 });
@@ -72,10 +73,18 @@ test('stage 3 with empty retrieved announces no contextual passages', () => {
 
 test('mode and script suffixes only attach to the tail block', () => {
   const cnStandard = buildStageMessages({
-    stage: 1, scenario: 'x'.repeat(40), retrieved: [], mode: 'standard', script: 'cn',
+    stage: 1,
+    scenario: 'x'.repeat(40),
+    retrieved: [],
+    mode: 'standard',
+    script: 'cn',
   });
   const twDeep = buildStageMessages({
-    stage: 1, scenario: 'x'.repeat(40), retrieved: [], mode: 'deep', script: 'tw',
+    stage: 1,
+    scenario: 'x'.repeat(40),
+    retrieved: [],
+    mode: 'deep',
+    script: 'tw',
   });
   assert.equal(cnStandard.system[0].text, twDeep.system[0].text, 'preamble must not change');
   assert.notEqual(cnStandard.system[1].text, twDeep.system[1].text, 'tail must change');

@@ -35,7 +35,7 @@ test('frontendEvent: result_ext is filtered to SAFE_RESULT_KEYS', () => {
     'action-index': 2,
     'has-concept-tag': true,
     'pii-email': 'user@example.com', // must be dropped
-    'arbitrary-key': 'leak attempt',  // must be dropped
+    'arbitrary-key': 'leak attempt', // must be dropped
   });
   const ext = stmt.result?.extensions || {};
   const keys = Object.keys(ext);

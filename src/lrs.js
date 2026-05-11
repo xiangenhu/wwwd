@@ -23,7 +23,9 @@ const LRS_AUTH_TYPE = (process.env.LRS_AUTH_TYPE || 'basic').toLowerCase();
 
 function resolveLrsAuthHeader() {
   if (LRS_AUTH_TYPE !== 'basic') {
-    console.warn(`[lrs] LRS_AUTH_TYPE='${LRS_AUTH_TYPE}' not supported; only 'basic' is implemented.`);
+    console.warn(
+      `[lrs] LRS_AUTH_TYPE='${LRS_AUTH_TYPE}' not supported; only 'basic' is implemented.`,
+    );
     return '';
   }
   // Pre-encoded form wins if both are set.
@@ -65,7 +67,7 @@ async function postToLrs(stmt) {
       signal: ctrl.signal,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': LRS_AUTH_HEADER,
+        Authorization: LRS_AUTH_HEADER,
         'X-Experience-API-Version': LRS_VERSION,
       },
       // Some LRSes accept a single object, but [array] is the spec form.
@@ -74,7 +76,9 @@ async function postToLrs(stmt) {
     clearTimeout(t);
     if (!res.ok && recordLrsErrorAndShouldLog()) {
       const body = await res.text().catch(() => '');
-      console.warn(`[lrs] POST failed ${res.status} (total=${lrsTotalErrors}) ${body.slice(0, 200)}`);
+      console.warn(
+        `[lrs] POST failed ${res.status} (total=${lrsTotalErrors}) ${body.slice(0, 200)}`,
+      );
     }
   } catch (err) {
     if (recordLrsErrorAndShouldLog()) {
@@ -130,7 +134,8 @@ export const lrsConfig = {
 // Exported for the standalone check script.
 export async function probeLrs(stmt) {
   if (!LRS_ENDPOINT) return { ok: false, reason: 'LRS_ENDPOINT not set' };
-  if (!LRS_AUTH_HEADER) return { ok: false, reason: 'no LRS auth (set LRS_USERNAME+LRS_PASSWORD or LRS_BASIC_AUTH)' };
+  if (!LRS_AUTH_HEADER)
+    return { ok: false, reason: 'no LRS auth (set LRS_USERNAME+LRS_PASSWORD or LRS_BASIC_AUTH)' };
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), LRS_TIMEOUT_MS);
@@ -139,7 +144,7 @@ export async function probeLrs(stmt) {
       signal: ctrl.signal,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': LRS_AUTH_HEADER,
+        Authorization: LRS_AUTH_HEADER,
         'X-Experience-API-Version': LRS_VERSION,
       },
       body: JSON.stringify([stmt]),

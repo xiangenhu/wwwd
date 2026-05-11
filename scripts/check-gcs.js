@@ -44,11 +44,13 @@ const storage = new Storage({
 console.log('\n[1/2] listing buckets visible to this credential…');
 try {
   const [buckets] = await storage.getBuckets();
-  const visible = buckets.map(b => b.name);
+  const visible = buckets.map((b) => b.name);
   if (visible.length) {
-    visible.forEach(n => console.log('       ·', n));
+    visible.forEach((n) => console.log('       ·', n));
   } else {
-    console.log('       (no buckets — service account may lack storage.buckets.list, this is fine)');
+    console.log(
+      '       (no buckets — service account may lack storage.buckets.list, this is fine)',
+    );
   }
 } catch (err) {
   console.warn(`       ⚠ getBuckets failed: ${err.message}`);
@@ -80,7 +82,5 @@ if (result.objects.length === 0) {
   console.log(`  (prefix is empty — run \`npm run precompute\` to upload corpus + embeddings)`);
 } else {
   console.log(`  found ${result.objects.length} object(s):`);
-  result.objects.forEach(o =>
-    console.log(`    · ${o.name}  (${o.size.toLocaleString()} bytes)`),
-  );
+  result.objects.forEach((o) => console.log(`    · ${o.name}  (${o.size.toLocaleString()} bytes)`));
 }

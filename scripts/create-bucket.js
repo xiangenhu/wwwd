@@ -33,7 +33,10 @@ async function tryCreate(name) {
 console.log(`[bucket] try gs://${wantedBucket} in ${location}…`);
 let res = await tryCreate(wantedBucket);
 
-if (!res.ok && (res.code === 409 || /already (own|exists)|conflict|name is not available/i.test(res.message))) {
+if (
+  !res.ok &&
+  (res.code === 409 || /already (own|exists)|conflict|name is not available/i.test(res.message))
+) {
   // Maybe we already own it (then GET would succeed); maybe taken globally.
   const [exists] = await storage.bucket(wantedBucket).exists();
   if (exists) {

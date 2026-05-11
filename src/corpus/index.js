@@ -19,7 +19,7 @@ export function createCorpusLoader(env = process.env) {
   const src = (env.WWWD_CORPUS_SOURCE || 'local').trim().toLowerCase();
   if (src === 'gcs') {
     const bucket = env.WWWD_GCS_BUCKET;
-    if (!bucket) throw new Error("WWWD_CORPUS_SOURCE=gcs requires WWWD_GCS_BUCKET");
+    if (!bucket) throw new Error('WWWD_CORPUS_SOURCE=gcs requires WWWD_GCS_BUCKET');
     return new GCSCorpusLoader({
       bucket,
       version: env.WWWD_CORPUS_VERSION || 'v1',
@@ -32,7 +32,6 @@ export function createCorpusLoader(env = process.env) {
   }
   return new LocalCorpusLoader({
     corpusPath: env.WWWD_CORPUS_PATH || path.join(projectRoot, 'data/corpus.json'),
-    embeddingsPath:
-      env.WWWD_EMBEDDINGS_PATH || path.join(projectRoot, 'data/embeddings.json'),
+    embeddingsPath: env.WWWD_EMBEDDINGS_PATH || path.join(projectRoot, 'data/embeddings.json'),
   });
 }

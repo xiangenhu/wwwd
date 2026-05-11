@@ -12,7 +12,11 @@ import { randomUUID } from 'node:crypto';
 import { lrsConfig, probeLrs } from '../src/lrs.js';
 
 console.log('endpoint  ·', lrsConfig.endpoint || '(unset)');
-console.log('auth      ·', lrsConfig.authType, lrsConfig.forwardToLrs ? '(configured)' : '(MISSING)');
+console.log(
+  'auth      ·',
+  lrsConfig.authType,
+  lrsConfig.forwardToLrs ? '(configured)' : '(MISSING)',
+);
 console.log('version   ·', lrsConfig.xapiVersion);
 
 if (!lrsConfig.forwardToLrs) {
@@ -56,6 +60,6 @@ if (result.ok) {
 } else {
   console.error(`\n✗ ${result.status ? `HTTP ${result.status}` : 'transport failure'} in ${ms}ms`);
   if (result.reason) console.error('  reason:', result.reason);
-  if (result.body)   console.error('  body:  ', result.body);
+  if (result.body) console.error('  body:  ', result.body);
   process.exit(1);
 }

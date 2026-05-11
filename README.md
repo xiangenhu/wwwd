@@ -40,14 +40,14 @@ Open http://localhost:8000/.
 The provider is selected by **one env var** plus a per-provider key/model.
 All other blocks in `.env.example` can stay commented.
 
-| Provider          | `LLM_PROVIDER=`  | Required env                                                                         |
-| ----------------- | ---------------- | ------------------------------------------------------------------------------------ |
-| Anthropic Claude  | `anthropic`      | `ANTHROPIC_API_KEY` (default model: `claude-haiku-4-5`; set `ANTHROPIC_MODEL` to override) |
-| OpenAI            | `openai`         | `OPENAI_API_KEY` (+ `OPENAI_MODEL=gpt-4o`)                                           |
-| Azure OpenAI      | `azure`          | `AZURE_OPENAI_API_KEY` + `AZURE_OPENAI_ENDPOINT` + `AZURE_OPENAI_DEPLOYMENT`         |
-| Deepseek          | `deepseek`       | `DEEPSEEK_API_KEY` (+ `DEEPSEEK_MODEL=deepseek-chat`)                                |
-| Zhipu / GLM       | `zhipu`          | `ZHIPU_API_KEY` (+ `ZHIPU_MODEL=glm-4-plus`)                                         |
-| Anything else¹    | `openai-compat`  | `OPENAI_COMPAT_API_KEY` + `OPENAI_COMPAT_BASE_URL` + `OPENAI_COMPAT_MODEL`           |
+| Provider         | `LLM_PROVIDER=` | Required env                                                                               |
+| ---------------- | --------------- | ------------------------------------------------------------------------------------------ |
+| Anthropic Claude | `anthropic`     | `ANTHROPIC_API_KEY` (default model: `claude-haiku-4-5`; set `ANTHROPIC_MODEL` to override) |
+| OpenAI           | `openai`        | `OPENAI_API_KEY` (+ `OPENAI_MODEL=gpt-4o`)                                                 |
+| Azure OpenAI     | `azure`         | `AZURE_OPENAI_API_KEY` + `AZURE_OPENAI_ENDPOINT` + `AZURE_OPENAI_DEPLOYMENT`               |
+| Deepseek         | `deepseek`      | `DEEPSEEK_API_KEY` (+ `DEEPSEEK_MODEL=deepseek-chat`)                                      |
+| Zhipu / GLM      | `zhipu`         | `ZHIPU_API_KEY` (+ `ZHIPU_MODEL=glm-4-plus`)                                               |
+| Anything else¹   | `openai-compat` | `OPENAI_COMPAT_API_KEY` + `OPENAI_COMPAT_BASE_URL` + `OPENAI_COMPAT_MODEL`                 |
 
 ¹ Use `openai-compat` for Moonshot, Qwen/Doubao, Mistral La Plateforme,
 self-hosted vLLM, or Ollama (`OPENAI_COMPAT_BASE_URL=http://localhost:11434/v1`).
@@ -114,18 +114,18 @@ The privacy whitelist is enforced regardless of sink:
 
 ## Endpoints
 
-| Method | Path                 | Notes                                                           |
-| ------ | -------------------- | --------------------------------------------------------------- |
-| GET    | `/api/health`        | corpus + provider + LRS introspection                           |
-| POST   | `/api/deliberate`    | SSE: `session`, `corpus`, `stage_{start,chunk,end}`, `complete` |
-| POST   | `/api/xapi/event`    | whitelisted frontend events only                                |
-| GET    | `/`                  | serves `public/index.html`                                      |
+| Method | Path              | Notes                                                           |
+| ------ | ----------------- | --------------------------------------------------------------- |
+| GET    | `/api/health`     | corpus + provider + LRS introspection                           |
+| POST   | `/api/deliberate` | SSE: `session`, `corpus`, `stage_{start,chunk,end}`, `complete` |
+| POST   | `/api/xapi/event` | whitelisted frontend events only                                |
+| GET    | `/`               | serves `public/index.html`                                      |
 
 ### Headers consumed
 
 - `Authorization: Bearer <google-id-token>` → `google:<hash>`
-- `X-Wwwd-Session: <uuid>`                  → `anon:<hash>` (default)
-- Without either                            → ephemeral statements
+- `X-Wwwd-Session: <uuid>` → `anon:<hash>` (default)
+- Without either → ephemeral statements
 
 ## Configuration reference
 
