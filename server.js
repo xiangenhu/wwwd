@@ -19,6 +19,7 @@ import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 import { CorpusRetriever } from './src/rag.js';
 import { createCorpusLoader } from './src/corpus/index.js';
@@ -111,6 +112,37 @@ if (IS_PROD && retriever.manifest?.verification_required === true) {
 // ────────────────────────────────────────────────
 const app = express();
 app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS || 1));
+
+// Security headers + CSP. 'unsafe-inline' remains for now because
+// public/index.html still has inline <style> and <script> blocks; §6.1
+// will extract them and these directives can then be removed.
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'",
+        'https://cdn.jsdelivr.net',
+        'https://accounts.google.com',
+      ],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      connectSrc: ["'self'", 'https://accounts.google.com'],
+      frameSrc: ['https://accounts.google.com'],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+    },
+  },
+  // Cross-Origin-Opener-Policy default ('same-origin') breaks the Google
+  // Identity Services popup flow. Loosen to 'same-origin-allow-popups'.
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+  // SSE responses include credentials by virtue of cookies; the default
+  // CORP of 'same-origin' is fine for the static assets.
+}));
+
 app.use(cors);
 app.use(express.json({ limit: '32kb' }));
 app.use(actorMiddleware());
