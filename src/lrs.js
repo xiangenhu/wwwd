@@ -36,7 +36,24 @@ function resolveLrsAuthHeader() {
 
 const LRS_AUTH_HEADER = resolveLrsAuthHeader();
 
-let lrsErrorCount = 0;
+// Sliding-window log limiter: at most 5 warnings per LRS_ERROR_WINDOW_MS.
+// Without this, a brief LRS outage produces 5 warnings and then the sink
+// goes silent forever; with it, a recovered-then-failing LRS is visible.
+const LRS_ERROR_WINDOW_MS = Number(process.env.LRS_ERROR_WINDOW_MS || 5 * 60 * 1000);
+const LRS_ERROR_MAX_PER_WINDOW = 5;
+let lrsRecentErrors = []; // timestamps
+let lrsTotalErrors = 0;
+
+function recordLrsErrorAndShouldLog() {
+  const now = Date.now();
+  lrsRecentErrors = lrsRecentErrors.filter((t) => now - t < LRS_ERROR_WINDOW_MS);
+  lrsTotalErrors += 1;
+  if (lrsRecentErrors.length < LRS_ERROR_MAX_PER_WINDOW) {
+    lrsRecentErrors.push(now);
+    return true;
+  }
+  return false;
+}
 
 async function postToLrs(stmt) {
   if (!LRS_ENDPOINT || !LRS_AUTH_HEADER) return;
@@ -55,15 +72,13 @@ async function postToLrs(stmt) {
       body: JSON.stringify([stmt]),
     });
     clearTimeout(t);
-    if (!res.ok && lrsErrorCount < 5) {
-      lrsErrorCount += 1;
+    if (!res.ok && recordLrsErrorAndShouldLog()) {
       const body = await res.text().catch(() => '');
-      console.warn(`[lrs] POST failed ${res.status} (count=${lrsErrorCount}) ${body.slice(0, 200)}`);
+      console.warn(`[lrs] POST failed ${res.status} (total=${lrsTotalErrors}) ${body.slice(0, 200)}`);
     }
   } catch (err) {
-    if (lrsErrorCount < 5) {
-      lrsErrorCount += 1;
-      console.warn(`[lrs] POST error: ${err.message} (count=${lrsErrorCount})`);
+    if (recordLrsErrorAndShouldLog()) {
+      console.warn(`[lrs] POST error: ${err.message} (total=${lrsTotalErrors})`);
     }
   }
 }
