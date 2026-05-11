@@ -24,7 +24,10 @@ const PRESETS = {
     apiKeyEnv: 'ANTHROPIC_API_KEY',
     baseUrlEnv: 'ANTHROPIC_BASE_URL',
     modelEnv: 'ANTHROPIC_MODEL',
-    defaultModel: 'claude-opus-4-5',
+    // Haiku is the cheap-and-fast default. Four stages × ~1024 max tokens
+    // on Opus is a notable per-deliberation cost; users opt in by setting
+    // ANTHROPIC_MODEL or LLM_MODEL.
+    defaultModel: 'claude-haiku-4-5',
   },
   openai: {
     klass: OpenAICompatProvider,

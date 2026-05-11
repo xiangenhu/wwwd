@@ -42,7 +42,7 @@ All other blocks in `.env.example` can stay commented.
 
 | Provider          | `LLM_PROVIDER=`  | Required env                                                                         |
 | ----------------- | ---------------- | ------------------------------------------------------------------------------------ |
-| Anthropic Claude  | `anthropic`      | `ANTHROPIC_API_KEY` (+ `ANTHROPIC_MODEL`)                                            |
+| Anthropic Claude  | `anthropic`      | `ANTHROPIC_API_KEY` (default model: `claude-haiku-4-5`; set `ANTHROPIC_MODEL` to override) |
 | OpenAI            | `openai`         | `OPENAI_API_KEY` (+ `OPENAI_MODEL=gpt-4o`)                                           |
 | Azure OpenAI      | `azure`          | `AZURE_OPENAI_API_KEY` + `AZURE_OPENAI_ENDPOINT` + `AZURE_OPENAI_DEPLOYMENT`         |
 | Deepseek          | `deepseek`       | `DEEPSEEK_API_KEY` (+ `DEEPSEEK_MODEL=deepseek-chat`)                                |
