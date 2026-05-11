@@ -274,6 +274,8 @@ app.post('/api/deliberate', deliberateLimiter, asyncHandler(async (req, res) => 
       })),
     });
 
+    const STAGE_TIMEOUT_MS = Number(process.env.STAGE_TIMEOUT_MS || 60_000);
+
     for (const stage of [1, 2, 3, 4]) {
       if (abortCtrl.signal.aborted) break;
       const stageStart = Date.now();
@@ -289,22 +291,44 @@ app.post('/api/deliberate', deliberateLimiter, asyncHandler(async (req, res) => 
         script,
       });
 
-      for await (const text of provider.streamText({
-        system,
-        messages,
-        maxTokens: 1024,
-        signal: abortCtrl.signal,
-      })) {
-        if (abortCtrl.signal.aborted) break;
-        outputChars += text.length;
-        send('stage_chunk', { stage, text });
+      // Per-stage soft deadline: a stalled provider would otherwise hold
+      // the SSE stream open indefinitely (req.on('close') only fires if
+      // the client gives up first). The timeout aborts only this stage,
+      // letting the catch path emit a clean SSE error event.
+      const stageAbort = new AbortController();
+      const onParentAbort = () => stageAbort.abort();
+      abortCtrl.signal.addEventListener('abort', onParentAbort, { once: true });
+      const timeoutHandle = setTimeout(() => {
+        if (!stageAbort.signal.aborted) {
+          stageAbort.abort(new Error(`stage ${stage} exceeded ${STAGE_TIMEOUT_MS}ms`));
+        }
+      }, STAGE_TIMEOUT_MS);
+
+      try {
+        for await (const text of provider.streamText({
+          system,
+          messages,
+          maxTokens: 1024,
+          signal: stageAbort.signal,
+        })) {
+          if (stageAbort.signal.aborted) break;
+          outputChars += text.length;
+          send('stage_chunk', { stage, text });
+        }
+      } finally {
+        clearTimeout(timeoutHandle);
+        abortCtrl.signal.removeEventListener('abort', onParentAbort);
+      }
+
+      if (stageAbort.signal.aborted && !abortCtrl.signal.aborted) {
+        // Stage timed out without parent abort.
+        throw new Error(`stage ${stage} timed out after ${STAGE_TIMEOUT_MS}ms`);
       }
 
       const stageMs = Date.now() - stageStart;
       lrs.completedStage(req.actor, stage, STAGE_NAMES[stage], stageMs, outputChars, sessionId);
       send('stage_end', { stage });
       stagesCompleted += 1;
-      await new Promise(r => setTimeout(r, 50));
     }
 
     const totalMs = Date.now() - startedAt;
