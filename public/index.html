@@ -1900,9 +1900,9 @@
     <li><a href="#cultivation">修行</a></li>
   </ul>
   <div class="nav-right">
-    <div class="script-toggle" id="scriptToggle">
-      <button data-script="cn" class="active">简</button>
-      <button data-script="tw">繁</button>
+    <div class="script-toggle" id="scriptToggle" role="group" aria-label="字体切换 · 简繁">
+      <button data-script="cn" class="active" aria-pressed="true" aria-label="简体">简</button>
+      <button data-script="tw" aria-pressed="false" aria-label="繁體">繁</button>
     </div>
     <a href="#" class="login-btn">入门</a>
   </div>
@@ -2057,7 +2057,7 @@
     </div>
 
     <!-- OUTPUT -->
-    <div class="deliberation-output">
+    <div class="deliberation-output" role="region" aria-live="polite" aria-label="问心结果 · 四阶">
       <div class="deliberation-header">
         <div class="title"><span class="pulse-dot"></span>问心进行中</div>
         <div class="han">致良知 · v1.2</div>
@@ -2170,14 +2170,14 @@
 
   <div class="filter-bar">
     <span class="filter-label">类</span>
-    <button class="filter-chip active" data-cat-key="all">全部</button>
-    <button class="filter-chip" data-cat-key="family">家庭</button>
-    <button class="filter-chip" data-cat-key="ethics">伦理</button>
-    <button class="filter-chip" data-cat-key="work">职场</button>
-    <button class="filter-chip" data-cat-key="relations">关系</button>
-    <button class="filter-chip" data-cat-key="civic">公民</button>
-    <button class="filter-chip" data-cat-key="education">教育</button>
-    <button class="filter-chip" data-cat-key="self">己身</button>
+    <button class="filter-chip active" data-cat-key="all" aria-pressed="true" aria-label="筛选 · 全部">全部</button>
+    <button class="filter-chip" data-cat-key="family" aria-pressed="false" aria-label="筛选 · 家庭">家庭</button>
+    <button class="filter-chip" data-cat-key="ethics" aria-pressed="false" aria-label="筛选 · 伦理">伦理</button>
+    <button class="filter-chip" data-cat-key="work" aria-pressed="false" aria-label="筛选 · 职场">职场</button>
+    <button class="filter-chip" data-cat-key="relations" aria-pressed="false" aria-label="筛选 · 关系">关系</button>
+    <button class="filter-chip" data-cat-key="civic" aria-pressed="false" aria-label="筛选 · 公民">公民</button>
+    <button class="filter-chip" data-cat-key="education" aria-pressed="false" aria-label="筛选 · 教育">教育</button>
+    <button class="filter-chip" data-cat-key="self" aria-pressed="false" aria-label="筛选 · 己身">己身</button>
     <span class="filter-spacer"></span>
     <span class="filter-meta">已收案 <em>847</em> · 本月新增 <em>92</em></span>
   </div>
@@ -2949,6 +2949,7 @@
   scenarios.forEach((s, i) => {
     const card = document.createElement('button');
     card.className = 'scenario-card' + (i === 0 ? ' active' : '');
+    card.setAttribute('aria-label', `案例 · ${s.catFull} · ${s.title}`);
     card.innerHTML = `
       <span class="sc-cat">${s.cat}</span>
       <div class="sc-title">${s.title}</div>
@@ -3003,8 +3004,12 @@
   // Filter chips for case library — compare opaque keys, not display text.
   document.querySelectorAll('.case-library .filter-chip').forEach(chip => {
     chip.addEventListener('click', () => {
-      document.querySelectorAll('.case-library .filter-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.case-library .filter-chip').forEach(c => {
+        c.classList.remove('active');
+        c.setAttribute('aria-pressed', 'false');
+      });
       chip.classList.add('active');
+      chip.setAttribute('aria-pressed', 'true');
       const key = chip.dataset.catKey;
       document.querySelectorAll('.case-tile').forEach(tile => {
         if (key === 'all' || tile.dataset.catKey === key) {
@@ -3425,9 +3430,8 @@
         if (initOpenCC()) {
           applyConversion('tw');
           currentScript = 'tw';
-          scriptToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
           const twBtn = scriptToggle.querySelector('[data-script="tw"]');
-          if (twBtn) twBtn.classList.add('active');
+          if (twBtn) setActiveScriptBtn(twBtn);
           return true;
         }
         return false;
@@ -3444,6 +3448,14 @@
 
   // Set up toggle handler
   const scriptToggle = document.getElementById('scriptToggle');
+  function setActiveScriptBtn(btn) {
+    scriptToggle.querySelectorAll('button').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
+    btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
+  }
   scriptToggle.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
       const target = btn.dataset.script;
@@ -3456,8 +3468,7 @@
             clearInterval(checkInterval);
             applyConversion(target);
             currentScript = target;
-            scriptToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            setActiveScriptBtn(btn);
           }
         }, 100);
         setTimeout(() => clearInterval(checkInterval), 5000);
@@ -3488,8 +3499,7 @@
 
       applyConversion(target);
       currentScript = target;
-      scriptToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      setActiveScriptBtn(btn);
     });
   });
 
