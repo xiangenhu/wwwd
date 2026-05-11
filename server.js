@@ -93,6 +93,19 @@ console.log('='.repeat(60));
 await retriever.load();
 console.log(`语料 · ${retriever.size} 段, dim=${retriever.dim}`);
 
+// Corpus data/corpus.json carries an explicit verification_required flag
+// when it's the sample/unverified text. Refuse to serve such a corpus in
+// production — the third-stage prompt cites these passages verbatim and
+// presents them as classical Confucian text; an unverified version
+// circulating under that framing would be misleading.
+if (IS_PROD && retriever.manifest?.verification_required === true) {
+  console.error(
+    "✗ Refusing to start: corpus is marked verification_required=true. " +
+    "Replace data/corpus.json with a verified edition before deploying.",
+  );
+  process.exit(1);
+}
+
 // ────────────────────────────────────────────────
 // App
 // ────────────────────────────────────────────────
