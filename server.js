@@ -134,33 +134,28 @@ if (IS_PROD && retriever.manifest?.verification_required === true) {
 const app = express();
 app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS || 1));
 
-// Security headers + CSP. 'unsafe-inline' remains for now because
-// public/index.html still has inline <style> and <script> blocks; §6.1
-// will extract them and these directives can then be removed.
+// Security headers + CSP. The frontend now navigates to the OAuth
+// gateway via top-level redirect (not iframe / XHR), so the CSP needs
+// no allowlist entry for the gateway origin.
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        // No 'unsafe-inline' for scripts — all JS is now external
-        // (public/app.js) thanks to §6.1.
-        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net', 'https://accounts.google.com'],
+        // No 'unsafe-inline' for scripts — all JS is external.
+        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net'],
         // Inline style attributes (e.g. <div style="width:78%"> for the
         // cultivation bars) remain, so 'unsafe-inline' is still needed
         // here. Tightening would require an attribute-to-class sweep.
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'https:'],
-        connectSrc: ["'self'", 'https://accounts.google.com'],
-        frameSrc: ['https://accounts.google.com'],
+        connectSrc: ["'self'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],
       },
     },
-    // Cross-Origin-Opener-Policy default ('same-origin') breaks the Google
-    // Identity Services popup flow. Loosen to 'same-origin-allow-popups'.
-    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
     // SSE responses include credentials by virtue of cookies; the default
     // CORP of 'same-origin' is fine for the static assets.
   }),

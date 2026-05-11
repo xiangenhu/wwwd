@@ -12,9 +12,11 @@ const BACKEND_URL = (() => {
   return 'http://localhost:8000';
 })();
 
-// Google OAuth client ID — set via window.WWWD_GOOGLE_CLIENT_ID before page load.
-// If unset, OAuth login is disabled and all sessions are anonymous.
-const GOOGLE_CLIENT_ID = (typeof window !== 'undefined' && window.WWWD_GOOGLE_CLIENT_ID) || '';
+// OAuth gateway URL — set via window.WWWD_OAUTH_GATEWAY_URL before page load.
+// The gateway runs the OAuth dance for us and returns a JWT to the redirect URI.
+const GATEWAY_URL =
+  (typeof window !== 'undefined' && window.WWWD_OAUTH_GATEWAY_URL) ||
+  'https://oauth.xiangenhu.info';
 
 // Persistent session UUID for anonymous tracking.
 // Per "不传" pledge: this is a random UUID, not derivable from identity.
@@ -32,53 +34,110 @@ function ensureSessionId() {
   return sid;
 }
 
-// Google ID token — set by handleCredentialResponse after login.
-let googleIdToken = localStorage.getItem('wwwd_id_token') || '';
-let googleProfileName = localStorage.getItem('wwwd_profile_name') || '';
+// Gateway-issued JWT. Held in sessionStorage (cleared on tab close) so an
+// XSS payload's blast radius is narrower than with localStorage.
+const TOKEN_KEY = 'wwwd_gateway_token';
+let gatewayToken = sessionStorage.getItem(TOKEN_KEY) || '';
+let userProfile = null; // populated by /api/profile after sign-in
 
 function getAuthHeaders() {
   const headers = { 'X-Wwwd-Session': ensureSessionId() };
-  if (googleIdToken) headers['Authorization'] = `Bearer ${googleIdToken}`;
+  if (gatewayToken) headers['Authorization'] = `Bearer ${gatewayToken}`;
   return headers;
 }
 
-// Called by Google Identity Services on successful sign-in
-window.handleCredentialResponse = function (response) {
-  googleIdToken = response.credential;
-  localStorage.setItem('wwwd_id_token', googleIdToken);
-  // Decode JWT payload (display name only — never sent to backend except as token)
+// Decode a JWT payload — used only as a fallback display name when the
+// backend's /api/profile call hasn't returned yet. Never trusted for
+// security decisions (the backend re-verifies with the gateway).
+function decodeJwtPayload(token) {
   try {
-    const payload = JSON.parse(atob(googleIdToken.split('.')[1]));
-    googleProfileName = payload.name || payload.email || '已登录';
-    localStorage.setItem('wwwd_profile_name', googleProfileName);
+    return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
   } catch (e) {
-    googleProfileName = '已登录';
+    return null;
   }
-  renderAuthBar();
-};
+}
+
+// Capture a JWT delivered by the gateway in the redirect-back URL, then
+// strip it from the address bar so it doesn't end up in history or get
+// shared by accident. The gateway delivers it as either `?wwwd_token=…`
+// or `#wwwd_token=…` depending on its return-mode configuration.
+function captureGatewayCallback() {
+  const url = new URL(window.location.href);
+  let token = url.searchParams.get('wwwd_token') || url.searchParams.get('token');
+  if (!token && url.hash) {
+    const h = new URLSearchParams(url.hash.replace(/^#/, ''));
+    token = h.get('wwwd_token') || h.get('token');
+  }
+  if (!token) return false;
+
+  gatewayToken = token;
+  sessionStorage.setItem(TOKEN_KEY, token);
+
+  // Strip token from URL so it doesn't sit in history.
+  url.searchParams.delete('wwwd_token');
+  url.searchParams.delete('token');
+  if (url.hash) url.hash = '';
+  history.replaceState(null, '', url.toString());
+  return true;
+}
+
+function signIn(provider = 'google') {
+  // Return to the current page (minus any stale auth params) after the
+  // gateway redirects back with the JWT.
+  const ret = new URL(window.location.href);
+  ret.searchParams.delete('wwwd_token');
+  ret.searchParams.delete('token');
+  ret.hash = '';
+  const url = new URL(`${GATEWAY_URL}/auth/${provider}/login`);
+  url.searchParams.set('redirect_uri', ret.toString());
+  window.location.assign(url.toString());
+}
 
 function signOut() {
-  googleIdToken = '';
-  googleProfileName = '';
-  localStorage.removeItem('wwwd_id_token');
-  localStorage.removeItem('wwwd_profile_name');
-  if (window.google?.accounts?.id) window.google.accounts.id.disableAutoSelect();
+  gatewayToken = '';
+  userProfile = null;
+  sessionStorage.removeItem(TOKEN_KEY);
   renderAuthBar();
+}
+
+async function loadProfile() {
+  if (!gatewayToken) return;
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/profile`, { headers: getAuthHeaders() });
+    if (res.status === 401) {
+      // Token was rejected by the backend (expired or revoked) — drop it.
+      signOut();
+      return;
+    }
+    if (!res.ok) return;
+    const body = await res.json();
+    userProfile = body.profile || null;
+    renderAuthBar();
+  } catch (e) {
+    /* non-blocking */
+  }
+}
+
+function displayNameFor(profile, token) {
+  if (profile?.identity?.name) return profile.identity.name;
+  if (profile?.identity?.email) return profile.identity.email;
+  const payload = decodeJwtPayload(token);
+  return payload?.name || payload?.email || '已登录';
 }
 
 function renderAuthBar() {
   const bar = document.getElementById('authBar');
   if (!bar) return;
-  // Construct via DOM so a JWT-supplied name with HTML metacharacters
-  // can never break out into markup.
+  // Construct via DOM so a name with HTML metacharacters can never break
+  // out into markup.
   bar.textContent = '';
-  if (googleIdToken && googleProfileName) {
+  if (gatewayToken) {
     const label = document.createElement('span');
     label.className = 'auth-bar-label';
     label.textContent = '已化名 · ';
     const name = document.createElement('span');
     name.className = 'auth-bar-name';
-    name.textContent = googleProfileName;
+    name.textContent = displayNameFor(userProfile, gatewayToken);
     const signOutBtn = document.createElement('button');
     signOutBtn.id = 'signOutBtn';
     signOutBtn.className = 'auth-bar-btn';
@@ -89,43 +148,34 @@ function renderAuthBar() {
     const label = document.createElement('span');
     label.className = 'auth-bar-label';
     label.textContent = '匿名问心 · ';
-    const slot = document.createElement('div');
-    slot.id = 'googleSignInBtn';
-    bar.append(label, slot);
-    if (GOOGLE_CLIENT_ID && window.google?.accounts?.id) {
-      try {
-        window.google.accounts.id.renderButton(slot, {
-          theme: 'outline',
-          size: 'small',
-          text: 'signin',
-          shape: 'pill',
-          type: 'standard',
-        });
-      } catch (e) {
-        /* GIS not ready yet */
-      }
-    } else if (!GOOGLE_CLIENT_ID) {
-      const hint = document.createElement('span');
-      hint.className = 'auth-bar-hint';
-      hint.textContent = '（化名登录待配置）';
-      slot.appendChild(hint);
-    }
+    const signInBtn = document.createElement('button');
+    signInBtn.id = 'gatewaySignInBtn';
+    signInBtn.className = 'auth-bar-btn';
+    signInBtn.textContent = '化名登入';
+    signInBtn.onclick = () => signIn('google');
+    bar.append(label, signInBtn);
   }
 }
 
-function initGoogleAuth() {
-  if (!GOOGLE_CLIENT_ID) return;
-  if (!window.google?.accounts?.id) {
-    // GIS script may load after this; retry briefly
-    setTimeout(initGoogleAuth, 200);
-    return;
-  }
-  window.google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: window.handleCredentialResponse,
-    auto_select: false,
-  });
+function initGatewayAuth() {
+  // 1. Capture the JWT if the gateway just redirected back to us.
+  captureGatewayCallback();
+  // 2. Render with whatever state we have (token may be from this load or
+  //    a prior page render within the same tab).
   renderAuthBar();
+  // 3. If we have a token, fetch the canonical profile from the backend.
+  if (gatewayToken) loadProfile();
+}
+
+// Wire up any element marked .login-btn (the nav "入门" link) to signIn.
+function bindLoginButtons() {
+  document.querySelectorAll('.login-btn').forEach((el) => {
+    el.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      if (gatewayToken) return; // already signed in
+      signIn('google');
+    });
+  });
 }
 
 // Emit a frontend xAPI event (whitelisted verbs only — server also filters)
@@ -892,9 +942,10 @@ window.addEventListener('DOMContentLoaded', () => {
   // Backend health check (non-blocking)
   checkBackend();
 
-  // Google OAuth init + render auth bar (idempotent — safe if GIS not yet loaded)
-  initGoogleAuth();
-  renderAuthBar();
+  // OAuth gateway init: capture any callback token, render auth bar,
+  // and fetch profile if signed in.
+  initGatewayAuth();
+  bindLoginButtons();
 
   // Auto-detect script preference from browser language
   // navigator.languages is most accurate; fallback to navigator.language
