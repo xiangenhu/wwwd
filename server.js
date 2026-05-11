@@ -275,26 +275,24 @@ app.post('/api/deliberate', deliberateLimiter, asyncHandler(async (req, res) => 
     });
 
     const STAGE_TIMEOUT_MS = Number(process.env.STAGE_TIMEOUT_MS || 60_000);
+    const PARALLEL_STAGES = process.env.WWWD_PARALLEL_STAGES === '1';
 
-    for (const stage of [1, 2, 3, 4]) {
-      if (abortCtrl.signal.aborted) break;
+    // Run one stage end-to-end. Emits stage_start, stage_chunk*, stage_end.
+    // Throws if the stage's timeout fires (parent abort is silent).
+    async function runStage(stage) {
+      if (abortCtrl.signal.aborted) return;
       const stageStart = Date.now();
       let outputChars = 0;
 
       send('stage_start', { stage, name: STAGE_NAMES[stage] });
 
       const { system, messages } = buildStageMessages({
-        stage,
-        scenario,
-        retrieved,
-        mode,
-        script,
+        stage, scenario, retrieved, mode, script,
       });
 
       // Per-stage soft deadline: a stalled provider would otherwise hold
       // the SSE stream open indefinitely (req.on('close') only fires if
-      // the client gives up first). The timeout aborts only this stage,
-      // letting the catch path emit a clean SSE error event.
+      // the client gives up first). The timeout aborts only this stage.
       const stageAbort = new AbortController();
       const onParentAbort = () => stageAbort.abort();
       abortCtrl.signal.addEventListener('abort', onParentAbort, { once: true });
@@ -306,10 +304,7 @@ app.post('/api/deliberate', deliberateLimiter, asyncHandler(async (req, res) => 
 
       try {
         for await (const text of provider.streamText({
-          system,
-          messages,
-          maxTokens: 1024,
-          signal: stageAbort.signal,
+          system, messages, maxTokens: 1024, signal: stageAbort.signal,
         })) {
           if (stageAbort.signal.aborted) break;
           outputChars += text.length;
@@ -321,7 +316,6 @@ app.post('/api/deliberate', deliberateLimiter, asyncHandler(async (req, res) => 
       }
 
       if (stageAbort.signal.aborted && !abortCtrl.signal.aborted) {
-        // Stage timed out without parent abort.
         throw new Error(`stage ${stage} timed out after ${STAGE_TIMEOUT_MS}ms`);
       }
 
@@ -329,6 +323,19 @@ app.post('/api/deliberate', deliberateLimiter, asyncHandler(async (req, res) => 
       lrs.completedStage(req.actor, stage, STAGE_NAMES[stage], stageMs, outputChars, sessionId);
       send('stage_end', { stage });
       stagesCompleted += 1;
+    }
+
+    if (PARALLEL_STAGES) {
+      // None of the stage prompts reference outputs from earlier stages,
+      // so running them concurrently produces the same model output as
+      // serial — only the wall-clock changes. SSE writes are synchronous
+      // and the client routes chunks by stage_chunk.stage.
+      await Promise.all([1, 2, 3, 4].map(runStage));
+    } else {
+      for (const stage of [1, 2, 3, 4]) {
+        if (abortCtrl.signal.aborted) break;
+        await runStage(stage);
+      }
     }
 
     const totalMs = Date.now() - startedAt;
