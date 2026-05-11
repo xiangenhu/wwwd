@@ -12,12 +12,16 @@ Same API contract as the Python/Cloud Run version — the bundled
        ▼
 [ Express server.js ]
        │
-       ├─ src/providers/   · pluggable LLM (Anthropic | OpenAI | Azure | Deepseek | Zhipu | …)
-       ├─ src/corpus/      · pluggable storage (local file | GCS)
-       ├─ src/rag.js       · bge-small-zh-v1.5 embeddings (transformers.js) + cosine
-       ├─ src/prompts.js   · 四阶 prompt chain + HAA preamble
-       ├─ src/auth.js      · Google OAuth ID-token, anonymous session fallback
-       └─ src/lrs.js       · xAPI → stdout (always) + LRS POST (when configured)
+       ├─ src/providers/      · pluggable LLM (Anthropic | OpenAI | Azure | Deepseek | Zhipu | …)
+       ├─ src/corpus/         · pluggable storage (local file | GCS)
+       ├─ src/rag.js          · bge-small-zh-v1.5 embeddings (transformers.js) + cosine
+       ├─ src/prompts.js      · 四阶 prompt chain + HAA preamble
+       ├─ src/auth.js         · OAuth gateway → Google ID-token → anonymous session
+       ├─ src/oauth-gateway.js· verifier client for oauth.xiangenhu.info
+       ├─ src/profile-store.js· GCS-backed user profile (gateway auth)
+       ├─ src/scenario.js     · age- and life-stage-aware scenario generator
+       ├─ src/email.js        · SMTP via the gateway's send-email proxy
+       └─ src/lrs.js          · xAPI → stdout (always) + LRS POST (when configured)
 ```
 
 ## Quick start (local · Anthropic · file corpus)
@@ -112,19 +116,52 @@ The privacy whitelist is enforced regardless of sink:
 - Actor identity is `sha256(salt + sub_or_session)[:32]` — pseudonymous,
   never reversible to user PII
 
+## OAuth gateway
+
+The backend trusts the gateway at `oauth.xiangenhu.info` (override with
+`WWWD_OAUTH_GATEWAY_URL`) as the primary identity source. The flow is:
+
+1. Frontend redirects the user to `https://oauth.xiangenhu.info/auth/{provider}/login`
+   (`google`, `microsoft`, `github`, …).
+2. Gateway runs the upstream OAuth dance, then returns a Bearer JWT.
+3. Frontend includes that JWT as `Authorization: Bearer <jwt>` on backend calls.
+4. Backend GETs `{gateway}/auth/userinfo` once per token (cached 5 min in
+   process); a 200 + `{user:{email,name,picture,provider}}` means the
+   token is valid.
+
+JWT signature verification is the gateway's responsibility — this backend
+holds no provider secrets. The user's actor identity is keyed off their
+lower-cased email, so the same human is the same actor regardless of
+which provider they used. Set `WWWD_OAUTH_GATEWAY_DISABLE=1` to skip the
+gateway entirely (useful for fully-offline dev).
+
+The legacy direct Google ID-token path (`GOOGLE_OAUTH_CLIENT_ID`) is
+retained as a fallback for clients still using GIS one-tap.
+
 ## Endpoints
 
-| Method | Path              | Notes                                                           |
-| ------ | ----------------- | --------------------------------------------------------------- |
-| GET    | `/api/health`     | corpus + provider + LRS introspection                           |
-| POST   | `/api/deliberate` | SSE: `session`, `corpus`, `stage_{start,chunk,end}`, `complete` |
-| POST   | `/api/xapi/event` | whitelisted frontend events only                                |
-| GET    | `/`               | serves `public/index.html`                                      |
+| Method | Path                     | Auth     | Notes                                                               |
+| ------ | ------------------------ | -------- | ------------------------------------------------------------------- |
+| GET    | `/api/health`            | none     | corpus + provider + LRS + gateway introspection                     |
+| POST   | `/api/deliberate`        | optional | SSE: `session`, `corpus`, `stage_{start,chunk,end}`, `complete`     |
+| POST   | `/api/xapi/event`        | optional | whitelisted frontend events only                                    |
+| GET    | `/api/profile`           | gateway  | returns the user's profile + schema enum lists                      |
+| PUT    | `/api/profile`           | gateway  | partial update; validated against `PROFILE_SCHEMA`                  |
+| POST   | `/api/scenario/generate` | gateway  | returns N age-appropriate scenarios derived from the user profile   |
+| POST   | `/api/email/summary`     | gateway  | sends a deliberation summary to the user via the gateway SMTP proxy |
+| GET    | `/`                      | none     | serves `public/index.html`                                          |
+
+Gateway-authed endpoints require a valid `Authorization: Bearer <jwt>`
+issued by the gateway; they 401 otherwise. `/api/deliberate` and
+`/api/xapi/event` also accept the gateway JWT (and append history to
+the user's profile on completion) but fall back to anonymous mode when
+absent.
 
 ### Headers consumed
 
-- `Authorization: Bearer <google-id-token>` → `google:<hash>`
-- `X-Wwwd-Session: <uuid>` → `anon:<hash>` (default)
+- `Authorization: Bearer <gateway-jwt>` → `gateway:<hash>` (primary)
+- `Authorization: Bearer <google-id-token>` → `google:<hash>` (legacy fallback)
+- `X-Wwwd-Session: <uuid>` → `anon:<hash>` (anonymous mode)
 - Without either → ephemeral statements
 
 ## Configuration reference
@@ -148,7 +185,11 @@ src/
 │   └── gcs.js                  download to /tmp cache, write through
 ├── rag.js                      embedding model + cosine search
 ├── prompts.js                  四阶 prompt chain + HAA preamble
-├── auth.js                     OAuth + anon session
+├── auth.js                     OAuth gateway / Google ID-token / anon session
+├── oauth-gateway.js            verifier client for oauth.xiangenhu.info
+├── profile-store.js            GCS-backed user profile (gateway auth)
+├── scenario.js                 age-banded scenario generator
+├── email.js                    SMTP wrapper for the gateway's send-email proxy
 └── lrs.js                      xAPI builders + stdout/LRS sinks
 data/                           corpus.json, embeddings.json (auto-generated)
 public/index.html               frontend portal
