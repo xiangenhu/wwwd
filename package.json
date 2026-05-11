@@ -11,7 +11,11 @@
     "check-llm": "node scripts/check-llm.js",
     "check-lrs": "node scripts/check-lrs.js",
     "check-gcs": "node scripts/check-gcs.js",
-    "create-bucket": "node scripts/create-bucket.js"
+    "create-bucket": "node scripts/create-bucket.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --test test/"
   },
   "engines": {
     "node": ">=20"

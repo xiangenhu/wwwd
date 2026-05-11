@@ -25,11 +25,9 @@ if (keyFile && !fs.existsSync(keyFile)) {
   process.exit(1);
 }
 
-let saInfo = null;
 if (keyFile) {
   try {
     const k = JSON.parse(fs.readFileSync(keyFile, 'utf8'));
-    saInfo = { project_id: k.project_id, client_email: k.client_email };
     console.log('service acc ·', k.client_email);
     console.log('project     ·', k.project_id);
   } catch (err) {
@@ -44,10 +42,9 @@ const storage = new Storage({
 });
 
 console.log('\n[1/2] listing buckets visible to this credential…');
-let visible = [];
 try {
   const [buckets] = await storage.getBuckets();
-  visible = buckets.map(b => b.name);
+  const visible = buckets.map(b => b.name);
   if (visible.length) {
     visible.forEach(n => console.log('       ·', n));
   } else {

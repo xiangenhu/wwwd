@@ -32,7 +32,6 @@ async function tryCreate(name) {
 
 console.log(`[bucket] try gs://${wantedBucket} in ${location}…`);
 let res = await tryCreate(wantedBucket);
-let finalName = wantedBucket;
 
 if (!res.ok && (res.code === 409 || /already (own|exists)|conflict|name is not available/i.test(res.message))) {
   // Maybe we already own it (then GET would succeed); maybe taken globally.
@@ -44,15 +43,15 @@ if (!res.ok && (res.code === 409 || /already (own|exists)|conflict|name is not a
       console.log(`[bucket] already exists in our project · location=${meta.location}`);
       console.log(`[bucket] ✓ using gs://${wantedBucket}`);
       process.exit(0);
-    } catch (err) {
+    } catch (_err) {
       console.log(`[bucket] gs://${wantedBucket} taken by another project; trying fallback…`);
     }
   } else {
     console.log(`[bucket] gs://${wantedBucket} taken globally; trying fallback…`);
   }
-  finalName = `${wantedBucket}-${projectId}`;
-  console.log(`[bucket] try gs://${finalName}…`);
-  res = await tryCreate(finalName);
+  const fallbackName = `${wantedBucket}-${projectId}`;
+  console.log(`[bucket] try gs://${fallbackName}…`);
+  res = await tryCreate(fallbackName);
 }
 
 if (!res.ok) {
