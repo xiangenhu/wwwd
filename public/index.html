@@ -2170,14 +2170,14 @@
 
   <div class="filter-bar">
     <span class="filter-label">类</span>
-    <button class="filter-chip active">全部</button>
-    <button class="filter-chip">家庭</button>
-    <button class="filter-chip">伦理</button>
-    <button class="filter-chip">职场</button>
-    <button class="filter-chip">关系</button>
-    <button class="filter-chip">公民</button>
-    <button class="filter-chip">教育</button>
-    <button class="filter-chip">己身</button>
+    <button class="filter-chip active" data-cat-key="all">全部</button>
+    <button class="filter-chip" data-cat-key="family">家庭</button>
+    <button class="filter-chip" data-cat-key="ethics">伦理</button>
+    <button class="filter-chip" data-cat-key="work">职场</button>
+    <button class="filter-chip" data-cat-key="relations">关系</button>
+    <button class="filter-chip" data-cat-key="civic">公民</button>
+    <button class="filter-chip" data-cat-key="education">教育</button>
+    <button class="filter-chip" data-cat-key="self">己身</button>
     <span class="filter-spacer"></span>
     <span class="filter-meta">已收案 <em>847</em> · 本月新增 <em>92</em></span>
   </div>
@@ -2920,6 +2920,13 @@
   // ============================================================
   // CASE LIBRARY (resolved cases for browse)
   // ============================================================
+  // Filter keys are opaque so the case-library filter doesn't break when
+  // OpenCC converts display strings to traditional characters. Anything
+  // that should remain stable across CN↔TW lives under data-*-key.
+  const CAT_KEY_BY_FULL = {
+    '家庭': 'family', '伦理': 'ethics', '职场': 'work', '关系': 'relations',
+    '公民': 'civic', '教育': 'education', '己身': 'self', '言默': 'speech',
+  };
   const caseLibrary = [
     { cat: '伦', catFull: '伦理', title: '父母独居之难（本期演示）', excerpt: '父母年迈，坚守独居，体衰可见。一头是孝义之责，一头是其自主之尊。对将来悔恨之惧，弥漫一切思虑。', diag: '心学诊断 · 真孝 vs 为己之孝', diff: 3, time: '今日 · 立志在审' },
     { cat: '职', catFull: '职场', title: '同事暗夺其功', excerpt: '修者发现一同侪，于上之前以己之分析为彼之名而呈。先私下温言相商，证据于备而不张。', diag: '心学诊断 · 直 vs 失体面', diff: 2, time: '三日前 · 七日已访' },
@@ -2971,6 +2978,10 @@
   caseLibrary.forEach(c => {
     const tile = document.createElement('div');
     tile.className = 'case-tile';
+    // Opaque key (not display text) so the filter survives CN↔TW
+    // conversion — OpenCC rewrites textContent in place but data-cat-key
+    // is left alone.
+    tile.dataset.catKey = CAT_KEY_BY_FULL[c.catFull] || 'other';
     tile.dataset.cat = c.catFull;
     const dots = Array.from({length: 5}, (_, i) =>
       `<span class="dot${i < c.diff ? '' : ' dim'}"></span>`).join('');
@@ -2989,14 +3000,14 @@
     caseGrid.appendChild(tile);
   });
 
-  // Filter chips for case library
+  // Filter chips for case library — compare opaque keys, not display text.
   document.querySelectorAll('.case-library .filter-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       document.querySelectorAll('.case-library .filter-chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
-      const filter = chip.textContent.trim();
+      const key = chip.dataset.catKey;
       document.querySelectorAll('.case-tile').forEach(tile => {
-        if (filter === '全部' || tile.dataset.cat === filter) {
+        if (key === 'all' || tile.dataset.catKey === key) {
           tile.style.display = '';
         } else {
           tile.style.display = 'none';
