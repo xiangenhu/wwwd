@@ -18,6 +18,7 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 
 import { CorpusRetriever } from './src/rag.js';
 import { createCorpusLoader } from './src/corpus/index.js';
@@ -96,12 +97,47 @@ console.log(`语料 · ${retriever.size} 段, dim=${retriever.dim}`);
 // App
 // ────────────────────────────────────────────────
 const app = express();
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS || 1));
 app.use(cors);
 app.use(express.json({ limit: '32kb' }));
 app.use(actorMiddleware());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/api/health', (req, res) => {
+// Rate limiting keyed off the pseudonymous actor identity (or IP fallback).
+// This means rotating session UUIDs from the same person doesn't help —
+// the hash collapses to a single key for anon-with-same-session-cookie,
+// and IP catches the no-headers case.
+const actorKey = (req) => (req.actor?.identity ? `actor:${req.actor.identity}` : `ip:${req.ip}`);
+const limitMessage = { error: 'Too many requests — please try again later.' };
+
+const deliberateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1h
+  limit: Number(process.env.RATE_LIMIT_DELIBERATE || 10),
+  keyGenerator: actorKey,
+  message: limitMessage,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+
+const xapiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1m
+  limit: Number(process.env.RATE_LIMIT_XAPI || 60),
+  keyGenerator: actorKey,
+  message: limitMessage,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+
+const healthLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: Number(process.env.RATE_LIMIT_HEALTH || 30),
+  keyGenerator: (req) => `ip:${req.ip}`,
+  message: limitMessage,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+
+app.get('/api/health', healthLimiter, (req, res) => {
   res.json({
     status: 'ok',
     corpus_size: retriever.size,
@@ -120,7 +156,7 @@ app.get('/api/health', (req, res) => {
 // ────────────────────────────────────────────────
 // /api/deliberate · SSE stream of four stages
 // ────────────────────────────────────────────────
-app.post('/api/deliberate', async (req, res) => {
+app.post('/api/deliberate', deliberateLimiter, async (req, res) => {
   const { scenario, mode = 'standard', script = 'cn' } = req.body || {};
   if (typeof scenario !== 'string' || scenario.length < 10 || scenario.length > 2000) {
     return res.status(422).json({ error: 'scenario must be 10..2000 chars' });
@@ -210,7 +246,7 @@ app.post('/api/deliberate', async (req, res) => {
 // ────────────────────────────────────────────────
 // /api/xapi/event · whitelisted frontend events
 // ────────────────────────────────────────────────
-app.post('/api/xapi/event', (req, res) => {
+app.post('/api/xapi/event', xapiLimiter, (req, res) => {
   const { verb_key, session_id, result_ext } = req.body || {};
   if (typeof verb_key !== 'string' || typeof session_id !== 'string') {
     return res.status(422).json({ error: 'verb_key and session_id required' });
