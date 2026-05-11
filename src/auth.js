@@ -10,9 +10,22 @@ import crypto from 'node:crypto';
 import { OAuth2Client } from 'google-auth-library';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_OAUTH_CLIENT_ID || '';
-const HASH_SALT = process.env.WWWD_ACTOR_SALT || 'wwwd-CHANGE-ME-via-Secret-Manager';
+const PLACEHOLDER_SALT = 'wwwd-CHANGE-ME-via-Secret-Manager';
+const HASH_SALT = process.env.WWWD_ACTOR_SALT || PLACEHOLDER_SALT;
 const ACTOR_HOMEPAGE = process.env.WWWD_ACTOR_HOMEPAGE || 'https://wwwd.skoonline.org';
 const REQUIRE_AUTH = process.env.WWWD_REQUIRE_AUTH === '1';
+
+// Refuse to boot in production with the placeholder salt — otherwise every
+// instance that forgot to set WWWD_ACTOR_SALT would share the same hash
+// space, making cross-deployment correlation of pseudonymous actor IDs
+// trivially possible.
+if (process.env.NODE_ENV === 'production' && HASH_SALT === PLACEHOLDER_SALT) {
+  console.error(
+    "✗ Refusing to start: WWWD_ACTOR_SALT is unset (or equal to the placeholder) " +
+    "in production. Set it to a long random secret via env / Secret Manager.",
+  );
+  process.exit(1);
+}
 
 const oauthClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 
