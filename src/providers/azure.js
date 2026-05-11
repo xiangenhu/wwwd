@@ -5,47 +5,29 @@
 //   - Models are addressed by deployment name, not model id
 //   - api-version query param is required
 //   - Auth header is `api-key:` (handled by the SDK)
+//
+// The streaming loop is identical to OpenAICompatProvider; subclass to
+// avoid duplicating it.
 
 import { AzureOpenAI } from 'openai';
-import { flattenSystem } from '../prompts.js';
+import { OpenAICompatProvider } from './openai-compat.js';
 
-export class AzureOpenAIProvider {
+export class AzureOpenAIProvider extends OpenAICompatProvider {
   constructor({ apiKey, endpoint, apiVersion, deployment, model }) {
     if (!apiKey) throw new Error('AzureOpenAIProvider: apiKey is required');
     if (!endpoint) throw new Error('AzureOpenAIProvider: endpoint is required');
     if (!apiVersion) throw new Error('AzureOpenAIProvider: apiVersion is required');
     if (!deployment) throw new Error('AzureOpenAIProvider: deployment is required');
 
+    // Skip the parent constructor — it expects an `apiKey` and would build
+    // a plain OpenAI client. Build the AzureOpenAI client directly and
+    // populate the same instance fields the parent's streamText expects.
+    super({ apiKey, model: model || deployment, label: 'azure' });
     this.client = new AzureOpenAI({ apiKey, endpoint, apiVersion, deployment });
     this.deployment = deployment;
-    // The SDK uses `model` as the deployment name on Azure; default to the
-    // configured deployment but allow per-request override.
-    this.model = model || deployment;
   }
 
   get name() {
     return 'azure';
-  }
-
-  async *streamText({ system, messages, model, maxTokens = 1024, signal }) {
-    const systemStr = flattenSystem(system);
-    const fullMessages = systemStr
-      ? [{ role: 'system', content: systemStr }, ...messages]
-      : messages;
-
-    const stream = await this.client.chat.completions.create(
-      {
-        model: model || this.model,
-        max_tokens: maxTokens,
-        messages: fullMessages,
-        stream: true,
-      },
-      signal ? { signal } : undefined,
-    );
-
-    for await (const chunk of stream) {
-      const delta = chunk.choices?.[0]?.delta?.content;
-      if (typeof delta === 'string' && delta.length) yield delta;
-    }
   }
 }
