@@ -23,6 +23,8 @@ export function createCorpusLoader(env = process.env) {
     return new GCSCorpusLoader({
       bucket,
       version: env.WWWD_CORPUS_VERSION || 'v1',
+      keyFilename: env.WWWD_GCS_KEY_FILE || env.GOOGLE_APPLICATION_CREDENTIALS || undefined,
+      projectId: env.WWWD_GCP_PROJECT || undefined,
     });
   }
   if (src !== 'local') {

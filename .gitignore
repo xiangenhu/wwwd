@@ -7,3 +7,10 @@ data/embeddings.json
 
 # Sample extracted reference (kept in samples/ for reference; ignore the unzipped copy)
 samples/extracted/
+
+# Service-account keys / credentials — never commit
+*-key.json
+*-credentials.json
+gcs-key.json
+service-account*.json
+secrets/

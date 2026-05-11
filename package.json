@@ -7,7 +7,11 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "precompute": "node scripts/precompute-embeddings.js"
+    "precompute": "node scripts/precompute-embeddings.js",
+    "check-llm": "node scripts/check-llm.js",
+    "check-lrs": "node scripts/check-lrs.js",
+    "check-gcs": "node scripts/check-gcs.js",
+    "create-bucket": "node scripts/create-bucket.js"
   },
   "engines": {
     "node": ">=20"

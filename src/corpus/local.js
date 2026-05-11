@@ -37,6 +37,17 @@ export class LocalCorpusLoader {
     await fs.writeFile(this.embeddingsPath, JSON.stringify(payload));
   }
 
+  async saveCorpus(corpus) {
+    await fs.mkdir(path.dirname(this.corpusPath), { recursive: true });
+    await fs.writeFile(this.corpusPath, JSON.stringify(corpus, null, 2));
+  }
+
+  async saveManifest(manifest) {
+    if (!this.embeddingsPath) return;
+    const p = path.join(path.dirname(this.embeddingsPath), 'manifest.json');
+    await fs.writeFile(p, JSON.stringify(manifest, null, 2));
+  }
+
   describe() {
     return { source: 'local', corpus: this.corpusPath, embeddings: this.embeddingsPath || null };
   }

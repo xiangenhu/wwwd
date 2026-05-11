@@ -12,7 +12,7 @@ Same API contract as the Python/Cloud Run version — the bundled
        ▼
 [ Express server.js ]
        │
-       ├─ src/providers/   · pluggable LLM (Anthropic | OpenAI | Deepseek | Zhipu | …)
+       ├─ src/providers/   · pluggable LLM (Anthropic | OpenAI | Azure | Deepseek | Zhipu | …)
        ├─ src/corpus/      · pluggable storage (local file | GCS)
        ├─ src/rag.js       · bge-small-zh-v1.5 embeddings (transformers.js) + cosine
        ├─ src/prompts.js   · 四阶 prompt chain + HAA preamble
@@ -44,6 +44,7 @@ All other blocks in `.env.example` can stay commented.
 | ----------------- | ---------------- | ------------------------------------------------------------------------------------ |
 | Anthropic Claude  | `anthropic`      | `ANTHROPIC_API_KEY` (+ `ANTHROPIC_MODEL`)                                            |
 | OpenAI            | `openai`         | `OPENAI_API_KEY` (+ `OPENAI_MODEL=gpt-4o`)                                           |
+| Azure OpenAI      | `azure`          | `AZURE_OPENAI_API_KEY` + `AZURE_OPENAI_ENDPOINT` + `AZURE_OPENAI_DEPLOYMENT`         |
 | Deepseek          | `deepseek`       | `DEEPSEEK_API_KEY` (+ `DEEPSEEK_MODEL=deepseek-chat`)                                |
 | Zhipu / GLM       | `zhipu`          | `ZHIPU_API_KEY` (+ `ZHIPU_MODEL=glm-4-plus`)                                         |
 | Anything else¹    | `openai-compat`  | `OPENAI_COMPAT_API_KEY` + `OPENAI_COMPAT_BASE_URL` + `OPENAI_COMPAT_MODEL`           |
@@ -139,6 +140,7 @@ src/
 ├── providers/
 │   ├── index.js                createProvider() factory
 │   ├── anthropic.js            Anthropic Messages API
+│   ├── azure.js                Azure OpenAI (per-resource endpoint + deployment)
 │   └── openai-compat.js        OpenAI / Deepseek / Zhipu / etc.
 ├── corpus/
 │   ├── index.js                createCorpusLoader() factory

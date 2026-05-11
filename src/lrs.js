@@ -17,14 +17,29 @@ const PLATFORM = 'wwwd-portal';
 // statement is also POSTed to {LRS_ENDPOINT}/statements with Basic Auth.
 // Fire-and-forget — never block deliberation on LRS latency or errors.
 const LRS_ENDPOINT = (process.env.LRS_ENDPOINT || '').replace(/\/+$/, '');
-const LRS_BASIC_AUTH = process.env.LRS_BASIC_AUTH || '';
 const LRS_VERSION = process.env.LRS_XAPI_VERSION || '1.0.3';
 const LRS_TIMEOUT_MS = Number(process.env.LRS_TIMEOUT_MS || 2000);
+const LRS_AUTH_TYPE = (process.env.LRS_AUTH_TYPE || 'basic').toLowerCase();
+
+function resolveLrsAuthHeader() {
+  if (LRS_AUTH_TYPE !== 'basic') {
+    console.warn(`[lrs] LRS_AUTH_TYPE='${LRS_AUTH_TYPE}' not supported; only 'basic' is implemented.`);
+    return '';
+  }
+  // Pre-encoded form wins if both are set.
+  if (process.env.LRS_BASIC_AUTH) return `Basic ${process.env.LRS_BASIC_AUTH}`;
+  const u = process.env.LRS_USERNAME;
+  const p = process.env.LRS_PASSWORD;
+  if (u && p) return `Basic ${Buffer.from(`${u}:${p}`, 'utf8').toString('base64')}`;
+  return '';
+}
+
+const LRS_AUTH_HEADER = resolveLrsAuthHeader();
 
 let lrsErrorCount = 0;
 
 async function postToLrs(stmt) {
-  if (!LRS_ENDPOINT || !LRS_BASIC_AUTH) return;
+  if (!LRS_ENDPOINT || !LRS_AUTH_HEADER) return;
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), LRS_TIMEOUT_MS);
@@ -33,7 +48,7 @@ async function postToLrs(stmt) {
       signal: ctrl.signal,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${LRS_BASIC_AUTH}`,
+        'Authorization': LRS_AUTH_HEADER,
         'X-Experience-API-Version': LRS_VERSION,
       },
       // Some LRSes accept a single object, but [array] is the spec form.
@@ -41,9 +56,9 @@ async function postToLrs(stmt) {
     });
     clearTimeout(t);
     if (!res.ok && lrsErrorCount < 5) {
-      // Log first few failures only — don't spam stdout if LRS is down.
       lrsErrorCount += 1;
-      console.warn(`[lrs] POST failed ${res.status} (count=${lrsErrorCount})`);
+      const body = await res.text().catch(() => '');
+      console.warn(`[lrs] POST failed ${res.status} (count=${lrsErrorCount}) ${body.slice(0, 200)}`);
     }
   } catch (err) {
     if (lrsErrorCount < 5) {
@@ -83,7 +98,7 @@ function ctx(sessionId, extra = {}) {
 // fire-and-forget so the deliberation stream is never blocked.
 function emit(stmt) {
   console.log(JSON.stringify({ kind: 'xapi', statement: stmt }));
-  if (LRS_ENDPOINT && LRS_BASIC_AUTH) {
+  if (LRS_ENDPOINT && LRS_AUTH_HEADER) {
     // Don't await — explicitly drop the promise.
     postToLrs(stmt);
   }
@@ -91,10 +106,36 @@ function emit(stmt) {
 
 export const lrsConfig = {
   stdout: true,
-  forwardToLrs: Boolean(LRS_ENDPOINT && LRS_BASIC_AUTH),
+  forwardToLrs: Boolean(LRS_ENDPOINT && LRS_AUTH_HEADER),
   endpoint: LRS_ENDPOINT || null,
   xapiVersion: LRS_VERSION,
+  authType: LRS_AUTH_TYPE,
 };
+
+// Exported for the standalone check script.
+export async function probeLrs(stmt) {
+  if (!LRS_ENDPOINT) return { ok: false, reason: 'LRS_ENDPOINT not set' };
+  if (!LRS_AUTH_HEADER) return { ok: false, reason: 'no LRS auth (set LRS_USERNAME+LRS_PASSWORD or LRS_BASIC_AUTH)' };
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), LRS_TIMEOUT_MS);
+    const res = await fetch(`${LRS_ENDPOINT}/statements`, {
+      method: 'POST',
+      signal: ctrl.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': LRS_AUTH_HEADER,
+        'X-Experience-API-Version': LRS_VERSION,
+      },
+      body: JSON.stringify([stmt]),
+    });
+    clearTimeout(t);
+    const text = await res.text();
+    return { ok: res.ok, status: res.status, body: text.slice(0, 500) };
+  } catch (err) {
+    return { ok: false, reason: err.message };
+  }
+}
 
 // ────────────────────────────────────────────────
 // Statement builders (all strip PII)
