@@ -103,6 +103,13 @@ app.use(express.json({ limit: '32kb' }));
 app.use(actorMiddleware());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Express 4 doesn't catch async-handler rejections. Wrap async handlers so
+// any throw lands in the global error middleware instead of hanging the
+// client or triggering an unhandledRejection.
+const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
 // Rate limiting keyed off the pseudonymous actor identity (or IP fallback).
 // This means rotating session UUIDs from the same person doesn't help —
 // the hash collapses to a single key for anon-with-same-session-cookie,
@@ -156,36 +163,38 @@ app.get('/api/health', healthLimiter, (req, res) => {
 // ────────────────────────────────────────────────
 // /api/deliberate · SSE stream of four stages
 // ────────────────────────────────────────────────
-app.post('/api/deliberate', deliberateLimiter, async (req, res) => {
+app.post('/api/deliberate', deliberateLimiter, asyncHandler(async (req, res) => {
   const { scenario, mode = 'standard', script = 'cn' } = req.body || {};
   if (typeof scenario !== 'string' || scenario.length < 10 || scenario.length > 2000) {
     return res.status(422).json({ error: 'scenario must be 10..2000 chars' });
   }
 
   const sessionId = randomUUID();
-  const retrieved = await retriever.search(scenario, 8);
-
-  lrs.beganDeliberation(req.actor, scenario, mode, script, sessionId);
-  lrs.consultedPassages(req.actor, retrieved.map(p => p.id), sessionId);
-
-  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no');
-  res.setHeader('X-Wwwd-Session', sessionId);
-  res.flushHeaders?.();
+  const startedAt = Date.now();
+  let stagesCompleted = 0;
+  let retrieved;
 
   const send = (event, data) => {
     res.write(`event: ${event}\n`);
     res.write(`data: ${JSON.stringify(data)}\n\n`);
   };
 
-  const startedAt = Date.now();
-  let stagesCompleted = 0;
   const abortCtrl = new AbortController();
   req.on('close', () => abortCtrl.abort());
 
   try {
+    retrieved = await retriever.search(scenario, 8);
+
+    lrs.beganDeliberation(req.actor, scenario, mode, script, sessionId);
+    lrs.consultedPassages(req.actor, retrieved.map(p => p.id), sessionId);
+
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.setHeader('X-Wwwd-Session', sessionId);
+    res.flushHeaders?.();
+
     send('session', { session_id: sessionId });
 
     send('corpus', {
@@ -241,12 +250,12 @@ app.post('/api/deliberate', deliberateLimiter, async (req, res) => {
   } finally {
     res.end();
   }
-});
+}));
 
 // ────────────────────────────────────────────────
 // /api/xapi/event · whitelisted frontend events
 // ────────────────────────────────────────────────
-app.post('/api/xapi/event', xapiLimiter, (req, res) => {
+app.post('/api/xapi/event', xapiLimiter, asyncHandler(async (req, res) => {
   const { verb_key, session_id, result_ext } = req.body || {};
   if (typeof verb_key !== 'string' || typeof session_id !== 'string') {
     return res.status(422).json({ error: 'verb_key and session_id required' });
@@ -254,6 +263,36 @@ app.post('/api/xapi/event', xapiLimiter, (req, res) => {
   const stmt = lrs.frontendEvent(req.actor, verb_key, session_id, result_ext);
   if (!stmt) return res.status(400).json({ error: `Verb '${verb_key}' not in allowlist` });
   res.json({ ok: true, id: stmt.id });
+}));
+
+// ────────────────────────────────────────────────
+// JSON body parse errors (malformed Content-Type: application/json)
+// ────────────────────────────────────────────────
+// (mounted as global error middleware below)
+
+// ────────────────────────────────────────────────
+// Global error middleware
+// Headers-not-sent  → JSON
+// Headers-already-sent (SSE in flight) → SSE 'error' event then close
+// ────────────────────────────────────────────────
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  if (err?.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'malformed JSON body' });
+  }
+  if (err?.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'request body too large' });
+  }
+  const safeMessage = IS_PROD ? 'internal error' : (err?.message || String(err));
+  console.error(`[error] ${req.method} ${req.path} → ${err?.stack || err}`);
+  if (res.headersSent) {
+    try {
+      res.write(`event: error\n`);
+      res.write(`data: ${JSON.stringify({ message: safeMessage, stage: null })}\n\n`);
+    } catch (_) { /* connection probably already dead */ }
+    return res.end();
+  }
+  res.status(err?.status || 500).json({ error: safeMessage });
 });
 
 // ────────────────────────────────────────────────
