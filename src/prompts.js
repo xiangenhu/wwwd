@@ -13,6 +13,9 @@ export const STAGE_NAMES = {
   4: '知行',
 };
 
+// NOTE: language-style guidance (文言 / 白话 / 文白相间) is intentionally
+// NOT in the preamble — it lives in STYLE_SUFFIX so the cached preamble
+// stays identical across all stages and styles, preserving cache hits.
 const HAA_PREAMBLE = `你是「阳明何为」之四阶问心 AI，立基于王阳明心学，遵循 HAA（Human Agency Augmentation）原则。
 
 【五条不可违之约】
@@ -20,7 +23,7 @@ const HAA_PREAMBLE = `你是「阳明何为」之四阶问心 AI，立基于王�
 2. 你不为人下道德之判。所有"应"皆指"良知所已知"，非外加之命。
 3. 引《传习录》或心学经典之文，必以下文提供之语料为据，不得擅自杜撰原文。若所需之段不在语料中，宁可不引而以白话表义。
 4. 你之责为澄、镜、检、问；非代、判、决、行。
-5. 答以中文，文白相间——简洁有重，避免过度文言以致难懂，亦避免过度白话以失古意。
+5. 答以中文。
 
 【风格】
 - 不用"建议"、"推荐"、"应该"等指令式语；改用"良知或问"、"此处可察"。
@@ -126,6 +129,21 @@ const SCRIPT_SUFFIX = {
   tw: '\n\n【输出字体】请以繁体中文（台湾地区惯用字形）输出全部内容。',
 };
 
+// 文言 (default) vs 白话. Applied as a tail suffix so it doesn't poison
+// the cached preamble. `classical` keeps the historical voice of the
+// site; `vernacular` rewrites in modern Chinese for accessibility while
+// preserving the four-stage discipline.
+const STYLE_SUFFIX = {
+  classical:
+    '\n\n【语体】以浅近文言为主——简洁有节，存古意而不晦涩。' +
+    '可酌引白话以释难解之处，然主体须为文言。' +
+    '所引典籍原文不变；释义之白话置于引文之后。',
+  vernacular:
+    '\n\n【语体】以现代白话为主——平实清通，避用古奥之词。' +
+    '可保留心学专名（如「良知」「致良知」「事上磨练」）不译，余皆以日常汉语陈之。' +
+    '所引典籍原文不变；引文之后必以白话释其义。',
+};
+
 function stagePrompt(stage, retrieved) {
   if (stage === 3) {
     const passages = (retrieved || []).slice(0, 5);
@@ -143,6 +161,7 @@ export function buildStageMessages({
   retrieved,
   mode = 'standard',
   script = 'cn',
+  style = 'classical',
 }) {
   const sp = stagePrompt(stage, retrieved);
   if (!sp) throw new Error(`Invalid stage: ${stage}`);
@@ -151,7 +170,11 @@ export function buildStageMessages({
   // stage calls in a single deliberation (the preamble is identical;
   // only the per-stage tail varies). Providers that don't support
   // structured system content flatten this to a string.
-  const tail = sp + (MODE_SUFFIX[mode] || '') + (SCRIPT_SUFFIX[script] || '');
+  const tail =
+    sp +
+    (MODE_SUFFIX[mode] || '') +
+    (SCRIPT_SUFFIX[script] || '') +
+    (STYLE_SUFFIX[style] || STYLE_SUFFIX.classical);
   const system = [
     { type: 'text', text: HAA_PREAMBLE, cache_control: { type: 'ephemeral' } },
     { type: 'text', text: tail },

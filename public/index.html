@@ -35,6 +35,10 @@
     <li><a href="#cultivation">修行</a></li>
   </ul>
   <div class="nav-right">
+    <div class="script-toggle" id="styleToggle" role="group" aria-label="语体切换 · 文白">
+      <button data-style="classical" class="active" aria-pressed="true" aria-label="文言">文</button>
+      <button data-style="vernacular" aria-pressed="false" aria-label="白话">白</button>
+    </div>
     <div class="script-toggle" id="scriptToggle" role="group" aria-label="字体切换 · 简繁">
       <button data-script="cn" class="active" aria-pressed="true" aria-label="简体">简</button>
       <button data-script="tw" aria-pressed="false" aria-label="繁體">繁</button>
@@ -174,10 +178,14 @@
     <div class="scenario-input">
       <div class="scenario-label">心中所困之事</div>
       <div class="scenario-label-sub">请尽诚实之意，连同你不愿承认之感受一并书之</div>
-      <textarea class="scenario-textarea" id="scenarioBox">父母年近八十，体力日衰，然坚持独自留乡。我已三度请其与我同住，父亲皆辞，言不愿成累赘。我心中两难：一则当尊其自主，一则似有真切之责。万一有事，恐终生不能自恕。</textarea>
+      <textarea
+        class="scenario-textarea"
+        id="scenarioBox"
+        placeholder="正在生成示例情境，请稍候……或自书所困之事于此。"
+      ></textarea>
 
       <div class="meta-row">
-        <span class="word-count"><em id="wordCount">86</em> / 800 字</span>
+        <span class="word-count"><em id="wordCount">0</em> / 800 字</span>
         <span class="privacy-pledge">默认匿名 · 端到端加密 · 永不外传</span>
       </div>
 
@@ -194,14 +202,11 @@
     <!-- OUTPUT -->
     <div class="deliberation-output" role="region" aria-live="polite" aria-label="问心结果 · 四阶">
       <div class="deliberation-header">
-        <div class="title"><span class="pulse-dot"></span>问心进行中</div>
+        <div class="title"><span class="pulse-dot"></span>问心待启</div>
         <div class="han">致良知 · v1.2</div>
       </div>
 
-      <div class="scenario-card-display">
-        父母年迈，坚守独居，体衰可见。一头是孝义之责，一头是其自主之尊。对将来悔恨之惧，弥漫一切思虑。
-        <div class="meta">案例 · 伦理 / 孝悌 · 隐名 · 难度 中</div>
-      </div>
+      <div class="scenario-card-display"></div>
 
       <!-- STAGE 1 -->
       <div class="stage">
@@ -212,10 +217,6 @@
         <div class="stage-content">
           <h4>未起分别之先 · 此境本然为何？</h4>
           <div class="stage-saying">无善无恶心之体 · 视镜先净</div>
-          <p>
-            二位至亲，正在行使他们眼下尚能行之选择。其身渐老，其行渐缓——皆为实事，皆非过失。
-            距离是真，风险是真，然此皆"境"，未必即为"问题"。"两难"在你，不在彼。
-          </p>
         </div>
       </div>
 
@@ -228,11 +229,6 @@
         <div class="stage-content">
           <h4>心中所动者，究为何意？</h4>
           <div class="stage-saying">有善有恶意之动 · 名其所动，不掩其情</div>
-          <p>三股暗流，须诚实辨之：</p>
-          <p class="sub-line"><em>· 真切之爱</em> — 愿其余年得安稳与体面。</p>
-          <p class="sub-line"><em>· 预先之歉疚</em> — 欲为将来之自责先购一份保险。</p>
-          <p class="sub-line"><em>· 隐微之掌控之欲</em> — 爱之与管之，已悄然纠缠。</p>
-          <p>第一者属仁。后二者关乎你自己。阳明先生请你<em>看清</em>，但勿自责。</p>
         </div>
       </div>
 
@@ -245,16 +241,6 @@
         <div class="stage-content">
           <h4>良知所已知者，为何？</h4>
           <div class="stage-saying">知善知恶是良知 · 是镜，非判</div>
-          <p>
-            你的良知早已能辨——孝爱之"孝"与孝迫之"孝"。
-            若所谓关爱，是越过父母仍存的自主之能、为息己心之忧虑而行，
-            则在阳明意中，已非真孝——是<em>为己而孝</em>。
-          </p>
-          <div class="quoted">
-            「孝亲之心真切，则自然冬温而夏凊，不待于求。」
-            <span class="src">— 《传习录》上 · 孝心若真，则寒温供养自然而至，无须勉强</span>
-          </div>
-          <p>良知此刻所问者：你之提议，是顺其生命之延展？抑或安己心之器？</p>
         </div>
       </div>
 
@@ -262,24 +248,6 @@
       <div class="action-card">
         <div class="label">第四阶 · 知行合一 · 见诸行</div>
         <h3><span class="han-action">行</span>七日内可行之一事</h3>
-        <ul class="action-list">
-          <li>
-            <span class="step">i.</span>
-            <span>亲身往省——非为劝其改意，乃为亲见其情。三日同处，观其日常之实力。<span class="han-tag">事上磨练</span></span>
-          </li>
-          <li>
-            <span class="step">ii.</span>
-            <span>一次诚恳之谈——只问一问：「下一年里，何事能令您心安？」 然后，<em style="color:var(--vermillion-l);">听</em>。<span class="han-tag">察意</span></span>
-          </li>
-          <li>
-            <span class="step">iii.</span>
-            <span>与父母共图（非自决）安全之网：医疗紧急按钮、邻里看护、固定每周一通电话。以"基础"敬其自主。<span class="han-tag">致良知</span></span>
-          </li>
-          <li>
-            <span class="step">iv.</span>
-            <span>自察——愧疚之压再起时，识得它。此即工夫，非为得果。<span class="han-tag">省察</span></span>
-          </li>
-        </ul>
         <div class="commit-row">
           <span class="commit-text">知而不行，未为知也。</span>
           <button class="commit-btn">立志</button>

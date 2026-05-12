@@ -42,7 +42,22 @@ function scriptSuffix(script) {
   return script === 'tw' ? '\n\n输出请以繁体中文（台湾地区惯用字形）。' : '';
 }
 
-function buildPrompt({ summary, n }) {
+// Default classical so AI-generated scenarios match the site's literary
+// voice; switch to vernacular only when the user has explicitly opted in.
+function styleSuffix(style) {
+  if (style === 'vernacular') {
+    return (
+      '\n\n【语体】scenario 字段请以现代白话写作——平实清通，避用古奥之词；' +
+      '可保留心学专名（「良知」「致良知」「事上磨练」等）不译。'
+    );
+  }
+  return (
+    '\n\n【语体】scenario 字段请以浅近文言写作——简洁有节，存古意而不晦涩，' +
+    '与本门户其余文字之语体相协。'
+  );
+}
+
+function buildPrompt({ summary, n, style }) {
   const band = ageBandFor(summary);
   const bandText = AGE_BAND_GUIDANCE[band];
   const themes = (summary?.themes || []).join('、') || '（用户未声明特定主题）';
@@ -63,7 +78,7 @@ function buildPrompt({ summary, n }) {
 【输出格式】严格输出 JSON 数组，无前言无后语，无 \`\`\`markdown 围栏。每项形如：
 {"cat":"己|家|伦|职|关|公|教|言 中之一字","title":"≤14字之短题","scenario":"80..400 字之情境陈述（含两难）"}
 
-cat 字义：己=己身；家=家庭；伦=伦理（孝悌、师友）；职=职场；关=人际关系；公=公共/公民；教=教育；言=言默/言语。${scriptSuffix(summary?.script)}`;
+cat 字义：己=己身；家=家庭；伦=伦理（孝悌、师友）；职=职场；关=人际关系；公=公共/公民；教=教育；言=言默/言语。${scriptSuffix(summary?.script)}${styleSuffix(style)}`;
 
   const user = `请生成 ${n} 则适本用户之困境情境。
 
@@ -125,9 +140,15 @@ export function parseScenarios(raw) {
   return out;
 }
 
-export async function generateScenarios({ provider, summary, count = 4, signal }) {
+export async function generateScenarios({
+  provider,
+  summary,
+  count = 4,
+  signal,
+  style = 'classical',
+}) {
   const n = Math.max(1, Math.min(6, Number(count) || 4));
-  const { system, user } = buildPrompt({ summary, n });
+  const { system, user } = buildPrompt({ summary, n, style });
 
   const raw = await readStream(
     provider.streamText({

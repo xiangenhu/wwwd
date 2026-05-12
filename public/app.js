@@ -4,11 +4,14 @@
 // Backend URL resolution:
 //   1. window.WWWD_BACKEND_URL if set before page load
 //   2. ?api=... URL query parameter
-//   3. Default: http://localhost:8000
+//   3. Default: same origin the page was served from. server.js serves
+//      both /api/* and this static frontend, so colocated is the common
+//      case (local dev, Codespaces port-forward, production).
 const BACKEND_URL = (() => {
   if (typeof window !== 'undefined' && window.WWWD_BACKEND_URL) return window.WWWD_BACKEND_URL;
   const params = new URLSearchParams(window.location.search);
   if (params.get('api')) return params.get('api');
+  if (typeof window !== 'undefined' && window.location?.origin) return window.location.origin;
   return 'http://localhost:8000';
 })();
 
@@ -632,19 +635,19 @@ function prepareStreamTarget(stageEl, num) {
   return target;
 }
 
-function restoreMockContent() {
-  stages.forEach((stage, i) => {
-    const num = i + 1;
-    const content = getStageContent(stage, num);
-    const all = content.querySelectorAll('p, .quoted, .sub-line, .action-list, .commit-row');
-    all.forEach((el) => (el.style.display = ''));
-    const target = content.querySelector('.stream-target');
-    if (target) target.style.display = 'none';
-  });
-}
-
 async function realDeliberate(scenario) {
   const header = document.querySelector('.deliberation-header .title');
+
+  // Cache check before any network I/O. If we've deliberated this exact
+  // (scenario, style) pair earlier in the session, paint instantly and
+  // skip the LLM round-trip entirely.
+  const styleAtCall = currentStyle || 'classical';
+  const cached = await readCachedUser(scenario, styleAtCall);
+  if (cached) {
+    paintCachedUser(scenario, cached.stages);
+    return;
+  }
+
   renderProgressHeader(header, '正在审心', { typing: true });
 
   const display = document.querySelector('.scenario-card-display');
@@ -682,6 +685,7 @@ async function realDeliberate(scenario) {
         scenario: scenario,
         mode: 'standard',
         script: currentScript || 'cn',
+        style: currentStyle || 'classical',
       }),
     });
 
@@ -746,39 +750,35 @@ async function realDeliberate(scenario) {
         t.textContent =
           '（API 调用失败 · 请检查后端连接、API key 是否有效，或浏览器控制台之错误信息）';
     });
+    return;
+  }
+
+  // Persist a complete deliberation to the per-scenario × style cache so
+  // a future re-run (or a 文/白 toggle that returns to this pair) is
+  // instant and free. Only cache when all four stages produced output —
+  // a partial stream is not worth re-displaying.
+  const stageTexts = targets.map((t) => t.textContent || '');
+  if (stageTexts.every((t) => t.length > 0)) {
+    writeCachedUser(scenario, styleAtCall, stageTexts);
   }
 }
 
 function mockDeliberate() {
-  restoreMockContent();
-  stages.forEach((s) => {
-    s.style.opacity = 0;
-    s.style.transform = 'translateY(16px)';
-    s.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+  // The previous demo prose lived in the HTML; it now comes from the
+  // LLM on page load, so there's nothing to "restore" when the backend
+  // is unreachable. Render an explicit error in each stage instead of
+  // animating empty cards.
+  const header = document.querySelector('.deliberation-header .title');
+  renderProgressHeader(header, '问心受阻 · 后端不可用', {
+    dotColor: 'var(--vermillion-l)',
+  });
+  stages.forEach((stage, i) => {
+    const t = prepareStreamTarget(stage, i + 1);
+    t.textContent = '后端未连接，无法生成本阶之论。请稍后再试。';
+    stage.style.opacity = 1;
+    stage.style.transform = 'translateY(0)';
   });
   output.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  const header = document.querySelector('.deliberation-header .title');
-  renderProgressHeader(header, '正在审心', { typing: true });
-
-  stages.forEach((s, i) => {
-    setTimeout(
-      () => {
-        s.style.opacity = 1;
-        s.style.transform = 'translateY(0)';
-      },
-      700 + i * 1000,
-    );
-  });
-
-  setTimeout(
-    () => {
-      renderProgressHeader(header, '问心已成 · 演示模式 · 历时 27.4 秒', {
-        dotColor: 'var(--aged-gold)',
-      });
-    },
-    700 + stages.length * 1000 + 200,
-  );
 }
 
 if (btn && output) {
@@ -795,6 +795,188 @@ if (btn && output) {
       mockDeliberate();
     }
   });
+}
+
+// ============================================================
+// AUTO-DEMO ON PAGE LOAD
+// ============================================================
+// Replaces the formerly hard-coded sample (scenario + 4-stage prose)
+// with a fresh LLM-generated example. Cached in sessionStorage so a
+// tab refresh doesn't reburn the ~5 LLM calls. Cache key is keyed on
+// style so a 白话 reload doesn't get shadowed by a stale 文言 demo.
+function demoCacheKey() {
+  return `wwwd:demo:v1:${currentStyle}`;
+}
+
+function readCachedDemo() {
+  try {
+    const raw = sessionStorage.getItem(demoCacheKey());
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    if (!obj || typeof obj.scenario !== 'string') return null;
+    if (!Array.isArray(obj.stages) || obj.stages.length !== 4) return null;
+    if (!obj.stages.every((s) => typeof s === 'string')) return null;
+    return obj;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedDemo(scenario, stageTexts) {
+  try {
+    sessionStorage.setItem(
+      demoCacheKey(),
+      JSON.stringify({ scenario, stages: stageTexts, cachedAt: Date.now() }),
+    );
+  } catch {
+    /* sessionStorage may be unavailable in private modes; ignore */
+  }
+}
+
+function paintCachedDemo(scenario, stageTexts) {
+  const header = document.querySelector('.deliberation-header .title');
+  if (header) {
+    renderProgressHeader(header, '示例已生成', { dotColor: 'var(--aged-gold)' });
+  }
+  const display = document.querySelector('.scenario-card-display');
+  if (display) {
+    display.textContent = '';
+    const preview = scenario.length > 100 ? scenario.substring(0, 100) + '……' : scenario;
+    display.appendChild(document.createTextNode(preview));
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = '案例 · 示例 · 隐名';
+    display.appendChild(meta);
+  }
+  stages.forEach((stage, i) => {
+    const t = prepareStreamTarget(stage, i + 1);
+    t.textContent = stageTexts[i] || '';
+    stage.style.opacity = 1;
+    stage.style.transform = 'translateY(0)';
+  });
+}
+
+function captureStageTexts() {
+  return Array.from(stages).map((stage, i) => {
+    const content = getStageContent(stage, i + 1);
+    const target = content.querySelector('.stream-target');
+    return target ? target.textContent : '';
+  });
+}
+
+// ============================================================
+// USER-DELIBERATION CACHE (per scenario × style)
+// ============================================================
+// Why: a deliberation costs ~4 LLM calls. If the user toggles 文/白 on a
+// scenario they've already deliberated, re-running burns those calls
+// again. Cache by (sha256(scenario), style) so toggling a previously
+// seen pair is instant and free; new combinations still fetch.
+async function sha256Hex(input) {
+  const buf = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function userCacheKey(scenario, style) {
+  // Truncate to 16 hex chars — collision risk is negligible for a single
+  // user's session, and storage stays compact.
+  const hash = (await sha256Hex(scenario.trim())).slice(0, 16);
+  return `wwwd:user:v1:${hash}:${style}`;
+}
+
+async function readCachedUser(scenario, style) {
+  try {
+    const raw = sessionStorage.getItem(await userCacheKey(scenario, style));
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    if (!obj || typeof obj.scenario !== 'string') return null;
+    if (!Array.isArray(obj.stages) || obj.stages.length !== 4) return null;
+    if (!obj.stages.every((s) => typeof s === 'string')) return null;
+    return obj;
+  } catch {
+    return null;
+  }
+}
+
+async function writeCachedUser(scenario, style, stageTexts) {
+  try {
+    sessionStorage.setItem(
+      await userCacheKey(scenario, style),
+      JSON.stringify({
+        scenario,
+        style,
+        stages: stageTexts,
+        cachedAt: Date.now(),
+      }),
+    );
+  } catch {
+    /* sessionStorage may be full or unavailable; ignore */
+  }
+}
+
+function paintCachedUser(scenario, stageTexts) {
+  const header = document.querySelector('.deliberation-header .title');
+  if (header) {
+    renderProgressHeader(header, '已读自缓存', { dotColor: 'var(--aged-gold)' });
+  }
+  const display = document.querySelector('.scenario-card-display');
+  if (display) {
+    display.textContent = '';
+    const preview = scenario.length > 100 ? scenario.substring(0, 100) + '……' : scenario;
+    display.appendChild(document.createTextNode(preview));
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = '案例 · 已缓存 · 隐名';
+    display.appendChild(meta);
+  }
+  stages.forEach((stage, i) => {
+    const t = prepareStreamTarget(stage, i + 1);
+    t.textContent = stageTexts[i] || '';
+    stage.style.opacity = 1;
+    stage.style.transform = 'translateY(0)';
+  });
+  output.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function autoLoadDemo() {
+  if (!backendAvailable) return;
+  // Don't clobber a user who has started typing before the demo loads.
+  if (textarea.value.trim().length > 0) return;
+
+  const cached = readCachedDemo();
+  if (cached) {
+    textarea.value = cached.scenario;
+    wordCount.textContent = cached.scenario.length;
+    paintCachedDemo(cached.scenario, cached.stages);
+    return;
+  }
+
+  let scenarioText = '';
+  try {
+    const styleQ = encodeURIComponent(currentStyle || 'classical');
+    const resp = await fetch(`${BACKEND_URL}/api/scenario/demo?style=${styleQ}`, {
+      headers: getAuthHeaders(),
+    });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    scenarioText = data?.scenario?.scenario || '';
+    if (!scenarioText) return;
+  } catch {
+    return;
+  }
+
+  if (textarea.value.trim().length > 0) return; // user typed while we waited
+  textarea.value = scenarioText;
+  wordCount.textContent = scenarioText.length;
+
+  await realDeliberate(scenarioText);
+
+  const stageTexts = captureStageTexts();
+  if (stageTexts.every((t) => t && t.length > 0)) {
+    writeCachedDemo(scenarioText, stageTexts);
+  }
 }
 
 // ============================================================
@@ -843,6 +1025,15 @@ document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 let s2tConverter = null;
 let t2sConverter = null;
 let currentScript = 'cn';
+
+// 文/白 user preference. Default 'classical' (文言) to match the site's
+// dominant voice; persists across sessions so a 白话 user doesn't have
+// to flip the toggle on every visit.
+const STYLE_KEY = 'wwwd_style';
+let currentStyle = localStorage.getItem(STYLE_KEY) || 'classical';
+if (currentStyle !== 'classical' && currentStyle !== 'vernacular') {
+  currentStyle = 'classical';
+}
 
 // Cache original text content of all text nodes once
 const originalCache = new Map();
@@ -939,8 +1130,12 @@ function initOpenCC() {
 window.addEventListener('DOMContentLoaded', () => {
   cacheTextNodes(document.body);
 
-  // Backend health check (non-blocking)
-  checkBackend();
+  // Backend health check then auto-load the LLM-generated demo. Both
+  // are non-blocking for the rest of init; the demo silently skips if
+  // the backend isn't reachable.
+  checkBackend().then((ok) => {
+    if (ok) autoLoadDemo();
+  });
 
   // OAuth gateway init: capture any callback token, render auth bar,
   // and fetch profile if signed in.
@@ -986,6 +1181,39 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
+
+// 文/白 toggle: changes the LLM `style` for future deliberations and
+// scenario generations. Does NOT rewrite static UI text — that stays as
+// authored. Demo cache is keyed on style so a flip won't show a stale
+// example in the wrong voice.
+const styleToggle = document.getElementById('styleToggle');
+function setActiveStyleBtn(btn) {
+  styleToggle.querySelectorAll('button').forEach((b) => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
+  btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
+}
+if (styleToggle) {
+  // Reflect persisted preference on first paint.
+  const initBtn = styleToggle.querySelector(`[data-style="${currentStyle}"]`);
+  if (initBtn) setActiveStyleBtn(initBtn);
+
+  styleToggle.querySelectorAll('button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.style;
+      if (!target || target === currentStyle) return;
+      currentStyle = target;
+      try {
+        localStorage.setItem(STYLE_KEY, currentStyle);
+      } catch {
+        /* private mode etc — non-fatal */
+      }
+      setActiveStyleBtn(btn);
+    });
+  });
+}
 
 // Set up toggle handler
 const scriptToggle = document.getElementById('scriptToggle');

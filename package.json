@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "kill": "lsof -ti:${PORT:-8000} | xargs -r kill",
     "precompute": "node scripts/precompute-embeddings.js",
     "check-llm": "node scripts/check-llm.js",
     "check-lrs": "node scripts/check-lrs.js",

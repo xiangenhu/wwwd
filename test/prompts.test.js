@@ -48,6 +48,78 @@ test('the cached preamble is identical across stages 1-4', () => {
   assert.equal(new Set(preambles).size, 1, 'preamble varies across stages — caching will not hit');
 });
 
+test('the cached preamble is identical across styles too', () => {
+  const preambles = ['classical', 'vernacular'].map(
+    (style) =>
+      buildStageMessages({
+        stage: 1,
+        scenario: 's'.repeat(20),
+        retrieved: sampleRetrieved,
+        style,
+      }).system[0].text,
+  );
+  assert.equal(
+    new Set(preambles).size,
+    1,
+    'preamble varies across styles — style instructions must live in the tail, not the cached preamble',
+  );
+});
+
+test('default style is classical (文言) when omitted', () => {
+  const explicit = buildStageMessages({
+    stage: 1,
+    scenario: 'x'.repeat(40),
+    retrieved: [],
+    style: 'classical',
+  });
+  const omitted = buildStageMessages({
+    stage: 1,
+    scenario: 'x'.repeat(40),
+    retrieved: [],
+  });
+  assert.equal(omitted.system[1].text, explicit.system[1].text);
+  assert.ok(omitted.system[1].text.includes('浅近文言'));
+});
+
+test('vernacular style emits a 白话 instruction in the tail', () => {
+  const v = buildStageMessages({
+    stage: 1,
+    scenario: 'x'.repeat(40),
+    retrieved: [],
+    style: 'vernacular',
+  });
+  assert.ok(v.system[1].text.includes('现代白话'));
+  assert.ok(!v.system[1].text.includes('浅近文言'));
+});
+
+test('unknown style falls back to classical', () => {
+  const bogus = buildStageMessages({
+    stage: 1,
+    scenario: 'x'.repeat(40),
+    retrieved: [],
+    style: 'made-up',
+  });
+  const classical = buildStageMessages({
+    stage: 1,
+    scenario: 'x'.repeat(40),
+    retrieved: [],
+    style: 'classical',
+  });
+  assert.equal(bogus.system[1].text, classical.system[1].text);
+});
+
+test('the legacy 文白相间 rule is no longer hard-coded in the preamble', () => {
+  const { system } = buildStageMessages({
+    stage: 1,
+    scenario: 'x'.repeat(40),
+    retrieved: [],
+  });
+  assert.ok(
+    !system[0].text.includes('文白相间'),
+    'preamble must be style-agnostic so cache hits across all four 文/白 combinations',
+  );
+});
+
 test('stage 3 embeds retrieved passages', () => {
   const { system } = buildStageMessages({
     stage: 3,

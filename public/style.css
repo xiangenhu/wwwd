@@ -255,21 +255,25 @@ nav.topbar .nav-mid a:hover {
 
 .hero-han {
   font-family: 'Ma Shan Zheng', serif;
-  font-size: clamp(110px, 15vw, 200px);
+  /* Shrunk lower bound + smaller vw factor so the four characters stay
+     on one line within the hero-left column at all widths the layout
+     supports. nowrap is the belt to the clamp's suspenders. */
+  font-size: clamp(56px, 11vw, 180px);
   line-height: 0.95;
   color: var(--ink);
   letter-spacing: 0.05em;
   margin-bottom: 28px;
   position: relative;
   display: inline-block;
+  white-space: nowrap;
 }
 .hero-han::after {
   content: '陽';
   position: absolute;
-  right: -90px;
+  right: clamp(-90px, -6vw, -40px);
   top: 50%;
   transform: translateY(-50%) rotate(8deg);
-  font-size: 130px;
+  font-size: clamp(70px, 9vw, 130px);
   color: var(--vermillion);
   opacity: 0.12;
   pointer-events: none;

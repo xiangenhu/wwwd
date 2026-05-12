@@ -27,6 +27,7 @@ import { createCorpusLoader } from './src/corpus/index.js';
 import { buildStageMessages, STAGE_NAMES } from './src/prompts.js';
 import { actorMiddleware, authConfig, requireGatewayAuth } from './src/auth.js';
 import { createProvider, describeProvider } from './src/providers/index.js';
+import { pingLLM, pingLLMCached, warmLLMHealthCache } from './src/llmHealth.js';
 import {
   createProfileStore,
   validateProfilePatch,
@@ -114,6 +115,11 @@ console.log('='.repeat(60));
 
 await retriever.load();
 console.log(`语料 · ${retriever.size} 段, dim=${retriever.dim}`);
+
+// Kick off a background LLM ping so the first /api/health hit returns a
+// real result. Fire-and-forget; failures are surfaced via the next health
+// response, not a boot abort.
+warmLLMHealthCache(provider);
 
 // Corpus data/corpus.json carries an explicit verification_required flag
 // when it's the sample/unverified text. Refuse to serve such a corpus in
@@ -241,18 +247,27 @@ const healthLimiter = rateLimit({
 // model name, GCS bucket, LRS endpoint); it's only included when a
 // matching WWWD_HEALTH_DETAIL_TOKEN is presented in ?token=...
 const HEALTH_DETAIL_TOKEN = process.env.WWWD_HEALTH_DETAIL_TOKEN || '';
-app.get('/api/health', healthLimiter, (req, res) => {
+app.get('/api/health', healthLimiter, async (req, res) => {
   const wantDetail = !IS_PROD || (HEALTH_DETAIL_TOKEN && req.query.token === HEALTH_DETAIL_TOKEN);
   if (!wantDetail) {
     return res.json({ status: 'ok' });
   }
+  // Real-time LLM probe: cached path is non-blocking (returns the cached
+  // value when fresh, or kicks off a background refresh and returns a
+  // pending/stale marker so /api/health stays sub-millisecond). The cache
+  // is warmed at boot, TTL via WWWD_HEALTH_LLM_TTL_MS (default 30s).
+  // `?probe=fresh` forces a live call for on-demand verification.
+  const llm = req.query.probe === 'fresh' ? await pingLLM(provider) : pingLLMCached(provider);
   res.json({
-    status: 'ok',
+    // 'ok' on cached hit or fresh-ok; 'degraded' on real failure;
+    // 'pending' on cold cache (warm-up still in flight).
+    status: llm.ok === false ? 'degraded' : llm.pending ? 'pending' : 'ok',
     corpus_size: retriever.size,
     corpus_version: process.env.WWWD_CORPUS_VERSION || 'local-dev',
     corpus_source: loader.describe(),
     model: providerInfo.model,
     provider: providerInfo.provider,
+    llm,
     lrs: { stdout: true, forward: lrs.lrsConfig.forwardToLrs },
     auth: {
       oauth_configured: authConfig.oauthConfigured,
@@ -322,7 +337,7 @@ app.post(
   scenarioLimiter,
   requireGatewayAuth,
   asyncHandler(async (req, res) => {
-    const { count = 4 } = req.body || {};
+    const { count = 4, style = 'classical' } = req.body || {};
     const profile = await profileStore.getOrCreate(req.gatewayUser);
     const summary = profileSummaryForPrompt(profile);
 
@@ -338,11 +353,59 @@ app.post(
         summary,
         count,
         signal: abortCtrl.signal,
+        style,
       });
       res.json({ scenarios, profile_summary: summary });
     } catch (err) {
       console.error(`[scenario/generate] ${err?.stack || err}`);
       res.status(502).json({ error: `scenario generation failed: ${err.message}` });
+    } finally {
+      clearTimeout(timer);
+    }
+  }),
+);
+
+// /api/scenario/demo · one fresh scenario for the homepage live demo.
+// Open to anonymous visitors so the landing page isn't blank pre-login;
+// the gateway profile is used when present so signed-in users get a
+// personalized example. Rate-limited tighter than the authenticated
+// endpoint because anyone (incl. bots) can hit it.
+const demoScenarioLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: Number(process.env.RATE_LIMIT_DEMO_SCENARIO || 10),
+  keyGenerator: actorKey,
+  message: limitMessage,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+
+app.get(
+  '/api/scenario/demo',
+  demoScenarioLimiter,
+  asyncHandler(async (req, res) => {
+    const summary = req.gatewayUser
+      ? profileSummaryForPrompt(await profileStore.getOrCreate(req.gatewayUser))
+      : null;
+    const styleParam = typeof req.query.style === 'string' ? req.query.style : 'classical';
+
+    const abortCtrl = new AbortController();
+    req.on('close', () => abortCtrl.abort());
+
+    const SCENARIO_TIMEOUT_MS = Number(process.env.SCENARIO_TIMEOUT_MS || 45_000);
+    const timer = setTimeout(() => abortCtrl.abort(), SCENARIO_TIMEOUT_MS);
+
+    try {
+      const scenarios = await generateScenarios({
+        provider,
+        summary,
+        count: 1,
+        signal: abortCtrl.signal,
+        style: styleParam,
+      });
+      res.json({ scenario: scenarios[0] });
+    } catch (err) {
+      console.error(`[scenario/demo] ${err?.stack || err}`);
+      res.status(502).json({ error: `demo scenario failed: ${err.message}` });
     } finally {
       clearTimeout(timer);
     }
@@ -407,7 +470,12 @@ app.post(
   '/api/deliberate',
   deliberateLimiter,
   asyncHandler(async (req, res) => {
-    const { scenario, mode = 'standard', script = 'cn' } = req.body || {};
+    const {
+      scenario,
+      mode = 'standard',
+      script = 'cn',
+      style = 'classical',
+    } = req.body || {};
     if (typeof scenario !== 'string' || scenario.length < 10 || scenario.length > 2000) {
       return res.status(422).json({ error: 'scenario must be 10..2000 chars' });
     }
@@ -471,6 +539,7 @@ app.post(
           retrieved,
           mode,
           script,
+          style,
         });
 
         // Per-stage soft deadline: a stalled provider would otherwise hold
@@ -544,6 +613,7 @@ app.post(
             scenario_len: scenario.length,
             mode,
             script,
+            style,
             stages_completed: stagesCompleted,
             total_ms: totalMs,
           });
