@@ -422,6 +422,31 @@ const cardsContainer = document.getElementById('scenarioCards');
 const textarea = document.getElementById('scenarioBox');
 const wordCount = document.getElementById('wordCount');
 
+// Modal holds the entire deliberation shell (input + 4-stage output).
+// Card clicks pre-fill the textarea and open it; the trigger button just
+// opens it. ESC and backdrop click close via native <dialog> behavior.
+const scenarioModal = document.getElementById('scenarioModal');
+
+function openModal() {
+  if (!scenarioModal || scenarioModal.open) return;
+  scenarioModal.showModal();
+  // Scroll modal content to top so the user lands on the textarea.
+  const inner = scenarioModal.querySelector('.scenario-modal-inner');
+  if (inner) inner.scrollTop = 0;
+}
+
+if (scenarioModal) {
+  // Click on the backdrop (outside the inner sheet) closes.
+  scenarioModal.addEventListener('click', (ev) => {
+    if (ev.target === scenarioModal) scenarioModal.close('cancel');
+  });
+}
+
+const openModalBtn = document.getElementById('openModalBtn');
+if (openModalBtn) {
+  openModalBtn.addEventListener('click', () => openModal());
+}
+
 scenarios.forEach((s, i) => {
   const card = document.createElement('button');
   card.className = 'scenario-card' + (i === 0 ? ' active' : '');
@@ -436,22 +461,152 @@ scenarios.forEach((s, i) => {
     card.classList.add('active');
     textarea.value = s.full;
     wordCount.textContent = s.full.length;
-    // Update displayed scenario card
     const display = document.querySelector('.scenario-card-display');
     if (display) {
-      const meta = display.querySelector('.meta');
-      const newContent = s.full.length > 100 ? s.full.substring(0, 100) + '……' : s.full;
-      // Replace text content while preserving meta
-      display.innerHTML =
-        newContent +
-        '<div class="meta">案例 · ' +
-        s.catFull +
-        ' · 隐名 · 难度 ' +
-        ['浅', '中', '深', '深'][i % 4] +
-        '</div>';
+      const preview = s.full.length > 100 ? s.full.substring(0, 100) + '……' : s.full;
+      display.textContent = preview;
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent =
+        '案例 · ' + s.catFull + ' · 隐名 · 难度 ' + ['浅', '中', '深', '深'][i % 4];
+      display.appendChild(meta);
     }
+    openModal();
   });
   cardsContainer.appendChild(card);
+});
+
+// ============================================================
+// PILLAR MODAL (四阶释义 popup)
+// One shared example thread runs through all four stages so the
+// chain reads as a single piece of fieldwork rather than four
+// disconnected definitions.
+// ============================================================
+const PILLAR_EXAMPLE_CONTEXT = '设一困：同事于会上夺我之议而归功于己。四阶之链于此境之展开——';
+
+const pillarData = {
+  1: {
+    num: '第一阶',
+    han: '心之体',
+    saying: '无善无恶心之体',
+    quote: '无善无恶者理之静，有善有恶者气之动。不动于气，即无善无恶，是谓至善。',
+    cite: '——《传习录·上》薛侃录',
+    guard:
+      '此阶不入价值判断，不替良知拍板。只观此境之"条件"——人、事、时、所议者为何——而不先论"应当"。一旦动判，便已落第三阶之事，先后不可乱。',
+    example:
+      '于此阶但观：会议之实——所议之项、与会之人、议程之序、我之言出于何时、彼之接续出于何时。怒未起之先，事即是事。',
+    conceptId: 'concept-xinjili',
+    conceptName: '心即理',
+    conceptNote: '心之体即理之静。澄观此境之本然，正是"理"自显于未动气之心——非外求于他人之评判。',
+  },
+  2: {
+    num: '第二阶',
+    han: '意之动',
+    saying: '有善有恶意之动',
+    quote: '心之所发便是意，意之本体便是知，意之所在便是物。',
+    cite: '——《传习录·上》徐爱录',
+    guard:
+      '此阶但命名所动，不评其善恶，亦不为之辩护。自责与自辩，皆是再起一层之意，反掩前一层之实。"名"而已矣。',
+    example:
+      '心中所动者：怒（被夺）、被轻（议归他人）、求公正之欲、亦有一缕自疑（是否我言之时机不显？）、并求人前之颜面。逐一浮显，不掩，不责。',
+    conceptId: 'concept-xingcha',
+    conceptName: '省察',
+    conceptNote: '省察之工，正在此阶。日日省察其意之所动，如理灯然——非以自责，乃以明所之。',
+  },
+  3: {
+    num: '第三阶',
+    han: '良知',
+    saying: '知善知恶是良知',
+    quote: '良知只是个是非之心。是非只是个好恶。只好恶就尽了是非，只是非就尽了万事万变。',
+    cite: '——《传习录·下》',
+    guard:
+      '门户不替你下判。镜也，非判也。它只映照你良知所已知之事——你心中早已自明而被遮蔽之知——使其在不被遮蔽时得以显现。他人之意见，不可灌注于此阶。',
+    example:
+      '良知所已知者：此事须澄清，非为夺回功劳，乃使来者知此议之源；亦知怨非全为正气——其中有求名之欲在。两端并显，不可偏取。',
+    conceptId: 'concept-zhiliangzhi',
+    conceptName: '致良知',
+    conceptNote: '致良知者，推扩此本然之知于事上而无所遮也。此阶之工，正是"致"字之核。',
+  },
+  4: {
+    num: '第四阶',
+    han: '为善去恶 · 知行合一',
+    saying: '为善去恶是格物',
+    quote: '知是行的主意，行是知的功夫；知是行之始，行是知之成。',
+    cite: '——《传习录·上》徐爱录',
+    guard:
+      '此阶不容笼统之意向。"我当更注意"、"以后再说"——皆非行也。须是七日内可行、可验、可指出之具体一事，方为"格物"。知而不行，未为知也。',
+    example:
+      '七日之内，单独与该同事一晤（非于公开之场），明告"此议本出我手，望日后所议有继，亦归其源"。听其所应，不预判其意。事后于省察之中，记此一晤所动者为何。',
+    conceptId: 'concept-zhixing',
+    conceptName: '知行合一',
+    conceptNote: '行是知之成。一项七日可行之事，使第三阶所明之良知，得见诸事上磨练，方为"一"。',
+  },
+};
+
+const pillarModal = document.getElementById('pillarModal');
+
+function fillPillarModal(data) {
+  if (!pillarModal) return;
+  const set = (key, value) => {
+    pillarModal.querySelectorAll(`[data-fill="${key}"]`).forEach((el) => {
+      el.textContent = value;
+    });
+  };
+  set('num', data.num);
+  set('han', data.han);
+  set('saying', data.saying);
+  set('quote', data.quote);
+  set('cite', data.cite);
+  set('guard', data.guard);
+  set('exampleContext', PILLAR_EXAMPLE_CONTEXT);
+  set('example', data.example);
+  set('conceptName', data.conceptName);
+  set('conceptNote', data.conceptNote);
+  const link = pillarModal.querySelector('[data-fill="conceptLink"]');
+  if (link) {
+    link.setAttribute('href', '#' + data.conceptId);
+    link.dataset.targetId = data.conceptId;
+  }
+}
+
+function spotlightConcept(targetId) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  target.classList.remove('is-spotlighted');
+  // Force reflow so the animation re-runs if the same card is reopened.
+  void target.offsetWidth;
+  target.classList.add('is-spotlighted');
+  setTimeout(() => target.classList.remove('is-spotlighted'), 2400);
+}
+
+if (pillarModal) {
+  pillarModal.addEventListener('click', (ev) => {
+    if (ev.target === pillarModal) pillarModal.close('cancel');
+  });
+  const link = pillarModal.querySelector('[data-fill="conceptLink"]');
+  if (link) {
+    link.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      const id = link.dataset.targetId;
+      pillarModal.close('cancel');
+      // Wait one frame so the dialog-close transition doesn't fight
+      // the scrollIntoView animation.
+      requestAnimationFrame(() => spotlightConcept(id));
+    });
+  }
+}
+
+document.querySelectorAll('.pillar[data-pillar]').forEach((el) => {
+  el.addEventListener('click', () => {
+    const key = el.dataset.pillar;
+    const data = pillarData[key];
+    if (!data || !pillarModal) return;
+    fillPillarModal(data);
+    pillarModal.showModal();
+    const inner = pillarModal.querySelector('.pillar-modal-inner');
+    if (inner) inner.scrollTop = 0;
+  });
 });
 
 // ============================================================
@@ -566,6 +721,7 @@ aiGenBtn.addEventListener('click', () => {
       card.classList.add('active');
       textarea.value = newCase.full;
       wordCount.textContent = newCase.full.length;
+      openModal();
     });
     document.querySelectorAll('.scenario-card').forEach((c) => c.classList.remove('active'));
     cardsContainer.insertBefore(card, cardsContainer.firstChild);
@@ -635,14 +791,21 @@ function prepareStreamTarget(stageEl, num) {
   return target;
 }
 
+function getCurrentMode() {
+  const sel = document.getElementById('modeSelect');
+  const v = sel && sel.value;
+  return v === 'deep' || v === 'novice' ? v : 'standard';
+}
+
 async function realDeliberate(scenario) {
   const header = document.querySelector('.deliberation-header .title');
 
   // Cache check before any network I/O. If we've deliberated this exact
-  // (scenario, style) pair earlier in the session, paint instantly and
-  // skip the LLM round-trip entirely.
+  // (scenario, style, mode) triple earlier in the session, paint
+  // instantly and skip the LLM round-trip entirely.
   const styleAtCall = currentStyle || 'classical';
-  const cached = await readCachedUser(scenario, styleAtCall);
+  const modeAtCall = getCurrentMode();
+  const cached = await readCachedUser(scenario, styleAtCall, modeAtCall);
   if (cached) {
     paintCachedUser(scenario, cached.stages);
     return;
@@ -683,7 +846,7 @@ async function realDeliberate(scenario) {
       },
       body: JSON.stringify({
         scenario: scenario,
-        mode: 'standard',
+        mode: modeAtCall,
         script: currentScript || 'cn',
         style: currentStyle || 'classical',
       }),
@@ -759,7 +922,7 @@ async function realDeliberate(scenario) {
   // a partial stream is not worth re-displaying.
   const stageTexts = targets.map((t) => t.textContent || '');
   if (stageTexts.every((t) => t.length > 0)) {
-    writeCachedUser(scenario, styleAtCall, stageTexts);
+    writeCachedUser(scenario, styleAtCall, modeAtCall, stageTexts);
   }
 }
 
@@ -805,7 +968,7 @@ if (btn && output) {
 // tab refresh doesn't reburn the ~5 LLM calls. Cache key is keyed on
 // style so a 白话 reload doesn't get shadowed by a stale 文言 demo.
 function demoCacheKey() {
-  return `wwwd:demo:v1:${currentStyle}`;
+  return `wwwd:demo:v2:${currentStyle}:${getCurrentMode()}`;
 }
 
 function readCachedDemo() {
@@ -879,16 +1042,16 @@ async function sha256Hex(input) {
     .join('');
 }
 
-async function userCacheKey(scenario, style) {
+async function userCacheKey(scenario, style, mode) {
   // Truncate to 16 hex chars — collision risk is negligible for a single
   // user's session, and storage stays compact.
   const hash = (await sha256Hex(scenario.trim())).slice(0, 16);
-  return `wwwd:user:v1:${hash}:${style}`;
+  return `wwwd:user:v2:${hash}:${style}:${mode}`;
 }
 
-async function readCachedUser(scenario, style) {
+async function readCachedUser(scenario, style, mode) {
   try {
-    const raw = sessionStorage.getItem(await userCacheKey(scenario, style));
+    const raw = sessionStorage.getItem(await userCacheKey(scenario, style, mode));
     if (!raw) return null;
     const obj = JSON.parse(raw);
     if (!obj || typeof obj.scenario !== 'string') return null;
@@ -900,13 +1063,14 @@ async function readCachedUser(scenario, style) {
   }
 }
 
-async function writeCachedUser(scenario, style, stageTexts) {
+async function writeCachedUser(scenario, style, mode, stageTexts) {
   try {
     sessionStorage.setItem(
-      await userCacheKey(scenario, style),
+      await userCacheKey(scenario, style, mode),
       JSON.stringify({
         scenario,
         style,
+        mode,
         stages: stageTexts,
         cachedAt: Date.now(),
       }),
@@ -1280,3 +1444,94 @@ textarea.addEventListener('blur', () => {
     originalCache.set(id, textarea.value);
   }
 });
+
+// ============================================================
+// \u53e4/\u4eca ORIENTATION TOGGLE (\u7ad6\u6392 \u2194 \u6a2a\u6392)
+// Body class drives all the vertical-text CSS in style.css.
+// Default is \u7ad6\u6392 (mode-vertical, set in the markup) so first paint
+// already shows the \u53e4\u7c4d layout \u2014 no horizontal flash.
+// ============================================================
+const ORIENT_KEY = 'wwwd.orient';
+const orientToggle = document.getElementById('orientToggle');
+function applyOrient(orient) {
+  document.body.classList.toggle('mode-vertical', orient === 'vertical');
+  document.body.classList.toggle('mode-horizontal', orient === 'horizontal');
+}
+function setActiveOrientBtn(btn) {
+  if (!orientToggle) return;
+  orientToggle.querySelectorAll('button').forEach((b) => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
+  btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
+}
+const savedOrient = localStorage.getItem(ORIENT_KEY);
+if (savedOrient === 'horizontal') {
+  applyOrient('horizontal');
+  if (orientToggle) {
+    const btn = orientToggle.querySelector('[data-orient="horizontal"]');
+    if (btn) setActiveOrientBtn(btn);
+  }
+}
+if (orientToggle) {
+  orientToggle.querySelectorAll('button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.orient;
+      applyOrient(target);
+      setActiveOrientBtn(btn);
+      localStorage.setItem(ORIENT_KEY, target);
+      // Reset open state on mode change so book-opens replay if user
+      // switches back to vertical.
+      if (target === 'vertical') {
+        document.querySelectorAll('section').forEach((s) => s.classList.remove('book-open'));
+        observeBookSections();
+      } else {
+        document.querySelectorAll('section.book-open').forEach((s) =>
+          s.classList.remove('book-open'),
+        );
+      }
+    });
+  });
+}
+
+// ============================================================
+// BOOK OPEN ON SCROLL (vertical mode only)
+// Each <section> starts collapsed (rotateY -78deg, near-invisible). When
+// it enters the viewport, IntersectionObserver adds .book-open which
+// triggers the CSS swing-open animation. Hinge is on the right edge —
+// 线装书 are bound on the right and open leftward.
+// ============================================================
+let bookObserver = null;
+function observeBookSections() {
+  if (!document.body.classList.contains('mode-vertical')) return;
+  if (bookObserver) bookObserver.disconnect();
+  bookObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.18) {
+          // Slight stagger feels more like books opening one by one,
+          // not all at once.
+          const section = entry.target;
+          const delay = parseInt(section.dataset.bookDelay || '0', 10);
+          setTimeout(() => section.classList.add('book-open'), delay);
+          bookObserver.unobserve(section);
+        }
+      });
+    },
+    { threshold: [0.18, 0.3] },
+  );
+  document.querySelectorAll('section').forEach((s, i) => {
+    if (!s.classList.contains('book-open')) {
+      s.dataset.bookDelay = String(i * 80);
+      bookObserver.observe(s);
+    }
+  });
+}
+// Run on initial load. The body class is already set in the HTML, so
+// this fires regardless of localStorage state.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', observeBookSections);
+} else {
+  observeBookSections();
+}

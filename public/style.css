@@ -2235,3 +2235,1802 @@ footer {
   cursor: pointer;
   letter-spacing: 0.1em;
 }
+
+/* ============ OPEN-MODAL TRIGGER (below scenario picker) ============ */
+.open-modal-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  padding: 18px 0;
+}
+.open-modal-hint {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  color: var(--ink-mute);
+  letter-spacing: 0.12em;
+}
+
+/* ============ SCENARIO MODAL (holds the full deliberation shell) ============
+   The dialog itself is just a transparent positioning shell — UA styles
+   center it (margin:auto + inset:0). All size/look lives on the inner
+   sheet, which is user-resizable via CSS resize:both. */
+.scenario-modal {
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+}
+.scenario-modal::backdrop {
+  background: rgba(26, 22, 18, 0.5);
+  backdrop-filter: blur(4px);
+}
+.scenario-modal[open] {
+  animation: scenarioModalIn 0.22s ease-out;
+}
+@keyframes scenarioModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* The close button is OUTSIDE .scenario-modal-inner so it stays put when
+   the inner scrolls. Positioned absolutely against the dialog. */
+.scenario-modal-close-form {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  margin: 0;
+  z-index: 10;
+}
+.scenario-modal-close {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: rgba(244, 236, 220, 0.85);
+  font-size: 22px;
+  line-height: 1;
+  color: var(--ink-mute);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(26, 22, 18, 0.15);
+}
+.scenario-modal-close:hover {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 3px 12px rgba(26, 22, 18, 0.22);
+}
+
+.scenario-modal-inner {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--paper-edge);
+  border-radius: 4px;
+  padding: 32px 34px 26px;
+  box-shadow: 0 28px 70px rgba(26, 22, 18, 0.36);
+  font-family: 'Noto Serif SC', serif;
+
+  /* Initial size — centered by parent dialog. */
+  width: min(900px, calc(100vw - 32px));
+  height: min(85vh, 880px);
+
+  /* Resize bounds. */
+  min-width: 320px;
+  min-height: 380px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+
+  resize: both;
+  overflow: auto;
+}
+
+/* Single-column inside the modal — the original 2-col grid is too
+   cramped at this width. */
+.scenario-modal-inner .interface-shell {
+  display: block;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  background: transparent;
+}
+/* Tighten the heavy 38px padding of .scenario-input when inside the
+   modal — the modal supplies its own outer chrome. */
+.scenario-modal-inner .scenario-input {
+  padding: 24px 26px 22px;
+  margin-bottom: 24px;
+}
+/* Shrink the 笺 decoration so it doesn't fight the close button. */
+.scenario-modal-inner .scenario-input::before {
+  font-size: 20px;
+  top: 12px;
+  right: 14px;
+}
+/* The deliberation-header has chips on both sides; keep them off the
+   close button. */
+.scenario-modal-inner .deliberation-header {
+  padding-right: 56px;
+}
+/* The textarea takes too much vertical space for an in-modal layout
+   where the four stages live below. Cap its initial height. */
+.scenario-modal-inner textarea.scenario-textarea {
+  min-height: 120px;
+  max-height: 240px;
+}
+
+@media (max-width: 600px) {
+  .scenario-modal-inner {
+    padding: 24px 18px 20px;
+    width: calc(100vw - 16px);
+    height: calc(100vh - 16px);
+    /* Resize handle isn't useful on touch — disable to free a corner. */
+    resize: none;
+  }
+  .scenario-modal-inner .scenario-input {
+    padding: 20px 18px 18px;
+  }
+}
+
+/* ============ PILLAR (button reset) ============
+   .pillar became a <button> so each card is keyboard-focusable and
+   announces itself as actionable. Strip UA button chrome so it
+   still reads as a card. */
+button.pillar {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+}
+button.pillar:focus-visible {
+  outline: 2px solid var(--vermillion);
+  outline-offset: -2px;
+}
+.pillar-expand {
+  display: block;
+  margin-top: 14px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--ink-mute);
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+.pillar:hover .pillar-expand,
+.pillar:focus-visible .pillar-expand {
+  opacity: 1;
+  transform: translateY(0);
+  color: var(--vermillion);
+}
+
+/* ============ PILLAR MODAL (四阶释义) ============ */
+.pillar-modal {
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+}
+.pillar-modal::backdrop {
+  background: rgba(26, 22, 18, 0.5);
+  backdrop-filter: blur(4px);
+}
+.pillar-modal[open] {
+  animation: scenarioModalIn 0.22s ease-out;
+}
+
+.pillar-modal-inner {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--paper-edge);
+  border-radius: 4px;
+  padding: 36px 40px 32px;
+  box-shadow: 0 28px 70px rgba(26, 22, 18, 0.36);
+  font-family: 'Noto Serif SC', serif;
+  width: min(720px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+
+.pillar-modal-head {
+  border-bottom: 1px solid rgba(26, 22, 18, 0.12);
+  padding-bottom: 22px;
+  margin-bottom: 26px;
+  padding-right: 48px;
+}
+.pillar-modal-num {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  letter-spacing: 0.4em;
+  color: var(--vermillion);
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+.pillar-modal-han {
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 44px;
+  color: var(--ink);
+  line-height: 1.05;
+  margin-bottom: 14px;
+}
+.pillar-modal-saying {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 17px;
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+
+.pillar-modal-block + .pillar-modal-block {
+  margin-top: 28px;
+}
+.pillar-modal-label {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 12px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  color: var(--ink);
+  font-weight: 500;
+}
+.pillar-modal-marker {
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 20px;
+  color: var(--vermillion);
+  letter-spacing: 0;
+}
+.pillar-modal-quote {
+  margin: 0 0 8px;
+  padding: 14px 20px;
+  background: rgba(168, 38, 27, 0.04);
+  border-left: 3px solid var(--vermillion);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 15.5px;
+  line-height: 1.95;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+.pillar-modal-cite {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-mute);
+  letter-spacing: 0.12em;
+  text-align: right;
+}
+.pillar-modal-text {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: var(--ink-soft);
+  letter-spacing: 0.03em;
+}
+.pillar-modal-example-context {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--ink-mute);
+  letter-spacing: 0.04em;
+  font-style: italic;
+}
+.pillar-modal-link {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  color: var(--vermillion);
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(168, 38, 27, 0.4);
+  padding-bottom: 2px;
+  cursor: pointer;
+}
+.pillar-modal-link:hover {
+  border-bottom-style: solid;
+}
+
+@media (max-width: 600px) {
+  .pillar-modal-inner {
+    padding: 28px 22px 24px;
+    width: calc(100vw - 16px);
+  }
+  .pillar-modal-han {
+    font-size: 36px;
+  }
+}
+
+/* ============ CONCEPT SPOTLIGHT (jump-from-pillar highlight) ============ */
+.concept-card.is-spotlighted {
+  animation: conceptSpotlight 2.4s ease-out;
+}
+@keyframes conceptSpotlight {
+  0% {
+    box-shadow: 0 0 0 0 rgba(168, 38, 27, 0);
+    background: var(--paper);
+  }
+  15% {
+    box-shadow: 0 0 0 6px rgba(168, 38, 27, 0.18);
+    background: rgba(168, 38, 27, 0.06);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(168, 38, 27, 0);
+    background: var(--paper);
+  }
+}
+
+/* ================================================================
+   ============ 古籍版式 · MING-WOODBLOCK MODE =====================
+   ================================================================
+
+   Activated by body.mode-vertical (default). Inspired by Ming-period
+   woodblock prints of 《传习录》: cream paper, ink, 双边 frames,
+   鱼尾 centerfold marker, vertical-rl text, 卷 chapter markers, and
+   印章 seal accents.
+
+   Strategy:
+   - Apply writing-mode: vertical-rl to LEAF text containers only
+     (h1-h4, p, blockquote, .pillar-han, etc.). Layout containers
+     (grid/flex) stay normal so the page still scrolls top-to-bottom.
+   - Force horizontal-tb on anything interactive: buttons, inputs,
+     textarea, select, the topbar nav, and the scenarioModal inner
+     (which contains the streaming output — vertical streaming was
+     ruled out as unreadable).
+   - Section frames via pseudo-elements (no markup changes).
+   - 卷 markers replace 壹/贰/叁/肆/伍/陆/柒/捌 via content rewriting.
+   ================================================================ */
+
+/* === LEAF TEXT GOES VERTICAL === */
+body.mode-vertical .section-eyebrow,
+body.mode-vertical .section-title,
+body.mode-vertical .section-sub,
+body.mode-vertical .pillar-num,
+body.mode-vertical .pillar-han,
+body.mode-vertical .pillar-saying,
+body.mode-vertical .pillar-desc,
+body.mode-vertical .pillar-fn,
+body.mode-vertical .pillar-expand,
+body.mode-vertical .pillar-modal-num,
+body.mode-vertical .pillar-modal-han,
+body.mode-vertical .pillar-modal-saying,
+body.mode-vertical .pillar-modal-label,
+body.mode-vertical .pillar-modal-quote,
+body.mode-vertical .pillar-modal-cite,
+body.mode-vertical .pillar-modal-text,
+body.mode-vertical .pillar-modal-example-context,
+body.mode-vertical .concept-han,
+body.mode-vertical .concept-card h3,
+body.mode-vertical .concept-card p,
+body.mode-vertical .case-tile-cat,
+body.mode-vertical .case-tile h3,
+body.mode-vertical .case-tile p,
+body.mode-vertical .hero-han,
+body.mode-vertical .hero-eyebrow,
+body.mode-vertical .hero h1,
+body.mode-vertical .hero-tagline,
+body.mode-vertical .hero-tagline-classical,
+body.mode-vertical .hero-stat .num,
+body.mode-vertical .hero-stat .lbl,
+body.mode-vertical .scroll-hint {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.18em;
+  white-space: normal;
+}
+
+/* === KEEP HORIZONTAL: interactive controls + nav + streaming output === */
+body.mode-vertical button,
+body.mode-vertical input,
+body.mode-vertical textarea,
+body.mode-vertical select,
+body.mode-vertical .topbar,
+body.mode-vertical .topbar *,
+body.mode-vertical .nav-mid,
+body.mode-vertical .nav-mid *,
+body.mode-vertical .nav-right,
+body.mode-vertical .nav-right *,
+body.mode-vertical .brand,
+body.mode-vertical .brand *,
+body.mode-vertical #authBar,
+body.mode-vertical #authBar *,
+body.mode-vertical .scenario-card,
+body.mode-vertical .scenario-card *,
+body.mode-vertical .scenario-picker-head,
+body.mode-vertical .scenario-picker-head *,
+body.mode-vertical .ai-generate-btn,
+body.mode-vertical .filter-bar,
+body.mode-vertical .filter-bar *,
+body.mode-vertical .filter-chip,
+body.mode-vertical .btn-primary,
+body.mode-vertical .btn-ghost,
+body.mode-vertical .login-btn,
+body.mode-vertical .commit-btn,
+body.mode-vertical .open-modal-row,
+body.mode-vertical .open-modal-row *,
+body.mode-vertical .arrow,
+body.mode-vertical .scenario-modal-close,
+body.mode-vertical .pillar-modal-link,
+body.mode-vertical .word-count,
+body.mode-vertical .word-count *,
+body.mode-vertical .meta-row,
+body.mode-vertical .submit-row,
+body.mode-vertical .submit-row *,
+body.mode-vertical .commit-row {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed;
+}
+
+/* === PAPER LAYER ===
+   Subtle warp/woof grain to evoke woodblock paper. */
+body.mode-vertical {
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(168, 38, 27, 0.025) 0%, transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(168, 38, 27, 0.02) 0%, transparent 50%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 22px,
+      rgba(139, 105, 20, 0.025) 22px,
+      rgba(139, 105, 20, 0.025) 23px
+    );
+}
+
+/* === FIXED BOOK WIDTH ===
+   线装书 was a fixed-format object — a content column wider than ~1000px
+   feels like a billboard, not a book. Cap and center. The paper texture
+   on <body> extends full-bleed behind so the "page" sits on a desk. */
+body.mode-vertical {
+  --book-width: 960px;
+}
+
+/* === SECTION FRAMES (双边) ===
+   Outer line + inner line via outline+border. Vermillion outer hint,
+   ink inner — matches Ming woodblock 双边. */
+body.mode-vertical section,
+body.mode-vertical .hero {
+  position: relative;
+  padding: 64px 48px 72px;
+  margin: 36px auto;
+  width: calc(100% - 48px);
+  max-width: var(--book-width);
+  border: 1px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: 6px;
+  background: var(--paper);
+  box-shadow: 0 0 0 14px var(--paper), 0 0 0 15px rgba(168, 38, 27, 0.25);
+}
+@media (max-width: 800px) {
+  body.mode-vertical section,
+  body.mode-vertical .hero {
+    padding: 40px 22px 48px;
+    margin: 24px auto;
+    width: calc(100% - 20px);
+    outline-offset: 4px;
+    box-shadow: 0 0 0 8px var(--paper), 0 0 0 9px rgba(168, 38, 27, 0.25);
+  }
+}
+
+/* 鱼尾 — fish-tail centerfold marker at the head of every section.
+   Two black diamonds with a thin red bar between them, classical mark. */
+body.mode-vertical section::before,
+body.mode-vertical .hero::before {
+  content: '◆ ❘ ◆';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--paper);
+  padding: 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.6em;
+  color: var(--ink);
+  font-family: 'Noto Serif SC', serif;
+}
+body.mode-vertical section::after,
+body.mode-vertical .hero::after {
+  content: '◆ ❘ ◆';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--paper);
+  padding: 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.6em;
+  color: var(--ink);
+  font-family: 'Noto Serif SC', serif;
+}
+
+/* === 卷 markers replace 壹/贰/叁/肆/伍/陆/柒/捌 ===
+   Hide the original numeral text, render 卷一/卷二/... in its place.
+   Keyed by section class so each numeral maps to its 卷. */
+body.mode-vertical .section-eyebrow .num {
+  display: inline-block;
+  position: relative;
+}
+body.mode-vertical .section-eyebrow .num::after {
+  display: block;
+  font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+  color: var(--vermillion);
+  letter-spacing: 0.2em;
+  margin: 8px 0;
+  font-size: 1.05em;
+}
+body.mode-vertical .four-pillars .section-eyebrow .num { color: transparent; }
+body.mode-vertical .four-pillars .section-eyebrow .num::after { content: '卷一'; color: var(--vermillion); }
+body.mode-vertical .deliberation .section-eyebrow .num { color: transparent; }
+body.mode-vertical .deliberation .section-eyebrow .num::after { content: '卷二'; color: var(--vermillion); }
+body.mode-vertical .case-library .section-eyebrow .num { color: transparent; }
+body.mode-vertical .case-library .section-eyebrow .num::after { content: '卷三'; color: var(--vermillion); }
+body.mode-vertical .knowledge .section-eyebrow .num { color: transparent; }
+body.mode-vertical .knowledge .section-eyebrow .num::after { content: '卷四'; color: var(--vermillion); }
+body.mode-vertical .corpus .section-eyebrow .num { color: transparent; }
+body.mode-vertical .corpus .section-eyebrow .num::after { content: '卷五'; color: var(--vermillion); }
+body.mode-vertical .architecture .section-eyebrow .num { color: transparent; }
+body.mode-vertical .architecture .section-eyebrow .num::after { content: '卷六'; color: var(--vermillion); }
+body.mode-vertical .cultivation .section-eyebrow .num { color: transparent; }
+body.mode-vertical .cultivation .section-eyebrow .num::after { content: '卷七'; color: var(--vermillion); }
+body.mode-vertical .research .section-eyebrow .num { color: transparent; }
+body.mode-vertical .research .section-eyebrow .num::after { content: '卷八'; color: var(--vermillion); }
+
+/* === SECTION HEAD layout in vertical mode === */
+body.mode-vertical .section-head {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 36px;
+  min-height: 360px;
+  margin-bottom: 40px;
+}
+body.mode-vertical .section-eyebrow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+  letter-spacing: 0.4em;
+}
+body.mode-vertical .section-title {
+  font-size: 36px;
+  line-height: 1.35;
+  letter-spacing: 0.15em;
+}
+body.mode-vertical .section-title .han {
+  font-size: 48px;
+  margin: 0 0 12px 0;
+  display: block;
+  color: var(--vermillion);
+}
+body.mode-vertical .section-sub {
+  max-width: none;
+  font-size: 14.5px;
+  line-height: 2;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  max-height: 460px;
+}
+
+/* === FOUR PILLARS — each pillar is a 直行 (vertical column) === */
+body.mode-vertical .pillars-grid {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 0;
+  border-left: none;
+  min-height: 580px;
+}
+body.mode-vertical .pillar {
+  flex: 1;
+  border-right: 1px dashed rgba(26, 22, 18, 0.3);
+  border-top: none;
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 18px;
+  position: relative;
+}
+body.mode-vertical .pillar:first-child {
+  border-right: none;
+}
+body.mode-vertical .pillar-num {
+  font-size: 13px;
+  margin: 0;
+  letter-spacing: 0.4em;
+}
+body.mode-vertical .pillar-han {
+  font-size: 44px;
+  margin: 0;
+  line-height: 1.05;
+}
+body.mode-vertical .pillar-saying {
+  font-size: 17px;
+  margin: 0;
+  letter-spacing: 0.15em;
+  line-height: 1.6;
+  color: var(--vermillion);
+}
+body.mode-vertical .pillar-desc {
+  font-size: 14px;
+  margin: 0;
+  line-height: 2;
+  letter-spacing: 0.1em;
+  max-height: 380px;
+}
+body.mode-vertical .pillar-fn {
+  margin: auto 0 0 0;
+  padding: 16px 0 0 0;
+  border-top: none;
+  border-right: 1px dashed rgba(168, 38, 27, 0.3);
+  padding-right: 16px;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+}
+@media (max-width: 1000px) {
+  body.mode-vertical .pillars-grid {
+    flex-wrap: wrap;
+    min-height: auto;
+  }
+  body.mode-vertical .pillar {
+    flex: 0 0 calc(50% - 1px);
+    min-height: 440px;
+  }
+}
+@media (max-width: 600px) {
+  body.mode-vertical .pillar {
+    flex: 0 0 100%;
+    min-height: 380px;
+    border-right: none;
+    border-bottom: 1px dashed rgba(26, 22, 18, 0.3);
+  }
+  body.mode-vertical .pillars-grid {
+    flex-direction: column;
+  }
+}
+
+/* === CONCEPT CARDS in vertical mode === */
+body.mode-vertical .concept-grid {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+body.mode-vertical .concept-card {
+  flex: 0 0 calc(33.333% - 12px);
+  min-height: 420px;
+  padding: 32px 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 20px;
+}
+body.mode-vertical .concept-han {
+  font-size: 38px;
+  letter-spacing: 0.15em;
+}
+body.mode-vertical .concept-card h3 {
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  line-height: 1.7;
+  font-weight: 500;
+}
+body.mode-vertical .concept-card p {
+  font-size: 14px;
+  line-height: 2;
+  letter-spacing: 0.08em;
+  max-height: 320px;
+}
+@media (max-width: 900px) {
+  body.mode-vertical .concept-card {
+    flex: 0 0 calc(50% - 9px);
+  }
+}
+@media (max-width: 600px) {
+  body.mode-vertical .concept-card {
+    flex: 0 0 100%;
+    min-height: 320px;
+  }
+}
+
+/* === CASE LIBRARY tiles in vertical mode === */
+body.mode-vertical .case-grid {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+body.mode-vertical .case-tile {
+  flex: 0 0 calc(33.333% - 11px);
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+body.mode-vertical .case-tile h3 {
+  font-size: 17px;
+  letter-spacing: 0.1em;
+  line-height: 1.8;
+}
+body.mode-vertical .case-tile p {
+  font-size: 13.5px;
+  line-height: 2;
+  max-height: 240px;
+}
+@media (max-width: 900px) {
+  body.mode-vertical .case-tile { flex: 0 0 calc(50% - 8px); }
+}
+@media (max-width: 600px) {
+  body.mode-vertical .case-tile { flex: 0 0 100%; min-height: 280px; }
+}
+
+/* === HERO as 封面 (book cover) ===
+   The hero gets the strongest 古籍 treatment: a 题签-style title slip,
+   vertical 知行合一 calligraphy front and center, vermillion seal. */
+body.mode-vertical .hero {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 48px;
+  min-height: 580px;
+}
+body.mode-vertical .hero-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 22px;
+  flex: 1.4;
+}
+body.mode-vertical .hero-han {
+  font-size: 96px;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+body.mode-vertical .hero-eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.4em;
+}
+body.mode-vertical .hero-eyebrow .line {
+  display: none;
+}
+body.mode-vertical .hero h1 {
+  font-size: 28px;
+  line-height: 2;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+body.mode-vertical .hero h1 br { display: none; }
+body.mode-vertical .hero-tagline,
+body.mode-vertical .hero-tagline-classical {
+  font-size: 14.5px;
+  line-height: 2;
+  letter-spacing: 0.08em;
+  max-height: 460px;
+}
+body.mode-vertical .hero-stats {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 18px;
+}
+body.mode-vertical .hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+body.mode-vertical .hero-stat .num {
+  writing-mode: horizontal-tb !important;
+  font-size: 28px;
+}
+body.mode-vertical .hero-stat .lbl {
+  font-size: 11.5px;
+  letter-spacing: 0.25em;
+  margin-top: 6px;
+}
+body.mode-vertical .hero-actions {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+/* === 印章 SEAL STAMPS in section corners ===
+   A vermillion square stamp in the bottom-right of each section,
+   reading "阳 明 印" — a classical 闲章 (seal of leisure). */
+body.mode-vertical section > .section-head::after,
+body.mode-vertical .hero > .hero-left::after {
+  content: '阳明';
+  position: absolute;
+  bottom: 32px;
+  right: 32px;
+  width: 60px;
+  height: 60px;
+  background: var(--vermillion);
+  color: var(--paper);
+  font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+  font-size: 22px;
+  line-height: 1.2;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.1em;
+  transform: rotate(-2deg);
+  box-shadow: 0 2px 8px rgba(168, 38, 27, 0.3);
+  border: 2px solid var(--vermillion-d);
+  opacity: 0.92;
+}
+
+/* === SCENARIO MODAL as 笺 inserted in the book ===
+   Match the book chrome (双边 frame + 鱼尾 + paper grain) and lay the
+   text vertical-rl just like the rest of the 古籍. Critical exceptions:
+   <textarea>, <select>, buttons, and the row containing numeric counters
+   stay horizontal — those are interactive controls where vertical typing
+   would break IME/cursor behavior. Centered in the viewport, narrower
+   than the 960px book width so the modal reads as a 笺 (insert sheet)
+   sitting on top of the book page. */
+body.mode-vertical .scenario-modal-inner {
+  width: min(820px, calc(100vw - 32px));
+  height: min(82vh, 780px);
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  padding: 44px 48px 36px;
+  border: 1px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: 6px;
+  background: var(--paper);
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 22px,
+      rgba(139, 105, 20, 0.03) 22px,
+      rgba(139, 105, 20, 0.03) 23px
+    );
+  box-shadow:
+    0 0 0 14px var(--paper),
+    0 0 0 15px rgba(168, 38, 27, 0.25),
+    0 28px 70px rgba(26, 22, 18, 0.36);
+  resize: none;
+}
+/* 笺 watermark, top-right (start of the vertical page). */
+body.mode-vertical .scenario-modal-inner::before {
+  content: '笺';
+  position: absolute;
+  top: 18px;
+  right: 64px;
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 32px;
+  color: rgba(168, 38, 27, 0.22);
+  pointer-events: none;
+  z-index: 1;
+}
+/* 鱼尾 centerfold, top + bottom. Matches each book section. */
+body.mode-vertical .scenario-modal-inner::after {
+  content: '◆ ❘ ◆';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--paper);
+  padding: 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.6em;
+  color: var(--ink);
+  font-family: 'Noto Serif SC', serif;
+  pointer-events: none;
+}
+
+/* Inner shell: lay out input column + 4 stages right-to-left as columns. */
+body.mode-vertical .scenario-modal-inner .interface-shell {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 28px;
+  height: 100%;
+  align-items: stretch;
+  writing-mode: horizontal-tb; /* container layout is horizontal flex; */
+                               /* children declare vertical-rl for text */
+}
+
+body.mode-vertical .scenario-modal-inner .scenario-input {
+  flex: 0 0 260px;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: transparent;
+  border-right: 1px dashed rgba(26, 22, 18, 0.18);
+  padding-right: 22px;
+}
+body.mode-vertical .scenario-modal-inner .scenario-input::before {
+  display: none; /* drop the 笺 corner decoration — modal has one already */
+}
+body.mode-vertical .scenario-modal-inner .scenario-label,
+body.mode-vertical .scenario-modal-inner .scenario-label-sub {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.15em;
+  max-height: 200px;
+}
+/* Textarea: forced horizontal earlier; size it to fit the input column. */
+body.mode-vertical .scenario-modal-inner textarea.scenario-textarea {
+  min-height: 200px;
+  max-height: 320px;
+  width: 100%;
+  resize: vertical;
+}
+body.mode-vertical .scenario-modal-inner .privacy-pledge {
+  writing-mode: horizontal-tb;
+  font-size: 10.5px;
+}
+
+/* Deliberation output: 4 stages as right-to-left columns. */
+body.mode-vertical .scenario-modal-inner .deliberation-output {
+  flex: 1;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 18px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+body.mode-vertical .scenario-modal-inner .deliberation-header {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 0 12px 0 0;
+  border-right: 1px dashed rgba(168, 38, 27, 0.25);
+}
+body.mode-vertical .scenario-modal-inner .deliberation-header .title,
+body.mode-vertical .scenario-modal-inner .deliberation-header .han {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.2em;
+}
+/* Hide the version label (v1.2 is Arabic — visual noise vertical). */
+body.mode-vertical .scenario-modal-inner .deliberation-header .han {
+  display: none;
+}
+body.mode-vertical .scenario-modal-inner .scenario-card-display {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.1em;
+  max-height: 100%;
+  padding: 0 14px;
+  border-right: 1px dashed rgba(26, 22, 18, 0.15);
+}
+body.mode-vertical .scenario-modal-inner .stage {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: stretch;
+  gap: 10px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  min-width: 180px;
+  max-width: 220px;
+}
+body.mode-vertical .scenario-modal-inner .stage-marker {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+body.mode-vertical .scenario-modal-inner .stage-marker .han {
+  font-size: 22px;
+  letter-spacing: 0.1em;
+  color: var(--vermillion);
+  font-family: 'Ma Shan Zheng', serif;
+}
+body.mode-vertical .scenario-modal-inner .stage-marker .num {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--ink-mute);
+}
+body.mode-vertical .scenario-modal-inner .stage-content {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.1em;
+  line-height: 2;
+  font-size: 14px;
+  border-right: 1px dashed rgba(26, 22, 18, 0.12);
+  padding-right: 10px;
+  max-height: 600px;
+}
+body.mode-vertical .scenario-modal-inner .stage-content h4 {
+  font-size: 15px;
+  letter-spacing: 0.15em;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+}
+body.mode-vertical .scenario-modal-inner .stage-saying {
+  font-size: 12.5px;
+  color: var(--vermillion);
+  letter-spacing: 0.1em;
+  margin-top: 8px;
+}
+
+/* Action card (第四阶, 立志 button row) — its own vertical block. */
+body.mode-vertical .scenario-modal-inner .action-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(168, 38, 27, 0.3);
+  border-radius: 0;
+  background: rgba(168, 38, 27, 0.04);
+  min-width: 180px;
+}
+body.mode-vertical .scenario-modal-inner .action-card .label,
+body.mode-vertical .scenario-modal-inner .action-card h3 {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.15em;
+  max-height: 360px;
+  margin: 0;
+}
+body.mode-vertical .scenario-modal-inner .action-card .han-action {
+  color: var(--vermillion);
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 28px;
+}
+body.mode-vertical .scenario-modal-inner .commit-row {
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+body.mode-vertical .scenario-modal-inner .commit-row .commit-text {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  max-height: 280px;
+}
+
+@media (max-width: 800px) {
+  body.mode-vertical .scenario-modal-inner {
+    width: calc(100vw - 16px);
+    height: calc(100vh - 16px);
+    padding: 28px 20px 24px;
+  }
+  body.mode-vertical .scenario-modal-inner .interface-shell {
+    flex-direction: column-reverse;
+    overflow: auto;
+  }
+  body.mode-vertical .scenario-modal-inner .scenario-input {
+    flex: 0 0 auto;
+    border-right: none;
+    border-bottom: 1px dashed rgba(26, 22, 18, 0.18);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+}
+
+/* === PILLAR MODAL goes vertical too (it's pure reading content) === */
+body.mode-vertical .pillar-modal-inner {
+  width: min(820px, calc(100vw - 32px));
+  height: min(80vh, 780px);
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  padding: 44px 48px 36px;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 36px;
+  overflow: auto;
+  background: var(--paper);
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 22px,
+      rgba(139, 105, 20, 0.03) 22px,
+      rgba(139, 105, 20, 0.03) 23px
+    );
+  border: 1px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: 6px;
+  box-shadow:
+    0 0 0 14px var(--paper),
+    0 0 0 15px rgba(168, 38, 27, 0.25),
+    0 28px 70px rgba(26, 22, 18, 0.36);
+}
+/* 笺 watermark on the pillar modal — start of the page (top-right). */
+body.mode-vertical .pillar-modal-inner::before {
+  content: '笺';
+  position: absolute;
+  top: 18px;
+  right: 64px;
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 32px;
+  color: rgba(168, 38, 27, 0.22);
+  pointer-events: none;
+  z-index: 1;
+}
+/* 鱼尾 centerfold at the bottom edge, matching every book section. */
+body.mode-vertical .pillar-modal-inner::after {
+  content: '◆ ❘ ◆';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--paper);
+  padding: 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.6em;
+  color: var(--ink);
+  font-family: 'Noto Serif SC', serif;
+  pointer-events: none;
+}
+body.mode-vertical .pillar-modal-head {
+  flex: 0 0 auto;
+  border-bottom: none;
+  border-left: 1px solid rgba(26, 22, 18, 0.12);
+  padding-bottom: 0;
+  padding-left: 28px;
+  margin-bottom: 0;
+  padding-right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+}
+body.mode-vertical .pillar-modal-han {
+  font-size: 52px;
+  margin: 0;
+  letter-spacing: 0.15em;
+}
+body.mode-vertical .pillar-modal-num,
+body.mode-vertical .pillar-modal-saying {
+  margin: 0;
+}
+body.mode-vertical .pillar-modal-body {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 28px;
+  flex: 1;
+}
+body.mode-vertical .pillar-modal-block {
+  flex: 0 0 auto;
+  min-width: 180px;
+}
+body.mode-vertical .pillar-modal-block + .pillar-modal-block {
+  margin-top: 0;
+}
+body.mode-vertical .pillar-modal-label {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 14px 0;
+  letter-spacing: 0.2em;
+}
+body.mode-vertical .pillar-modal-quote {
+  border-left: none;
+  border-right: 3px solid var(--vermillion);
+  padding: 16px 18px 16px 14px;
+  font-size: 15px;
+  line-height: 2.1;
+  letter-spacing: 0.1em;
+  max-height: 460px;
+}
+body.mode-vertical .pillar-modal-cite {
+  text-align: left;
+  margin-top: 8px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+}
+body.mode-vertical .pillar-modal-text {
+  font-size: 14px;
+  line-height: 2.05;
+  letter-spacing: 0.08em;
+  max-height: 460px;
+}
+body.mode-vertical .pillar-modal-example-context {
+  font-size: 12.5px;
+  max-height: 200px;
+}
+@media (max-width: 800px) {
+  body.mode-vertical .pillar-modal-inner {
+    flex-direction: column-reverse;
+    height: calc(100vh - 32px);
+    padding: 28px 22px 22px;
+  }
+  body.mode-vertical .pillar-modal-body {
+    flex-direction: column-reverse;
+  }
+  body.mode-vertical .pillar-modal-block {
+    min-width: 0;
+  }
+}
+
+/* === FOOTER also constrained to book width === */
+body.mode-vertical footer {
+  max-width: var(--book-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* === ENGLISH-HEAVY CONTENT IS HORIZONTAL-ONLY ===
+   These sections are about the implementation (React/LangChain/xAPI)
+   or the research framing (HAA, moral deliberation, Experience API).
+   In 古籍 mode they'd be visual noise — full of Latin words rotated
+   sideways. Hide entirely. They reappear in 横 mode. */
+body.mode-vertical .architecture,
+body.mode-vertical .research {
+  display: none;
+}
+body.mode-vertical .hero-stats {
+  display: none;
+}
+body.mode-vertical .en-only {
+  display: none;
+}
+
+/* === EACH SECTION IS ITS OWN BOOK ===
+   Sections are now discrete 线装书 — bound on the right (Chinese
+   convention), each with a 题签 title slip, a vermillion spine, and an
+   "opening" animation triggered by IntersectionObserver when the
+   section enters the viewport.
+
+   Per the user's instruction to reduce content: hide .section-sub
+   and other long prose. Keep title + cards only. */
+body.mode-vertical .section-sub {
+  display: none;
+}
+body.mode-vertical .open-modal-row,
+body.mode-vertical .scenario-picker > .scenario-picker-head {
+  /* Strip the call-to-action chrome that doesn't read as classical. */
+  opacity: 0.85;
+}
+
+/* === BOOK OPENING ANIMATION (3D rotateY) ===
+   Initial state: section folded toward its right binding, invisible.
+   When .book-open is added (by IntersectionObserver), it swings open.
+   Hinged on the right edge — Chinese books bind on the right and open
+   leftward. */
+body.mode-vertical section,
+body.mode-vertical .hero {
+  transform-origin: right center;
+  transform: perspective(1600px) rotateY(-78deg);
+  opacity: 0.05;
+  transition:
+    transform 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 1.1s ease-out;
+  height: 720px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  will-change: transform, opacity;
+}
+body.mode-vertical .hero {
+  /* Hero opens immediately — it's the cover of the whole collection. */
+  transform: perspective(1600px) rotateY(0);
+  opacity: 1;
+}
+body.mode-vertical section.book-open {
+  transform: perspective(1600px) rotateY(0);
+  opacity: 1;
+}
+
+/* Optional: don't open until user has had a moment of "closed book"
+   anticipation — handled in JS with a short delay. */
+body.mode-vertical section::-webkit-scrollbar,
+body.mode-vertical .hero::-webkit-scrollbar {
+  height: 6px;
+}
+body.mode-vertical section::-webkit-scrollbar-track,
+body.mode-vertical .hero::-webkit-scrollbar-track {
+  background: rgba(168, 38, 27, 0.06);
+}
+body.mode-vertical section::-webkit-scrollbar-thumb,
+body.mode-vertical .hero::-webkit-scrollbar-thumb {
+  background: rgba(168, 38, 27, 0.45);
+  border-radius: 3px;
+}
+@media (max-width: 800px) {
+  body.mode-vertical section,
+  body.mode-vertical .hero {
+    height: 560px;
+  }
+}
+
+/* Inner content gets natural width — it overflows on the page-axis,
+   which the section then scrolls. */
+body.mode-vertical section > *,
+body.mode-vertical .hero > * {
+  height: 100%;
+}
+
+/* === BOOK SPINE (右侧装订线) ===
+   A vermillion strip on the right edge of each section representing
+   the 线装 binding. Two thread-hole dots near top + bottom for the
+   classical look. */
+body.mode-vertical section,
+body.mode-vertical .hero {
+  border-right: 6px solid var(--vermillion-d);
+}
+body.mode-vertical section > .section-head + *::after,
+body.mode-vertical section > .section-head::before {
+  /* keep placeholder — these are populated by other rules */
+}
+/* Spine thread-holes — drawn as fixed-position pseudos relative to
+   each section. */
+body.mode-vertical section > .spine-marker,
+body.mode-vertical section::after {
+  /* Already used ::after for 鱼尾 — use a different decoration here */
+}
+
+/* === 题签 TITLE SLIP (above each section) ===
+   A small vermillion-edged label that names this book. Sits half-out
+   of the top edge — looks like a paper slip pasted onto the cover. */
+body.mode-vertical section .section-eyebrow {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  outline: 1px solid var(--vermillion);
+  outline-offset: 3px;
+  padding: 16px 12px;
+  margin-right: 0;
+  align-self: flex-start;
+  box-shadow: 0 2px 8px rgba(26, 22, 18, 0.08);
+}
+/* Add the small thread-knot detail on the section's spine — two dots
+   near top + bottom of the right edge. */
+body.mode-vertical section > .section-head {
+  position: relative;
+}
+body.mode-vertical section > .section-head::before {
+  content: '';
+  position: absolute;
+  top: 80px;
+  right: -18px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow:
+    0 200px 0 var(--paper),
+    0 400px 0 var(--paper);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* === BOOK SHADOW UNDERNEATH ===
+   Subtle shadow under each closed-then-opened book so it reads as a
+   physical object on a desk surface. */
+body.mode-vertical section {
+  box-shadow:
+    0 0 0 14px var(--paper),
+    0 0 0 15px rgba(168, 38, 27, 0.25),
+    0 18px 40px -10px rgba(26, 22, 18, 0.22),
+    -6px 6px 18px -8px rgba(26, 22, 18, 0.18);
+}
+
+/* === ORIENT TOGGLE button === */
+#orientToggle button {
+  font-family: 'Noto Serif SC', serif;
+}
+
+/* ================================================================
+   ============ 横式 · LIQUID GLASS PORTAL =========================
+   ================================================================
+
+   Activated when body has mode-horizontal (or no orient class). The
+   intent: modern web-portal feel, Apple Liquid Glass (iOS 26 / macOS
+   Tahoe 2025) — translucent surfaces with backdrop blur, soft edge
+   highlights, layered depth, vivid color blooms behind the glass.
+
+   Content stays classical (calligraphy, vermillion, paper) — only
+   the *chrome* modernizes. Cards become floating glass panels;
+   buttons become glass pills; the modal becomes a glass sheet.
+   ================================================================ */
+
+/* Shared glass recipe as a custom-property bundle for re-use. */
+body.mode-horizontal {
+  --glass-bg: rgba(255, 250, 240, 0.55);
+  --glass-bg-strong: rgba(255, 250, 240, 0.72);
+  --glass-blur: blur(22px) saturate(180%);
+  --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.85),
+                inset 0 -1px 0 rgba(168, 38, 27, 0.08);
+  --glass-shadow: 0 8px 32px rgba(26, 22, 18, 0.10),
+                  0 2px 6px rgba(26, 22, 18, 0.06);
+  --glass-shadow-hi: 0 16px 48px rgba(168, 38, 27, 0.14),
+                     0 4px 12px rgba(26, 22, 18, 0.08);
+  --glass-radius: 18px;
+}
+
+/* === AMBIENT COLOR BLOOMS ===
+   The glass needs vivid color to refract. Layer soft radial blooms
+   over the existing paper texture — they're what gives glass its life. */
+body.mode-horizontal {
+  position: relative;
+}
+body.mode-horizontal::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle 600px at 15% 18%, rgba(168, 38, 27, 0.16), transparent 70%),
+    radial-gradient(circle 540px at 85% 78%, rgba(184, 149, 74, 0.14), transparent 70%),
+    radial-gradient(circle 480px at 55% 50%, rgba(74, 103, 65, 0.10), transparent 70%),
+    radial-gradient(circle 420px at 8% 88%, rgba(168, 38, 27, 0.10), transparent 70%);
+  animation: glassAmbientDrift 30s ease-in-out infinite alternate;
+}
+@keyframes glassAmbientDrift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(-30px, 20px, 0) scale(1.05); }
+}
+
+/* === TOPBAR: glass header === */
+body.mode-horizontal .topbar {
+  background: rgba(244, 236, 220, 0.55);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    var(--glass-edge),
+    0 4px 24px rgba(26, 22, 18, 0.06);
+}
+
+/* === AUTH BAR: glass pill === */
+body.mode-horizontal #authBar {
+  background: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-edge), var(--glass-shadow) !important;
+}
+
+/* === HERO STATS as glass capsules === */
+body.mode-horizontal .hero-stats {
+  gap: 14px;
+}
+body.mode-horizontal .hero-stat {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--glass-radius);
+  padding: 18px 22px;
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.35s ease;
+}
+body.mode-horizontal .hero-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--glass-edge), var(--glass-shadow-hi);
+}
+
+/* === PILLAR CARDS as floating glass panels === */
+body.mode-horizontal .pillars-grid {
+  gap: 18px;
+  border-left: none;
+  padding: 0 36px;
+}
+body.mode-horizontal .pillar {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--glass-radius);
+  border-right: none;
+  border-top: none;
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.4s ease,
+              background 0.4s ease;
+  padding: 40px 32px;
+}
+body.mode-horizontal .pillar:hover {
+  transform: translateY(-6px);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--glass-edge), var(--glass-shadow-hi);
+}
+
+/* === CONCEPT CARDS === */
+body.mode-horizontal .concept-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.4s ease;
+}
+body.mode-horizontal .concept-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--glass-edge), var(--glass-shadow-hi);
+}
+body.mode-horizontal .concept-card.featured {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 38, 27, 0.12),
+    rgba(255, 250, 240, 0.55)
+  );
+}
+
+/* === CASE TILES === */
+body.mode-horizontal .case-tile {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.35s ease;
+}
+body.mode-horizontal .case-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--glass-edge), var(--glass-shadow-hi);
+}
+
+/* === SCENARIO CARDS in the picker === */
+body.mode-horizontal .scenario-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: 14px;
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  border: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              background 0.3s ease;
+}
+body.mode-horizontal .scenario-card:hover {
+  transform: translateY(-2px);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--glass-edge), var(--glass-shadow-hi);
+}
+body.mode-horizontal .scenario-card.active {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 38, 27, 0.18),
+    rgba(255, 250, 240, 0.7)
+  );
+  box-shadow:
+    var(--glass-edge),
+    0 0 0 1px rgba(168, 38, 27, 0.45),
+    var(--glass-shadow-hi);
+}
+
+/* === FILTER CHIPS === */
+body.mode-horizontal .filter-chip {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: none;
+  border-radius: 100px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7),
+              0 2px 8px rgba(26, 22, 18, 0.06);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.25s ease;
+}
+body.mode-horizontal .filter-chip:hover {
+  transform: translateY(-1px);
+  background: var(--glass-bg-strong);
+}
+body.mode-horizontal .filter-chip.active {
+  background: linear-gradient(135deg, rgba(168, 38, 27, 0.92), rgba(168, 38, 27, 0.75));
+  color: var(--paper);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3),
+              0 4px 14px rgba(168, 38, 27, 0.35);
+}
+
+/* === BUTTONS: glass pills === */
+body.mode-horizontal .btn-primary {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 38, 27, 0.96),
+    rgba(125, 24, 16, 0.92)
+  );
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: none;
+  border-radius: 100px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(168, 38, 27, 0.35),
+    0 2px 6px rgba(168, 38, 27, 0.2);
+  color: var(--paper);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease;
+}
+body.mode-horizontal .btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+    0 14px 32px rgba(168, 38, 27, 0.45),
+    0 4px 10px rgba(168, 38, 27, 0.3);
+}
+body.mode-horizontal .btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+body.mode-horizontal .btn-ghost {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: none;
+  border-radius: 100px;
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.3s ease;
+}
+body.mode-horizontal .btn-ghost:hover {
+  transform: translateY(-2px);
+  background: var(--glass-bg-strong);
+}
+body.mode-horizontal .login-btn {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-radius: 100px;
+  box-shadow: var(--glass-edge), 0 2px 8px rgba(26, 22, 18, 0.08);
+}
+body.mode-horizontal .ai-generate-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 38, 27, 0.18),
+    rgba(184, 149, 74, 0.15)
+  );
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: none;
+  border-radius: 100px;
+  box-shadow: var(--glass-edge), 0 4px 14px rgba(168, 38, 27, 0.15);
+}
+body.mode-horizontal .commit-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 38, 27, 0.96),
+    rgba(125, 24, 16, 0.92)
+  );
+  border: none;
+  border-radius: 100px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 6px 20px rgba(168, 38, 27, 0.35);
+  color: var(--paper);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+body.mode-horizontal .commit-btn:hover {
+  transform: translateY(-1px) scale(1.03);
+}
+
+/* === SCENARIO MODAL as a glass sheet === */
+body.mode-horizontal .scenario-modal::backdrop {
+  background: rgba(26, 22, 18, 0.35);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+body.mode-horizontal .scenario-modal-inner {
+  background: rgba(255, 250, 240, 0.78);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: none;
+  border-radius: 24px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 32px 80px rgba(26, 22, 18, 0.32),
+    0 4px 16px rgba(168, 38, 27, 0.12);
+}
+body.mode-horizontal .scenario-modal-close {
+  background: rgba(255, 250, 240, 0.7);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--glass-edge), 0 4px 12px rgba(26, 22, 18, 0.18);
+}
+
+/* === PILLAR MODAL as glass too === */
+body.mode-horizontal .pillar-modal::backdrop {
+  background: rgba(26, 22, 18, 0.35);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+body.mode-horizontal .pillar-modal-inner {
+  background: rgba(255, 250, 240, 0.78);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: none;
+  border-radius: 24px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 32px 80px rgba(26, 22, 18, 0.32),
+    0 4px 16px rgba(168, 38, 27, 0.12);
+}
+body.mode-horizontal .pillar-modal-quote {
+  background: rgba(168, 38, 27, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-left: 3px solid var(--vermillion);
+  border-radius: 0 12px 12px 0;
+}
+
+/* === DELIBERATION STAGES as glass cards === */
+body.mode-horizontal .stage {
+  background: rgba(255, 250, 240, 0.5);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  box-shadow: var(--glass-edge), 0 2px 8px rgba(26, 22, 18, 0.05);
+}
+body.mode-horizontal .action-card {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 38, 27, 0.16),
+    rgba(184, 149, 74, 0.10)
+  );
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 8px 24px rgba(168, 38, 27, 0.18);
+}
+
+/* === SCRIPT TOGGLE pills get glass === */
+body.mode-horizontal .script-toggle {
+  background: rgba(255, 250, 240, 0.5);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-radius: 100px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7),
+              0 2px 6px rgba(26, 22, 18, 0.05);
+}
+body.mode-horizontal .script-toggle button.active {
+  background: linear-gradient(135deg, rgba(168, 38, 27, 0.92), rgba(168, 38, 27, 0.78));
+  color: var(--paper);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3),
+              0 2px 8px rgba(168, 38, 27, 0.3);
+}
+
+/* === SEARCH / TEXTAREA gets soft glass treatment === */
+body.mode-horizontal .scenario-textarea {
+  background: rgba(255, 250, 240, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(168, 38, 27, 0.15);
+  border-radius: 14px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+body.mode-horizontal .scenario-textarea:focus {
+  outline: none;
+  border-color: rgba(168, 38, 27, 0.5);
+  box-shadow: 0 0 0 4px rgba(168, 38, 27, 0.12);
+}
+
+/* === SUBSURFACE GLOW on the vermillion seal in nav === */
+body.mode-horizontal .seal {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 4px 14px rgba(168, 38, 27, 0.35);
+}
+
+/* === HORIZONTAL MODE ESCAPE ===
+   When user picks 横, drop all the vertical chrome and let the existing
+   styles take over. (mode-horizontal is the opt-in opposite of
+   mode-vertical — no rules need it; absence of mode-vertical suffices.) */

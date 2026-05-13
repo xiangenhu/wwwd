@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="mode-vertical">
 <!-- Persistent auth bar — top-right fixed -->
 <div id="authBar" style="position:fixed;top:16px;right:20px;z-index:1000;background:rgba(244,236,220,0.92);backdrop-filter:blur(8px);padding:6px 14px;border-radius:100px;border:1px solid rgba(26,22,18,0.1);display:flex;align-items:center;gap:6px;font-family:'Noto Serif SC',serif;box-shadow:0 2px 12px rgba(26,22,18,0.06);">
   <span style="font-size:11px;color:rgba(26,22,18,0.55);letter-spacing:0.1em;">匿名问心</span>
@@ -42,6 +42,10 @@
     <div class="script-toggle" id="scriptToggle" role="group" aria-label="字体切换 · 简繁">
       <button data-script="cn" class="active" aria-pressed="true" aria-label="简体">简</button>
       <button data-script="tw" aria-pressed="false" aria-label="繁體">繁</button>
+    </div>
+    <div class="script-toggle" id="orientToggle" role="group" aria-label="版式切换 · 古今">
+      <button data-orient="vertical" class="active" aria-pressed="true" aria-label="古籍版式 · 竖排">竖</button>
+      <button data-orient="horizontal" aria-pressed="false" aria-label="今式 · 横排">横</button>
     </div>
     <a href="#" class="login-btn">入门</a>
   </div>
@@ -113,34 +117,38 @@
   </div>
 
   <div class="pillars-grid">
-    <div class="pillar reveal">
+    <button class="pillar reveal" type="button" data-pillar="1" aria-label="第一阶 · 心之体 · 启展释义">
       <div class="pillar-num">第一阶</div>
       <div class="pillar-han">心之体</div>
       <div class="pillar-saying">无善无恶心之体</div>
       <p class="pillar-desc">褪去既有之框架。在念头、立场、惧与欲之先，此境本然之相为何？所惑非问题，乃是条件。</p>
       <div class="pillar-fn">澄心 · 视镜先净</div>
-    </div>
-    <div class="pillar reveal delay-1">
+      <span class="pillar-expand" aria-hidden="true">启展 ▸</span>
+    </button>
+    <button class="pillar reveal delay-1" type="button" data-pillar="2" aria-label="第二阶 · 意之动 · 启展释义">
       <div class="pillar-num">第二阶</div>
       <div class="pillar-han">意之动</div>
       <div class="pillar-saying">有善有恶意之动</div>
       <p class="pillar-desc">如实命名心中所动之欲。自卫、怨、求认可——皆当浮显出来，不掩，亦不自责。</p>
       <div class="pillar-fn">察意 · 名其所动</div>
-    </div>
-    <div class="pillar reveal delay-2">
+      <span class="pillar-expand" aria-hidden="true">启展 ▸</span>
+    </button>
+    <button class="pillar reveal delay-2" type="button" data-pillar="3" aria-label="第三阶 · 良知 · 启展释义">
       <div class="pillar-num">第三阶</div>
       <div class="pillar-han">良知</div>
       <div class="pillar-saying">知善知恶是良知</div>
       <p class="pillar-desc">本门户不为人下判。它只是镜子——映照你良知所已知之事，使其在不被遮蔽时得以显现。</p>
       <div class="pillar-fn">致良知 · 镜，非判</div>
-    </div>
-    <div class="pillar reveal delay-3">
+      <span class="pillar-expand" aria-hidden="true">启展 ▸</span>
+    </button>
+    <button class="pillar reveal delay-3" type="button" data-pillar="4" aria-label="第四阶 · 为善去恶 · 启展释义">
       <div class="pillar-num">第四阶</div>
       <div class="pillar-han">为善去恶</div>
       <div class="pillar-saying">为善去恶是格物</div>
       <p class="pillar-desc">知而不行，未为知也。当于今日，事上磨练——一项可即行之具体之事，非笼统之意向。</p>
       <div class="pillar-fn">知行合一 · 见诸行</div>
-    </div>
+      <span class="pillar-expand" aria-hidden="true">启展 ▸</span>
+    </button>
   </div>
 </section>
 
@@ -173,87 +181,11 @@
     </div>
   </div>
 
-  <div class="interface-shell">
-    <!-- INPUT -->
-    <div class="scenario-input">
-      <div class="scenario-label">心中所困之事</div>
-      <div class="scenario-label-sub">请尽诚实之意，连同你不愿承认之感受一并书之</div>
-      <textarea
-        class="scenario-textarea"
-        id="scenarioBox"
-        placeholder="正在生成示例情境，请稍候……或自书所困之事于此。"
-      ></textarea>
-
-      <div class="meta-row">
-        <span class="word-count"><em id="wordCount">0</em> / 800 字</span>
-        <span class="privacy-pledge">默认匿名 · 端到端加密 · 永不外传</span>
-      </div>
-
-      <div class="submit-row">
-        <button class="btn-primary" id="deliberateBtn">始问心 <span class="arrow">→</span></button>
-        <select class="model-select">
-          <option>四阶之链 · 标准模式</option>
-          <option>深析模式 · 牟宗三注本</option>
-          <option>初学模式 · 白话浅释</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- OUTPUT -->
-    <div class="deliberation-output" role="region" aria-live="polite" aria-label="问心结果 · 四阶">
-      <div class="deliberation-header">
-        <div class="title"><span class="pulse-dot"></span>问心待启</div>
-        <div class="han">致良知 · v1.2</div>
-      </div>
-
-      <div class="scenario-card-display"></div>
-
-      <!-- STAGE 1 -->
-      <div class="stage">
-        <div class="stage-marker">
-          <div class="han">心之体</div>
-          <div class="num">第一阶</div>
-        </div>
-        <div class="stage-content">
-          <h4>未起分别之先 · 此境本然为何？</h4>
-          <div class="stage-saying">无善无恶心之体 · 视镜先净</div>
-        </div>
-      </div>
-
-      <!-- STAGE 2 -->
-      <div class="stage">
-        <div class="stage-marker">
-          <div class="han">意之动</div>
-          <div class="num">第二阶</div>
-        </div>
-        <div class="stage-content">
-          <h4>心中所动者，究为何意？</h4>
-          <div class="stage-saying">有善有恶意之动 · 名其所动，不掩其情</div>
-        </div>
-      </div>
-
-      <!-- STAGE 3 -->
-      <div class="stage">
-        <div class="stage-marker">
-          <div class="han">良知</div>
-          <div class="num">第三阶</div>
-        </div>
-        <div class="stage-content">
-          <h4>良知所已知者，为何？</h4>
-          <div class="stage-saying">知善知恶是良知 · 是镜，非判</div>
-        </div>
-      </div>
-
-      <!-- STAGE 4: ACTION -->
-      <div class="action-card">
-        <div class="label">第四阶 · 知行合一 · 见诸行</div>
-        <h3><span class="han-action">行</span>七日内可行之一事</h3>
-        <div class="commit-row">
-          <span class="commit-text">知而不行，未为知也。</span>
-          <button class="commit-btn">立志</button>
-        </div>
-      </div>
-    </div>
+  <div class="open-modal-row">
+    <button class="btn-primary" id="openModalBtn" type="button">
+      始问心 <span class="arrow">→</span>
+    </button>
+    <span class="open-modal-hint">点案上之卡，或径开此问心之门</span>
   </div>
 </section>
 
@@ -302,32 +234,32 @@
   </div>
 
   <div class="concept-grid">
-    <div class="concept-card featured reveal">
+    <div class="concept-card featured reveal" id="concept-zhixing">
       <span class="concept-han">知行合一</span>
       <h3>知与行，本是一事</h3>
       <p>知而不行，于阳明先生意中，未为知也。行是知之成；知而不行，仍为念虑之未实。</p>
     </div>
-    <div class="concept-card reveal delay-1">
+    <div class="concept-card reveal delay-1" id="concept-xinjili">
       <span class="concept-han">心即理</span>
       <h3>心，即天理之所在</h3>
       <p>道理（理）非外在于心、待求于书或仪。理本自心而具，所需者非外取，乃自明。</p>
     </div>
-    <div class="concept-card reveal delay-2">
+    <div class="concept-card reveal delay-2" id="concept-zhiliangzhi">
       <span class="concept-han">致良知</span>
       <h3>推扩本然之知</h3>
       <p>良知者，人人本具之道德之知。修行非求其有，乃推扩其用，使行无不察。</p>
     </div>
-    <div class="concept-card reveal delay-1">
+    <div class="concept-card reveal delay-1" id="concept-shishang">
       <span class="concept-han">事上磨练</span>
       <h3>工夫在日用之中</h3>
       <p>圣人之学非避世。其工夫正在会议之间、家常之桌、艰难之书。锻炼之炉，即此日用。</p>
     </div>
-    <div class="concept-card reveal delay-2">
+    <div class="concept-card reveal delay-2" id="concept-lizhi">
       <span class="concept-han">立志</span>
       <h3>志不立，学必散</h3>
       <p>阳明先生屡责其门人：当反复立志，使志能贯于踟躇之际。志者，学之本也。</p>
     </div>
-    <div class="concept-card reveal delay-3">
+    <div class="concept-card reveal delay-3" id="concept-xingcha">
       <span class="concept-han">省察</span>
       <h3>日日省察，温然不息</h3>
       <p>省察其心，如理灯然。日日，温然，不息——非以自责，乃以正其念虑于良知。</p>
@@ -774,6 +706,132 @@
     <span>人为本 · 机为辅 · HAA 原则</span>
   </div>
 </footer>
+
+<dialog id="scenarioModal" class="scenario-modal" aria-label="问心">
+  <form method="dialog" class="scenario-modal-close-form">
+    <button type="submit" value="cancel" class="scenario-modal-close" aria-label="关闭">×</button>
+  </form>
+  <div class="scenario-modal-inner">
+    <div class="interface-shell">
+      <!-- INPUT -->
+      <div class="scenario-input">
+        <div class="scenario-label">心中所困之事</div>
+        <div class="scenario-label-sub">请尽诚实之意，连同你不愿承认之感受一并书之</div>
+        <textarea
+          class="scenario-textarea"
+          id="scenarioBox"
+          placeholder="正在生成示例情境，请稍候……或自书所困之事于此。"
+        ></textarea>
+
+        <div class="meta-row">
+          <span class="word-count"><em id="wordCount">0</em> / 800 字</span>
+          <span class="privacy-pledge">默认匿名 · 端到端加密 · 永不外传</span>
+        </div>
+
+        <div class="submit-row">
+          <button class="btn-primary" id="deliberateBtn" type="button">始问心 <span class="arrow">→</span></button>
+          <select class="model-select" id="modeSelect" aria-label="问心模式">
+            <option value="standard">四阶之链 · 标准模式</option>
+            <option value="deep">深析模式 · 牟宗三注本</option>
+            <option value="novice">初学模式 · 白话浅释</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- OUTPUT -->
+      <div class="deliberation-output" role="region" aria-live="polite" aria-label="问心结果 · 四阶">
+        <div class="deliberation-header">
+          <div class="title"><span class="pulse-dot"></span>问心待启</div>
+          <div class="han">致良知 · v1.2</div>
+        </div>
+
+        <div class="scenario-card-display"></div>
+
+        <!-- STAGE 1 -->
+        <div class="stage">
+          <div class="stage-marker">
+            <div class="han">心之体</div>
+            <div class="num">第一阶</div>
+          </div>
+          <div class="stage-content">
+            <h4>未起分别之先 · 此境本然为何？</h4>
+            <div class="stage-saying">无善无恶心之体 · 视镜先净</div>
+          </div>
+        </div>
+
+        <!-- STAGE 2 -->
+        <div class="stage">
+          <div class="stage-marker">
+            <div class="han">意之动</div>
+            <div class="num">第二阶</div>
+          </div>
+          <div class="stage-content">
+            <h4>心中所动者，究为何意？</h4>
+            <div class="stage-saying">有善有恶意之动 · 名其所动，不掩其情</div>
+          </div>
+        </div>
+
+        <!-- STAGE 3 -->
+        <div class="stage">
+          <div class="stage-marker">
+            <div class="han">良知</div>
+            <div class="num">第三阶</div>
+          </div>
+          <div class="stage-content">
+            <h4>良知所已知者，为何？</h4>
+            <div class="stage-saying">知善知恶是良知 · 是镜，非判</div>
+          </div>
+        </div>
+
+        <!-- STAGE 4: ACTION -->
+        <div class="action-card">
+          <div class="label">第四阶 · 知行合一 · 见诸行</div>
+          <h3><span class="han-action">行</span>七日内可行之一事</h3>
+          <div class="commit-row">
+            <span class="commit-text">知而不行，未为知也。</span>
+            <button class="commit-btn" type="button">立志</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="pillarModal" class="pillar-modal" aria-label="四阶释义">
+  <form method="dialog" class="scenario-modal-close-form">
+    <button type="submit" value="cancel" class="scenario-modal-close" aria-label="关闭">×</button>
+  </form>
+  <div class="pillar-modal-inner">
+    <div class="pillar-modal-head">
+      <div class="pillar-modal-num" data-fill="num"></div>
+      <div class="pillar-modal-han" data-fill="han"></div>
+      <div class="pillar-modal-saying" data-fill="saying"></div>
+    </div>
+    <div class="pillar-modal-body">
+      <section class="pillar-modal-block">
+        <h4 class="pillar-modal-label"><span class="pillar-modal-marker">壹</span>《传习录》出处</h4>
+        <blockquote class="pillar-modal-quote" data-fill="quote"></blockquote>
+        <p class="pillar-modal-cite" data-fill="cite"></p>
+      </section>
+      <section class="pillar-modal-block">
+        <h4 class="pillar-modal-label"><span class="pillar-modal-marker">贰</span>防越界之闸</h4>
+        <p class="pillar-modal-text" data-fill="guard"></p>
+      </section>
+      <section class="pillar-modal-block">
+        <h4 class="pillar-modal-label"><span class="pillar-modal-marker">叁</span>一例 · 事上磨练</h4>
+        <p class="pillar-modal-example-context" data-fill="exampleContext"></p>
+        <p class="pillar-modal-text" data-fill="example"></p>
+      </section>
+      <section class="pillar-modal-block">
+        <h4 class="pillar-modal-label"><span class="pillar-modal-marker">肆</span>所涉心学要义</h4>
+        <a class="pillar-modal-link" data-fill="conceptLink" href="#concepts">
+          → 见〈<span data-fill="conceptName"></span>〉
+        </a>
+        <p class="pillar-modal-text" data-fill="conceptNote"></p>
+      </section>
+    </div>
+  </div>
+</dialog>
 
 <script src="app.js" defer></script>
 
