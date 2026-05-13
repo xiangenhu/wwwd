@@ -143,6 +143,54 @@ test('stage 3 with empty retrieved announces no contextual passages', () => {
   assert.ok(system[1].text.includes('语料中无契合之段'));
 });
 
+test('deep mode adds a directive 注释 instruction in the tail', () => {
+  const { system } = buildStageMessages({
+    stage: 1,
+    scenario: 'x'.repeat(40),
+    retrieved: [],
+    mode: 'deep',
+  });
+  assert.ok(system[1].text.includes('深析'));
+  assert.ok(
+    system[1].text.includes('【注释】'),
+    'deep mode must require an explicit 注释 line in the output',
+  );
+  assert.ok(system[1].text.includes('牟宗三') || system[1].text.includes('陈来'));
+});
+
+test('novice mode forces vernacular voice even when style=classical', () => {
+  const { system } = buildStageMessages({
+    stage: 1,
+    scenario: 'x'.repeat(40),
+    retrieved: [],
+    mode: 'novice',
+    style: 'classical',
+  });
+  // The novice mode block itself must be present
+  assert.ok(system[1].text.includes('初学白话'));
+  // And the appended language-style block must be vernacular, not classical
+  assert.ok(
+    system[1].text.includes('现代白话'),
+    'novice mode must override the classical style suffix',
+  );
+  assert.ok(
+    !system[1].text.includes('浅近文言'),
+    'classical style instruction must be suppressed when novice mode is active',
+  );
+});
+
+test('deep mode does not override the style suffix', () => {
+  const { system } = buildStageMessages({
+    stage: 1,
+    scenario: 'x'.repeat(40),
+    retrieved: [],
+    mode: 'deep',
+    style: 'classical',
+  });
+  // Deep mode does NOT carry an opinion on 文/白; classical voice stays.
+  assert.ok(system[1].text.includes('浅近文言'));
+});
+
 test('mode and script suffixes only attach to the tail block', () => {
   const cnStandard = buildStageMessages({
     stage: 1,

@@ -115,13 +115,18 @@ iv. [具体行动一句话] [概念标签]
 const MODE_SUFFIX = {
   standard: '',
   deep:
-    '\n\n【模式 · 深析】' +
-    '可参较牟宗三《心体与性体》、陈来《有无之境》之注释路径。' +
-    '分析略详，引文之后可点出该派注释之要旨。',
+    '\n\n【模式 · 深析 · 须遵】' +
+    '本阶主体论述之末，必另起一行以「【注释】」起首，' +
+    '简述牟宗三《心体与性体》或陈来《有无之境》对相关心学概念之一项要旨（一至二句）。' +
+    '所述须为该家实有之观点，不可虚拟；若二家于此皆无切论，可援陈淳《北溪字义》或刘宗周《人谱》代之。' +
+    '主体分析亦较常制略详——可多举一二例以印证，字数可上浮一二成。',
   novice:
-    '\n\n【模式 · 初学白话】' +
-    '文白比例偏白；古文引文之后必以白话释义；' +
-    '心学术语首次出现时以括号简注。',
+    '\n\n【模式 · 初学白话 · 须遵】' +
+    '本阶须以现代白话陈之，不用文言——此规优于其他语体偏好（含【语体】之指令）。' +
+    '心学专名（如「良知」「致良知」「心即理」「事上磨练」「知行合一」「格物」）' +
+    '于本阶首次出现时，必紧随白话括注。例：「良知（即每人本有的是非判断之心）」。' +
+    '所引《传习录》古文不变，然每引一段后，必紧随白话译义。' +
+    '语气宜亲切清通，可径用「你」「我」称谓，避用古奥之词。',
 };
 
 const SCRIPT_SUFFIX = {
@@ -170,11 +175,16 @@ export function buildStageMessages({
   // stage calls in a single deliberation (the preamble is identical;
   // only the per-stage tail varies). Providers that don't support
   // structured system content flatten this to a string.
+  //
+  // Novice mode forces vernacular voice — its 白话 directive otherwise
+  // gets overridden by the stronger 文言 style suffix when the user has
+  // left the 文/白 toggle on classical.
+  const effectiveStyle = mode === 'novice' ? 'vernacular' : style;
   const tail =
     sp +
     (MODE_SUFFIX[mode] || '') +
     (SCRIPT_SUFFIX[script] || '') +
-    (STYLE_SUFFIX[style] || STYLE_SUFFIX.classical);
+    (STYLE_SUFFIX[effectiveStyle] || STYLE_SUFFIX.classical);
   const system = [
     { type: 'text', text: HAA_PREAMBLE, cache_control: { type: 'ephemeral' } },
     { type: 'text', text: tail },
