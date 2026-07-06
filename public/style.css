@@ -2264,6 +2264,15 @@ footer {
   max-width: none;
   max-height: none;
   overflow: visible;
+  /* Hard-center via fixed positioning + translate. UA dialog margin:auto
+     centering can drift when the inner is user-resized (resize: both) or
+     when heavy outer chrome (box-shadow paper margins) tilts the visual
+     centroid. Fixed centering is unconditional. */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  transform: translate(-50%, -50%);
 }
 .scenario-modal::backdrop {
   background: rgba(26, 22, 18, 0.5);
@@ -2275,11 +2284,11 @@ footer {
 @keyframes scenarioModalIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translate(-50%, calc(-50% + 10px));
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(-50%, -50%);
   }
 }
 
@@ -2425,6 +2434,13 @@ button.pillar:focus-visible {
   max-width: none;
   max-height: none;
   overflow: visible;
+  /* Same hard-center approach as .scenario-modal — UA centering drifts
+     with heavy chrome and user-resize, so anchor to viewport center. */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  transform: translate(-50%, -50%);
 }
 .pillar-modal::backdrop {
   background: rgba(26, 22, 18, 0.5);
@@ -2626,10 +2642,38 @@ body.mode-vertical .hero-tagline,
 body.mode-vertical .hero-tagline-classical,
 body.mode-vertical .hero-stat .num,
 body.mode-vertical .hero-stat .lbl,
-body.mode-vertical .scroll-hint {
+body.mode-vertical .scroll-hint,
+body.mode-vertical .sc-cat,
+body.mode-vertical .sc-title,
+body.mode-vertical .sc-excerpt,
+body.mode-vertical .scenario-picker-title,
+body.mode-vertical .scenario-picker-title small,
+body.mode-vertical .open-modal-hint,
+body.mode-vertical .filter-label,
+body.mode-vertical .filter-meta,
+body.mode-vertical .filter-meta em,
+body.mode-vertical .case-tile-meta,
+body.mode-vertical .case-tile-tags,
+body.mode-vertical .case-tile-tags *,
+body.mode-vertical .corpus-list-head h3,
+body.mode-vertical .corpus-list-head .updated,
+body.mode-vertical .corpus-info h5,
+body.mode-vertical .corpus-info small,
+body.mode-vertical .corpus-stat,
+body.mode-vertical .corpus-icon,
+body.mode-vertical .panel-label,
+body.mode-vertical .panel-sub,
+body.mode-vertical .panel-sub *,
+body.mode-vertical .journey-head,
+body.mode-vertical .journey-step,
+body.mode-vertical .journey-day,
+body.mode-vertical .metric-label,
+body.mode-vertical .metric-val,
+body.mode-vertical .reflection-note,
+body.mode-vertical .han-prefix {
   writing-mode: vertical-rl;
   text-orientation: upright;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.04em;
   white-space: normal;
 }
 
@@ -2648,20 +2692,12 @@ body.mode-vertical .brand,
 body.mode-vertical .brand *,
 body.mode-vertical #authBar,
 body.mode-vertical #authBar *,
-body.mode-vertical .scenario-card,
-body.mode-vertical .scenario-card *,
-body.mode-vertical .scenario-picker-head,
-body.mode-vertical .scenario-picker-head *,
 body.mode-vertical .ai-generate-btn,
-body.mode-vertical .filter-bar,
-body.mode-vertical .filter-bar *,
 body.mode-vertical .filter-chip,
 body.mode-vertical .btn-primary,
 body.mode-vertical .btn-ghost,
 body.mode-vertical .login-btn,
 body.mode-vertical .commit-btn,
-body.mode-vertical .open-modal-row,
-body.mode-vertical .open-modal-row *,
 body.mode-vertical .arrow,
 body.mode-vertical .scenario-modal-close,
 body.mode-vertical .pillar-modal-link,
@@ -2976,6 +3012,107 @@ body.mode-vertical .case-tile p {
   body.mode-vertical .case-tile { flex: 0 0 100%; min-height: 280px; }
 }
 
+/* === SCENARIO PICKER CARDS in vertical mode ===
+   The 8 example cards under 「提出心中所困」 also become right-to-left
+   vertical columns. The button container itself stays horizontal-tb
+   (it's an interactive control), but its text children flow vertical-rl
+   — same pattern as the pillar cards. */
+body.mode-vertical .scenario-cards {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+body.mode-vertical .scenario-card {
+  flex: 0 0 calc(25% - 9px);
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 18px 14px;
+}
+body.mode-vertical .sc-cat {
+  font-size: 22px;
+  font-family: 'Ma Shan Zheng', serif;
+  color: var(--vermillion);
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+body.mode-vertical .sc-title {
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  line-height: 1.7;
+  font-weight: 500;
+  margin: 0;
+  max-height: 200px;
+}
+body.mode-vertical .sc-excerpt {
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  line-height: 1.9;
+  color: var(--ink-mute);
+  margin: 0;
+  max-height: 200px;
+}
+@media (max-width: 900px) {
+  body.mode-vertical .scenario-card { flex: 0 0 calc(33.333% - 8px); }
+}
+@media (max-width: 600px) {
+  body.mode-vertical .scenario-card { flex: 0 0 calc(50% - 6px); min-height: 220px; }
+}
+
+/* === SCENARIO PICKER HEAD in vertical mode === */
+body.mode-vertical .scenario-picker-head {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+body.mode-vertical .scenario-picker-title {
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  line-height: 1.8;
+  max-height: 240px;
+}
+body.mode-vertical .scenario-picker-title small {
+  font-size: 12px;
+  color: var(--ink-mute);
+  letter-spacing: 0.06em;
+}
+
+/* === FILTER BAR (case library) in vertical mode === */
+body.mode-vertical .filter-bar {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+body.mode-vertical .filter-label,
+body.mode-vertical .filter-meta {
+  font-size: 12px;
+  max-height: 160px;
+  letter-spacing: 0.15em;
+}
+
+/* === OPEN-MODAL ROW in vertical mode === */
+body.mode-vertical .open-modal-row {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+body.mode-vertical .open-modal-hint {
+  font-size: 12px;
+  color: var(--ink-mute);
+  letter-spacing: 0.1em;
+  max-height: 180px;
+}
+
 /* === HERO as 封面 (book cover) ===
    The hero gets the strongest 古籍 treatment: a 题签-style title slip,
    vertical 知行合一 calligraphy front and center, vermillion seal. */
@@ -3049,7 +3186,7 @@ body.mode-vertical .hero-actions {
 /* === 印章 SEAL STAMPS in section corners ===
    A vermillion square stamp in the bottom-right of each section,
    reading "阳 明 印" — a classical 闲章 (seal of leisure). */
-body.mode-vertical section > .section-head::after,
+body.mode-vertical section .section-head::after,
 body.mode-vertical .hero > .hero-left::after {
   content: '阳明';
   position: absolute;
@@ -3522,9 +3659,21 @@ body.mode-vertical .hero {
     transform 1.4s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 1.1s ease-out;
   height: 720px;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden; /* changed from overflow-x: auto — fit-to-scale */
+                    /* below makes scrollbars unnecessary */
   will-change: transform, opacity;
+}
+
+/* === FIT-TO-SCALE WRAPPER ===
+   Each book has a fixed 960×720 page. Content that's naturally bigger
+   gets wrapped in .book-fit and scaled down via JS to fit inside the
+   page. transform-origin: top right so the scale shrinks toward where
+   the 古籍 reader starts (top-right column). */
+body.mode-vertical .book-fit {
+  transform-origin: top right;
+  transition: transform 0.4s ease-out;
+  width: 100%;
+  height: 100%;
 }
 body.mode-vertical .hero {
   /* Hero opens immediately — it's the cover of the whole collection. */
@@ -3573,8 +3722,8 @@ body.mode-vertical section,
 body.mode-vertical .hero {
   border-right: 6px solid var(--vermillion-d);
 }
-body.mode-vertical section > .section-head + *::after,
-body.mode-vertical section > .section-head::before {
+body.mode-vertical section .section-head + *::after,
+body.mode-vertical section .section-head::before {
   /* keep placeholder — these are populated by other rules */
 }
 /* Spine thread-holes — drawn as fixed-position pseudos relative to
@@ -3600,10 +3749,10 @@ body.mode-vertical section .section-eyebrow {
 }
 /* Add the small thread-knot detail on the section's spine — two dots
    near top + bottom of the right edge. */
-body.mode-vertical section > .section-head {
+body.mode-vertical section .section-head {
   position: relative;
 }
-body.mode-vertical section > .section-head::before {
+body.mode-vertical section .section-head::before {
   content: '';
   position: absolute;
   top: 80px;
@@ -4034,3 +4183,397 @@ body.mode-horizontal .seal {
    When user picks 横, drop all the vertical chrome and let the existing
    styles take over. (mode-horizontal is the opt-in opposite of
    mode-vertical — no rules need it; absence of mode-vertical suffices.) */
+
+/* ================================================================
+   ============ 古籍 DENSITY OVERRIDE ============================
+   Real 线装书 are densely packed: tight letter-spacing, minimal
+   gutters between columns, small inner padding. The earlier vertical
+   rules used modern-generous spacing — this block compacts everything
+   to look like a real Ming woodblock page. Comes LAST in the cascade
+   so it wins same-specificity conflicts.
+   ================================================================ */
+
+/* --- Section frames: tighter outer padding, smaller outer margin --- */
+body.mode-vertical section,
+body.mode-vertical .hero {
+  padding: 32px 24px 36px;
+  margin: 18px auto;
+}
+@media (max-width: 800px) {
+  body.mode-vertical section,
+  body.mode-vertical .hero {
+    padding: 22px 14px 24px;
+    margin: 14px auto;
+  }
+}
+
+/* --- Section head: no min-height, tight gap --- */
+body.mode-vertical .section-head {
+  min-height: 0;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+body.mode-vertical .section-eyebrow {
+  padding: 10px 8px;
+  letter-spacing: 0.1em;
+  gap: 6px;
+  font-size: 12px;
+}
+body.mode-vertical .section-title {
+  font-size: 32px;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+}
+body.mode-vertical .section-title .han {
+  font-size: 40px;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.02em;
+}
+
+/* --- Pillars: tight gaps, less padding --- */
+body.mode-vertical .pillar {
+  padding: 18px 12px;
+  gap: 8px;
+}
+body.mode-vertical .pillar-num {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+body.mode-vertical .pillar-han {
+  font-size: 38px;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+body.mode-vertical .pillar-saying {
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+}
+body.mode-vertical .pillar-desc {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+  max-height: none;
+}
+body.mode-vertical .pillar-fn {
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  padding-right: 10px;
+  padding-top: 8px;
+}
+body.mode-vertical .pillar-expand {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+}
+
+/* --- Concept cards --- */
+body.mode-vertical .concept-grid {
+  gap: 6px;
+}
+body.mode-vertical .concept-card {
+  padding: 16px 12px;
+  gap: 8px;
+  min-height: 360px;
+}
+body.mode-vertical .concept-han {
+  font-size: 32px;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+body.mode-vertical .concept-card h3 {
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+}
+body.mode-vertical .concept-card p {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+  max-height: none;
+}
+
+/* --- Case tiles --- */
+body.mode-vertical .case-grid {
+  gap: 6px;
+}
+body.mode-vertical .case-tile {
+  padding: 14px 10px;
+  min-height: 300px;
+  gap: 6px;
+}
+body.mode-vertical .case-tile h3 {
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  line-height: 1.65;
+}
+body.mode-vertical .case-tile p {
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+  max-height: none;
+}
+
+/* --- Scenario picker cards --- */
+body.mode-vertical .scenario-cards {
+  gap: 6px;
+}
+body.mode-vertical .scenario-card {
+  padding: 12px 9px;
+  gap: 6px;
+  min-height: 240px;
+}
+body.mode-vertical .sc-cat {
+  font-size: 20px;
+}
+body.mode-vertical .sc-title {
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+}
+body.mode-vertical .sc-excerpt {
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  line-height: 1.7;
+}
+
+/* --- Hero --- */
+body.mode-vertical .hero {
+  gap: 22px;
+  min-height: 0;
+}
+body.mode-vertical .hero-left {
+  gap: 14px;
+}
+body.mode-vertical .hero-han {
+  font-size: 72px;
+  letter-spacing: 0.04em;
+}
+body.mode-vertical .hero h1 {
+  font-size: 22px;
+  line-height: 1.7;
+  letter-spacing: 0.04em;
+}
+body.mode-vertical .hero-tagline,
+body.mode-vertical .hero-tagline-classical {
+  font-size: 13.5px;
+  line-height: 1.75;
+  letter-spacing: 0.04em;
+  max-height: none;
+}
+body.mode-vertical .hero-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.18em;
+}
+
+/* --- Section sub (kept hidden by earlier rule, but if revealed) --- */
+body.mode-vertical .section-sub {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+  max-height: none;
+}
+
+/* === CORPUS section (was unstyled in vertical mode) === */
+body.mode-vertical .corpus-grid {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+body.mode-vertical .corpus-list,
+body.mode-vertical .corpus-coverage {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+body.mode-vertical .corpus-list-head {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 10px;
+  padding-bottom: 6px;
+  border-bottom: none;
+  border-right: 1px dashed rgba(26, 22, 18, 0.18);
+  padding-right: 10px;
+}
+body.mode-vertical .corpus-list-head h3 {
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+  margin: 0;
+}
+body.mode-vertical .corpus-list-head .updated {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+body.mode-vertical .corpus-row {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: stretch;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: none;
+  border-right: 1px dashed rgba(26, 22, 18, 0.1);
+  padding-right: 8px;
+}
+body.mode-vertical .corpus-icon {
+  writing-mode: horizontal-tb;
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 18px;
+  color: var(--vermillion);
+  flex: 0 0 auto;
+}
+body.mode-vertical .corpus-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+body.mode-vertical .corpus-info h5 {
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  margin: 0;
+}
+body.mode-vertical .corpus-info small {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+body.mode-vertical .corpus-stat {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--ink-mute);
+  align-self: center;
+}
+
+/* === CULTIVATION section (was unstyled in vertical mode) === */
+body.mode-vertical .cultivation-grid {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+body.mode-vertical .cultivation-panel {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 14px 10px;
+}
+body.mode-vertical .panel-label {
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  color: var(--vermillion);
+  margin: 0;
+}
+body.mode-vertical .panel-sub {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+  margin: 0;
+}
+body.mode-vertical .journey-head {
+  font-size: 14px;
+  letter-spacing: 0.05em;
+}
+body.mode-vertical .journey-steps {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 6px;
+}
+body.mode-vertical .journey-step {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  padding: 4px 6px;
+}
+body.mode-vertical .journey-day {
+  font-size: 11px;
+}
+body.mode-vertical .metric-row {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+body.mode-vertical .metric-label {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+body.mode-vertical .metric-val {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--vermillion);
+}
+body.mode-vertical .bar {
+  writing-mode: horizontal-tb;
+  width: 80px;
+  height: 4px;
+}
+body.mode-vertical .reflection-note {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  line-height: 1.75;
+  padding: 8px 6px;
+  max-height: none;
+}
+body.mode-vertical .han-prefix {
+  font-size: 22px;
+  font-family: 'Ma Shan Zheng', serif;
+  color: var(--vermillion);
+}
+
+/* === SCENARIO MODAL inner spacings tightened to match book density === */
+body.mode-vertical .scenario-modal-inner {
+  padding: 28px 32px 26px;
+}
+body.mode-vertical .scenario-modal-inner .interface-shell {
+  gap: 18px;
+}
+body.mode-vertical .scenario-modal-inner .scenario-input {
+  flex: 0 0 220px;
+  padding-right: 16px;
+  gap: 10px;
+}
+body.mode-vertical .scenario-modal-inner .deliberation-output {
+  gap: 12px;
+}
+body.mode-vertical .scenario-modal-inner .stage {
+  gap: 8px;
+  padding: 4px 8px;
+  min-width: 160px;
+  max-width: 200px;
+}
+body.mode-vertical .scenario-modal-inner .stage-content h4 {
+  font-size: 14px;
+  letter-spacing: 0.05em;
+}
+
+/* === PILLAR MODAL inner spacings === */
+body.mode-vertical .pillar-modal-inner {
+  padding: 32px 36px 28px;
+  gap: 22px;
+}
+body.mode-vertical .pillar-modal-body {
+  gap: 18px;
+}
+body.mode-vertical .pillar-modal-han {
+  font-size: 44px;
+  letter-spacing: 0.04em;
+}
+body.mode-vertical .pillar-modal-quote {
+  padding: 12px 14px 12px 10px;
+  font-size: 14px;
+  line-height: 1.9;
+  letter-spacing: 0.04em;
+}
+body.mode-vertical .pillar-modal-text {
+  font-size: 13px;
+  line-height: 1.85;
+  letter-spacing: 0.04em;
+}

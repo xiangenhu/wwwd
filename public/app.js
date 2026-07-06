@@ -1490,6 +1490,13 @@ if (orientToggle) {
         document.querySelectorAll('section.book-open').forEach((s) =>
           s.classList.remove('book-open'),
         );
+        // Clear any scale transform from the fit-wrapper so horizontal
+        // mode renders content at natural size.
+        document.querySelectorAll('.book-fit').forEach((w) => {
+          w.style.transform = '';
+          w.style.width = '';
+          w.style.height = '';
+        });
       }
     });
   });
@@ -1514,7 +1521,12 @@ function observeBookSections() {
           // not all at once.
           const section = entry.target;
           const delay = parseInt(section.dataset.bookDelay || '0', 10);
-          setTimeout(() => section.classList.add('book-open'), delay);
+          setTimeout(() => {
+            section.classList.add('book-open');
+            // Wait for the rotateY swing to complete, then fit content.
+            // 1.4s animation + small buffer.
+            setTimeout(() => fitBookSection(section), 1500);
+          }, delay);
           bookObserver.unobserve(section);
         }
       });
@@ -1525,9 +1537,87 @@ function observeBookSections() {
     if (!s.classList.contains('book-open')) {
       s.dataset.bookDelay = String(i * 80);
       bookObserver.observe(s);
+    } else {
+      // Section is already open (e.g. user toggled back from horizontal).
+      fitBookSection(s);
     }
   });
 }
+
+// === FIT-TO-SCALE ===
+// Wrap each section's content in a .book-fit div, measure its natural
+// size, compute the scale factor needed to fit inside the 960×720 page,
+// apply transform: scale. transform-origin: top right so the scale
+// shrinks toward where 古籍 readers start.
+function ensureBookFitWrapper(section) {
+  let wrapper = section.querySelector(':scope > .book-fit');
+  if (wrapper) return wrapper;
+  wrapper = document.createElement('div');
+  wrapper.className = 'book-fit';
+  // Move all existing children of section into the wrapper.
+  while (section.firstChild) wrapper.appendChild(section.firstChild);
+  section.appendChild(wrapper);
+  return wrapper;
+}
+function fitBookSection(section) {
+  if (!document.body.classList.contains('mode-vertical')) return;
+  const wrapper = ensureBookFitWrapper(section);
+  // Reset before measuring so prior scale doesn't bias the read.
+  wrapper.style.transform = '';
+  wrapper.style.width = '100%';
+  wrapper.style.height = '100%';
+  // Force reflow so the measurement reflects the reset state.
+  void wrapper.offsetWidth;
+
+  const sectionStyle = getComputedStyle(section);
+  const availableW =
+    section.clientWidth -
+    parseFloat(sectionStyle.paddingLeft) -
+    parseFloat(sectionStyle.paddingRight);
+  const availableH =
+    section.clientHeight -
+    parseFloat(sectionStyle.paddingTop) -
+    parseFloat(sectionStyle.paddingBottom);
+  const naturalW = wrapper.scrollWidth;
+  const naturalH = wrapper.scrollHeight;
+  if (!naturalW || !naturalH) return;
+
+  const scaleW = availableW / naturalW;
+  const scaleH = availableH / naturalH;
+  // Never upscale. Clamp to a sensible floor so text doesn't get unreadable.
+  const scale = Math.max(0.55, Math.min(scaleW, scaleH, 1));
+
+  if (scale < 0.995) {
+    wrapper.style.transform = `scale(${scale})`;
+    // Don't expand the wrapper to compensate. Leftover space on the
+    // bottom-left reads as authentic 古籍 margin where a 卷 didn't
+    // fill all its columns.
+  }
+}
+
+function fitAllBookSections() {
+  if (!document.body.classList.contains('mode-vertical')) return;
+  document.querySelectorAll('section').forEach((s) => {
+    // Only refit sections that have been opened (visible).
+    if (s.classList.contains('book-open') || s === document.querySelector('.hero')) {
+      fitBookSection(s);
+    }
+  });
+}
+
+// Re-fit on window resize (debounced).
+let _fitResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_fitResizeTimer);
+  _fitResizeTimer = setTimeout(fitAllBookSections, 150);
+});
+
+// Re-fit after fonts settle — calligraphy fonts (Ma Shan Zheng) shift
+// text metrics noticeably between fallback render and final render.
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => setTimeout(fitAllBookSections, 100));
+}
+
 // Run on initial load. The body class is already set in the HTML, so
 // this fires regardless of localStorage state.
 if (document.readyState === 'loading') {
